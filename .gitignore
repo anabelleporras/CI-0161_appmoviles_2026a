@@ -1,5 +1,7 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
+.env
+
 # dependencies
 node_modules/
 
@@ -41,3 +43,9 @@ app-example
 # generated native folders
 /ios
 /android
+.idea/CI-0161_appmoviles_2026a.iml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/workspace.xml
+.idea/workspace.xml
