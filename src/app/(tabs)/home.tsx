@@ -1,6 +1,6 @@
 import * as Location from "expo-location";
 import * as SecureStore from "expo-secure-store";
-import { ChevronRight, Leaf } from "lucide-react-native";
+import { Leaf } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -31,85 +31,6 @@ function LeafDecor({
 }) {
   return (
     <Leaf size={size} color={color} strokeWidth={1.5} style={{ opacity }} />
-  );
-}
-
-function StatPill({
-  value,
-  label,
-  theme,
-}: {
-  value: string;
-  label: string;
-  theme: Theme;
-}) {
-  return (
-    <View style={styles.statPill}>
-      <Text style={[styles.statValue, { color: theme.textInverse }]}>
-        {value}
-      </Text>
-      <Text style={[styles.statLabel, { color: theme.textInverse }]}>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-function TripCard({
-  title,
-  subtitle,
-  tag,
-  delay,
-  theme,
-}: {
-  title: string;
-  subtitle: string;
-  tag: string;
-  delay: number;
-  theme: Theme;
-}) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(18)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        delay,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        delay,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [delay, fadeAnim, slideAnim]);
-
-  return (
-    <Animated.View
-      style={[
-        styles.tripCard,
-        { backgroundColor: theme.surface, borderColor: theme.border },
-        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-      ]}
-    >
-      <View style={styles.tripCardInner}>
-        <View style={styles.tripCardLeft}>
-          <Text style={[styles.tripTag, { color: theme.text }]}>{tag}</Text>
-          <Text style={[styles.tripTitle, { color: theme.text }]}>{title}</Text>
-          <Text style={[styles.tripSubtitle, { color: theme.text }]}>
-            {subtitle}
-          </Text>
-        </View>
-
-        <View style={[styles.tripArrow, { backgroundColor: theme.background }]}>
-          <ChevronRight size={18} color={theme.icon} strokeWidth={2} />
-        </View>
-      </View>
-    </Animated.View>
   );
 }
 
@@ -224,15 +145,7 @@ const fetchFromGeoapify = async (
     `&limit=50` +
     `&apiKey=${GEOAPIFY_API_KEY}`;
 
-  console.log("[fetchFromGeoapify] Requesting:", category);
-
-  const startTime = Date.now();
-
   const res = await fetchWithTimeout(url, {}, 8000);
-
-  console.log(
-    `[fetchFromGeoapify] Response in ${Date.now() - startTime}ms — status: ${res.status}`,
-  );
 
   if (!res.ok) {
     throw new Error(`Geoapify error ${res.status}`);
@@ -640,55 +553,7 @@ export default function HomeScreen() {
               today?
             </Text>
           </View>
-
-          <View
-            style={[styles.statsRow, { backgroundColor: theme.surfaceInverse }]}
-          >
-            <StatPill value="3" label="Trips planned" theme={theme} />
-            <View
-              style={[
-                styles.statDivider,
-                { backgroundColor: theme.textInverse },
-              ]}
-            />
-            <StatPill value="12" label="Places saved" theme={theme} />
-            <View
-              style={[
-                styles.statDivider,
-                { backgroundColor: theme.textInverse },
-              ]}
-            />
-            <StatPill value="4" label="Countries" theme={theme} />
-          </View>
         </Animated.View>
-
-        {/* UPCOMING TRIPS */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Upcoming Trips
-            </Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={[styles.sectionLink, { color: theme.text }]}>
-                See all
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <TripCard
-            title="Kyoto in Autumn"
-            subtitle="Nov 12 – Nov 22 · Japan"
-            tag="IN 18 DAYS"
-            delay={100}
-            theme={theme}
-          />
-          <TripCard
-            title="Patagonia Trek"
-            subtitle="Feb 3 – Feb 17 · Argentina"
-            tag="PLANNING"
-            delay={200}
-            theme={theme}
-          />
-        </View>
 
         {/* FILTERS */}
         <ScrollView
