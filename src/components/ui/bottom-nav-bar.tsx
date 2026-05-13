@@ -1,83 +1,58 @@
 import {
-    BriefcaseBusiness,
-    Compass,
-    House,
-    Map,
-    UserRound,
+  BriefcaseBusiness,
+  Compass,
+  House,
+  Map,
+  UserRound,
+  type LucideIcon,
 } from "lucide-react-native";
 import React, { useRef } from "react";
 import {
-    Animated,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  Animated,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const iconColor = (active: boolean) => (active ? "#132017" : "#9aaa9a");
+import { Radius, Shadow, Spacing, Typography } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 
-const iconStroke = (active: boolean) => (active ? 2.7 : 2.2);
+export type TabKey = "home" | "explore" | "map" | "trips" | "profile";
 
-const HomeIcon = ({ active }: { active: boolean }) => (
-  <House size={24} color={iconColor(active)} strokeWidth={iconStroke(active)} />
-);
-
-const ExploreIcon = ({ active }: { active: boolean }) => (
-  <Compass
-    size={24}
-    color={iconColor(active)}
-    strokeWidth={iconStroke(active)}
-  />
-);
-
-const MapIcon = ({ active }: { active: boolean }) => (
-  <Map size={24} color={iconColor(active)} strokeWidth={iconStroke(active)} />
-);
-
-const TripsIcon = ({ active }: { active: boolean }) => (
-  <BriefcaseBusiness
-    size={24}
-    color={iconColor(active)}
-    strokeWidth={iconStroke(active)}
-  />
-);
-
-const ProfileIcon = ({ active }: { active: boolean }) => (
-  <UserRound
-    size={24}
-    color={iconColor(active)}
-    strokeWidth={iconStroke(active)}
-  />
-);
-
-type TabKey = "home" | "explore" | "map" | "trips" | "profile";
-
-interface Tab {
+type Tab = {
   key: TabKey;
   label: string;
-  Icon: React.FC<{ active: boolean }>;
-}
+  Icon: LucideIcon;
+};
 
 const TABS: Tab[] = [
-  { key: "home", label: "Home", Icon: HomeIcon },
-  { key: "explore", label: "Explore", Icon: ExploreIcon },
-  { key: "map", label: "Map", Icon: MapIcon },
-  { key: "trips", label: "Trips", Icon: TripsIcon },
-  { key: "profile", label: "Profile", Icon: ProfileIcon },
+  { key: "home", label: "Home", Icon: House },
+  { key: "explore", label: "Explore", Icon: Compass },
+  { key: "map", label: "Map", Icon: Map },
+  { key: "trips", label: "Trips", Icon: BriefcaseBusiness },
+  { key: "profile", label: "Profile", Icon: UserRound },
 ];
 
-interface NavItemProps {
+type NavItemProps = {
   tab: Tab;
   active: boolean;
+  activeColor: string;
+  inactiveColor: string;
   onPress: () => void;
-}
+};
 
-const NavItem: React.FC<NavItemProps> = ({ tab, active, onPress }) => {
+const NavItem: React.FC<NavItemProps> = ({
+  tab,
+  active,
+  activeColor,
+  inactiveColor,
+  onPress,
+}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-
   const { Icon } = tab;
+  const color = active ? activeColor : inactiveColor;
 
   const handlePress = () => {
     Animated.sequence([
@@ -93,7 +68,6 @@ const NavItem: React.FC<NavItemProps> = ({ tab, active, onPress }) => {
         useNativeDriver: true,
       }),
     ]).start();
-
     onPress();
   };
 
@@ -101,56 +75,47 @@ const NavItem: React.FC<NavItemProps> = ({ tab, active, onPress }) => {
     <Pressable
       style={styles.navItem}
       onPress={handlePress}
-      android_disableSound={true}
+      android_disableSound
       android_ripple={null}
       accessibilityRole="tab"
       accessibilityLabel={tab.label}
       accessibilityState={{ selected: active }}
     >
       <Animated.View
+        style={[styles.iconWrapper, { transform: [{ scale: scaleAnim }] }]}
+      >
+        <Icon size={24} color={color} strokeWidth={active ? 2.7 : 2.2} />
+      </Animated.View>
+      <Text
         style={[
-          styles.iconWrapper,
-          {
-            transform: [{ scale: scaleAnim }],
-          },
+          styles.label,
+          { color: inactiveColor },
+          active && { color: activeColor, fontWeight: "700" },
         ]}
       >
-        <Icon active={active} />
-      </Animated.View>
-
-      <Text style={[styles.label, active && styles.labelActive]}>
         {tab.label}
       </Text>
     </Pressable>
   );
 };
 
-interface BottomNavBarProps {
-  activeTab?: TabKey;
-  onTabChange?: (tab: TabKey) => void;
-}
+export type BottomNavBarProps = {
+  activeTab: TabKey;
+  onTabChange: (tab: TabKey) => void;
+};
 
-const BottomNavBar: React.FC<BottomNavBarProps> = ({
-  activeTab: controlledTab,
-  onTabChange,
-}) => {
+const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange }) => {
   const insets = useSafeAreaInsets();
-
-  const [internalTab, setInternalTab] = React.useState<TabKey>("home");
-
-  const activeTab = controlledTab ?? internalTab;
-
-  const handleTabChange = (tab: TabKey) => {
-    setInternalTab(tab);
-    onTabChange?.(tab);
-  };
+  const theme = useTheme();
 
   return (
     <View
       style={[
         styles.container,
         {
-          bottom: insets.bottom > 0 ? insets.bottom : 16,
+          bottom: insets.bottom > 0 ? insets.bottom : Spacing.lg,
+          backgroundColor: theme.tabBarBackground,
+          borderColor: theme.border,
         },
       ]}
     >
@@ -159,7 +124,9 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
           key={tab.key}
           tab={tab}
           active={activeTab === tab.key}
-          onPress={() => handleTabChange(tab.key)}
+          activeColor={theme.tabBarIconActive}
+          inactiveColor={theme.tabBarIconInactive}
+          onPress={() => onTabChange(tab.key)}
         />
       ))}
     </View>
@@ -169,78 +136,35 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-
-    left: 20,
-    right: 20,
-
+    left: Spacing.xl,
+    right: Spacing.xl,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-
-    backgroundColor: "#F5F0E8",
-
-    paddingTop: 14,
-    paddingBottom: 14,
-    paddingHorizontal: 12,
-
-    borderRadius: 28,
-
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius["2xl"],
     borderWidth: 1,
-    borderColor: "rgba(26,58,42,0.06)",
-
-    shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-
-    elevation: 10,
+    ...Shadow.navbar,
   },
-
   navItem: {
     flex: 1,
-
     alignItems: "center",
     justifyContent: "center",
-
     gap: 5,
   },
-
   iconWrapper: {
     width: 36,
     height: 36,
-
     alignItems: "center",
     justifyContent: "center",
-
-    borderRadius: 12,
+    borderRadius: Radius.md,
   },
-
   label: {
-    fontSize: 10.5,
-    fontWeight: "500",
-
-    color: "#9aaa9a",
-
+    ...Typography.body4,
     letterSpacing: 0.15,
-
-    fontFamily: Platform.select({
-      ios: "System",
-      android: "sans-serif",
-      default: "sans-serif",
-    }),
-  },
-
-  labelActive: {
-    color: "#132017",
-    fontWeight: "700",
+    fontWeight: "500",
   },
 });
 
 export default BottomNavBar;
-export type { BottomNavBarProps, TabKey };
-
