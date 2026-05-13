@@ -148,13 +148,6 @@ const calculateDistanceKm = (
   return R * c;
 };
 
-const DISCOVER_ITEMS = [
-  { place: "Lisbon", country: "Portugal", emoji: "🌊" },
-  { place: "Tbilisi", country: "Georgia", emoji: "🏔️" },
-  { place: "Oaxaca", country: "Mexico", emoji: "🌿" },
-  { place: "Chiang Mai", country: "Thailand", emoji: "🕌" },
-];
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
@@ -271,16 +264,30 @@ export default function HomeScreen() {
     radius: number = 5000,
   ) => {
     const currentRequestId = ++requestIdRef.current;
+    console.log(`[fetchNearbyPlaces] #${currentRequestId} START`, {
+      latitude,
+      longitude,
+      tagQuery,
+      radius,
+    });
+
     try {
       setLoadingPlaces(true);
+
       const query = `
-        [out:json][timeout:25];
-        (
-          node[${tagQuery}](around:${radius},${latitude},${longitude});
-          way[${tagQuery}](around:${radius},${latitude},${longitude});
-        );
-        out center 20;
-      `;
+      [out:json][timeout:10];
+      (
+        node[${tagQuery}](around:${radius},${latitude},${longitude});
+        way[${tagQuery}](around:${radius},${latitude},${longitude});
+      );
+      out center 20;
+    `;
+
+      console.log(
+        `[fetchNearbyPlaces] #${currentRequestId} Sending query to Overpass...`,
+      );
+      const startTime = Date.now();
+
       const mirror = "https://overpass.kumi.systems/api/interpreter";
       const res = await fetch(mirror, {
         method: "POST",
@@ -288,10 +295,28 @@ export default function HomeScreen() {
         body: "data=" + encodeURIComponent(query),
       });
 
+      console.log(
+        `[fetchNearbyPlaces] #${currentRequestId} Response received in ${Date.now() - startTime}ms — status: ${res.status}`,
+      );
+
       const text = await res.text();
-      if (!text.startsWith("{")) return;
+      console.log(
+        `[fetchNearbyPlaces] #${currentRequestId} Body length: ${text.length}, starts with: ${text.slice(0, 80)}`,
+      );
+
+      if (!text.startsWith("{")) {
+        console.warn(
+          `[fetchNearbyPlaces] #${currentRequestId} Non-JSON response, bailing`,
+          text.slice(0, 200),
+        );
+        return;
+      }
 
       const data = JSON.parse(text);
+      console.log(
+        `[fetchNearbyPlaces] #${currentRequestId} Parsed OK — total elements: ${data.elements?.length ?? 0}`,
+      );
+
       const formatted = data.elements
         .filter((item: any) => item.tags?.name)
         .map((item: any) => {
@@ -318,12 +343,33 @@ export default function HomeScreen() {
         })
         .slice(0, 50);
 
-      if (currentRequestId !== requestIdRef.current) return;
+      console.log(
+        `[fetchNearbyPlaces] #${currentRequestId} Formatted ${formatted.length} places`,
+      );
+
+      if (currentRequestId !== requestIdRef.current) {
+        console.log(
+          `[fetchNearbyPlaces] #${currentRequestId} Stale request, discarding (current is #${requestIdRef.current})`,
+        );
+        return;
+      }
+
       setPlaces(formatted);
-    } catch (error) {
-      console.log("fetchNearbyPlaces error:", error);
+      console.log(`[fetchNearbyPlaces] #${currentRequestId} DONE ✓`);
+    } catch (error: any) {
+      console.error(
+        `[fetchNearbyPlaces] #${currentRequestId} FAILED`,
+        error?.message,
+        error,
+      );
     } finally {
-      if (currentRequestId === requestIdRef.current) setLoadingPlaces(false);
+      if (currentRequestId === requestIdRef.current) {
+        setLoadingPlaces(false);
+      } else {
+        console.log(
+          `[fetchNearbyPlaces] #${currentRequestId} Skipping setLoadingPlaces — stale`,
+        );
+      }
     }
   };
 
@@ -367,9 +413,32 @@ export default function HomeScreen() {
             {getGreeting()}
           </Text>
 
-          <Text style={[styles.heroHeadline, { color: theme.text }]}>
-            What calls to you{"\n"}today?
-          </Text>
+          <View>
+            <Text
+              style={[
+                styles.heroHeadline,
+                {
+                  color: theme.text,
+                  marginBottom: -8,
+                  lineHeight: 52,
+                },
+              ]}
+            >
+              What calls to you
+            </Text>
+
+            <Text
+              style={[
+                styles.heroHeadline,
+                {
+                  color: theme.textAccent,
+                  lineHeight: 52,
+                },
+              ]}
+            >
+              today?
+            </Text>
+          </View>
 
           <View
             style={[styles.statsRow, { backgroundColor: theme.surfaceInverse }]}
@@ -487,7 +556,9 @@ export default function HomeScreen() {
               >
                 Discover nearby hidden gems and curated experiences around you.
               </Text>
-              <Text style={styles.featuredType}>
+              <Text
+                style={[styles.featuredType, { color: theme.tabBarIconActive }]}
+              >
                 {featuredPlace.type} · {featuredPlace.distance} km away
               </Text>
             </TouchableOpacity>
@@ -538,44 +609,6 @@ export default function HomeScreen() {
             </ScrollView>
           </View>
         )}
-
-        {/* DISCOVER (static) */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Discover
-            </Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.discoverRow}
-          >
-            {DISCOVER_ITEMS.map((item) => (
-              <TouchableOpacity
-                key={item.place}
-                style={[
-                  styles.discoverCard,
-                  { backgroundColor: theme.surfaceInverse },
-                ]}
-                activeOpacity={0.82}
-              >
-                <Text style={styles.discoverEmoji}>{item.emoji}</Text>
-                <Text
-                  style={[styles.discoverPlace, { color: theme.textInverse }]}
-                >
-                  {item.place}
-                </Text>
-                <Text
-                  style={[styles.discoverCountry, { color: theme.textInverse }]}
-                >
-                  {item.country}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
@@ -744,7 +777,6 @@ const styles = StyleSheet.create({
     marginBottom: 22,
   },
   featuredType: {
-    color: "#7DFF9B",
     fontWeight: "700",
     textTransform: "capitalize",
   },
@@ -757,7 +789,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xl,
     paddingHorizontal: 14,
   },
-  discoverEmoji: { fontSize: 28, marginBottom: Spacing.md },
   discoverPlace: {
     fontSize: 17,
     fontWeight: "700",

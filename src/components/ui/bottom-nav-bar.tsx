@@ -7,13 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import React, { useRef } from "react";
-import {
-  Animated,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Radius, Shadow, Spacing, Typography } from "@/constants/theme";
@@ -104,7 +98,10 @@ export type BottomNavBarProps = {
   onTabChange: (tab: TabKey) => void;
 };
 
-const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange }) => {
+const BottomNavBar: React.FC<BottomNavBarProps> = ({
+  activeTab,
+  onTabChange,
+}) => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
 
