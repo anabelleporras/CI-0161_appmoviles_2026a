@@ -16,6 +16,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Radius, Shadow, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
+const GEOAPIFY_API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY;
+
 type Theme = ReturnType<typeof useTheme>;
 
 function LeafDecor({
@@ -102,6 +104,7 @@ function TripCard({
             {subtitle}
           </Text>
         </View>
+
         <View style={[styles.tripArrow, { backgroundColor: theme.background }]}>
           <ChevronRight size={18} color={theme.icon} strokeWidth={2} />
         </View>
@@ -111,18 +114,38 @@ function TripCard({
 }
 
 const filters = [
-  { id: "beach", label: "Beaches", query: "natural=beach", radius: 100000 },
-  { id: "park", label: "Parks", query: "leisure=park", radius: 10000 },
-  { id: "lodging", label: "Lodges", query: "tourism=hotel", radius: 50000 },
+  {
+    id: "beach",
+    label: "Beaches",
+    geoapifyCategory: "beach",
+    query: "natural=beach",
+    radius: 100000,
+  },
+  {
+    id: "park",
+    label: "Parks",
+    geoapifyCategory: "leisure.park",
+    query: "leisure=park",
+    radius: 10000,
+  },
+  {
+    id: "lodging",
+    label: "Lodges",
+    geoapifyCategory: "accommodation",
+    query: "tourism=hotel",
+    radius: 50000,
+  },
   {
     id: "restaurant",
     label: "Food",
+    geoapifyCategory: "catering.restaurant",
     query: "amenity=restaurant",
     radius: 5000,
   },
   {
     id: "tourist_attraction",
     label: "Explore",
+    geoapifyCategory: "tourism",
     query: "tourism=attraction",
     radius: 10000,
   },
@@ -135,17 +158,216 @@ const calculateDistanceKm = (
   lon2: number,
 ) => {
   const toRad = (value: number) => (value * Math.PI) / 180;
+
   const R = 6371;
+
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
+
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
       Math.cos(toRad(lat2)) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
   return R * c;
+};
+
+const fetchWithTimeout = async (
+  url: string,
+  options: RequestInit,
+  timeout = 8000,
+) => {
+  const controller = new AbortController();
+
+  const timer = setTimeout(() => {
+    controller.abort();
+  }, timeout);
+
+  try {
+    return await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+type PlaceResult = {
+  id: string | number;
+  name: string;
+  type: string;
+  latitude: number;
+  longitude: number;
+  distance: string;
+};
+
+const fetchFromGeoapify = async (
+  latitude: number,
+  longitude: number,
+  category: string,
+  radius: number,
+): Promise<PlaceResult[]> => {
+  if (!GEOAPIFY_API_KEY) {
+    throw new Error("Missing Geoapify API key");
+  }
+
+  const url =
+    `https://api.geoapify.com/v2/places` +
+    `?categories=${category}` +
+    `&filter=circle:${longitude},${latitude},${radius}` +
+    `&bias=proximity:${longitude},${latitude}` +
+    `&limit=50` +
+    `&apiKey=${GEOAPIFY_API_KEY}`;
+
+  console.log("[fetchFromGeoapify] Requesting:", category);
+
+  const startTime = Date.now();
+
+  const res = await fetchWithTimeout(url, {}, 8000);
+
+  console.log(
+    `[fetchFromGeoapify] Response in ${Date.now() - startTime}ms — status: ${res.status}`,
+  );
+
+  if (!res.ok) {
+    throw new Error(`Geoapify error ${res.status}`);
+  }
+
+  const data = await res.json();
+
+  return (data.features ?? [])
+    .filter((f: any) => f.properties?.name)
+    .map((f: any) => {
+      const [lon, lat] = f.geometry.coordinates;
+      const props = f.properties;
+
+      return {
+        id: props.place_id ?? props.osm_id ?? Math.random(),
+        name: props.name,
+        type:
+          props.categories?.[0]?.split(".").pop() ??
+          props.datasource?.sourcename ??
+          "place",
+        latitude: lat,
+        longitude: lon,
+        distance: calculateDistanceKm(latitude, longitude, lat, lon).toFixed(1),
+      };
+    });
+};
+
+const fetchFromOverpass = async (
+  latitude: number,
+  longitude: number,
+  tagQuery: string,
+  radius: number,
+): Promise<PlaceResult[]> => {
+  const mirrors = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+  ];
+
+  const query = `
+    [out:json][timeout:25];
+    (
+      node[${tagQuery}](around:${radius},${latitude},${longitude});
+      way[${tagQuery}](around:${radius},${latitude},${longitude});
+      relation[${tagQuery}](around:${radius},${latitude},${longitude});
+    );
+    out center;
+  `;
+
+  for (const mirror of mirrors) {
+    try {
+      console.log(`[fetchFromOverpass] Trying mirror: ${mirror}`);
+
+      const startTime = Date.now();
+
+      const res = await fetchWithTimeout(
+        mirror,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: query,
+        },
+        12000,
+      );
+
+      console.log(
+        `[fetchFromOverpass] ${mirror} responded in ${
+          Date.now() - startTime
+        }ms — status ${res.status}`,
+      );
+
+      if (!res.ok) {
+        console.warn(
+          `[fetchFromOverpass] Bad status from ${mirror}: ${res.status}`,
+        );
+        continue;
+      }
+
+      const text = await res.text();
+
+      let data;
+
+      try {
+        data = JSON.parse(text.trim());
+      } catch {
+        console.warn(`[fetchFromOverpass] Failed parsing JSON from ${mirror}`);
+        continue;
+      }
+
+      const formatted = (data.elements ?? [])
+        .filter((item: any) => item.tags?.name)
+        .map((item: any) => {
+          const placeLat = item.lat ?? item.center?.lat;
+          const placeLon = item.lon ?? item.center?.lon;
+
+          return {
+            id: item.id,
+            name: item.tags.name,
+            type:
+              item.tags.tourism ||
+              item.tags.leisure ||
+              item.tags.amenity ||
+              item.tags.natural ||
+              "place",
+            latitude: placeLat,
+            longitude: placeLon,
+            distance: calculateDistanceKm(
+              latitude,
+              longitude,
+              placeLat,
+              placeLon,
+            ).toFixed(1),
+          };
+        });
+
+      const unique = formatted.filter(
+        (place: PlaceResult, index: number, self: PlaceResult[]) =>
+          index ===
+          self.findIndex(
+            (p) => p.name === place.name && p.distance === place.distance,
+          ),
+      );
+
+      console.log(`[fetchFromOverpass] Parsed ${unique.length} places`);
+
+      return unique.slice(0, 50);
+    } catch (error: any) {
+      console.warn(
+        `[fetchFromOverpass] Mirror failed: ${mirror} — ${error?.message}`,
+      );
+    }
+  }
+
+  throw new Error("All Overpass mirrors failed");
 };
 
 export default function HomeScreen() {
@@ -154,25 +376,32 @@ export default function HomeScreen() {
 
   const heroFade = useRef(new Animated.Value(0)).current;
   const heroSlide = useRef(new Animated.Value(24)).current;
+
   const requestIdRef = useRef(0);
 
   const [locationLabel, setLocationLabel] = useState("Loading...");
   const [userName, setUserName] = useState("");
+
   const [coords, setCoords] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [places, setPlaces] = useState<any[]>([]);
+
+  const [places, setPlaces] = useState<PlaceResult[]>([]);
   const [loadingPlaces, setLoadingPlaces] = useState(false);
+
   const [selectedFilter, setSelectedFilter] = useState(filters[0]);
 
   const featuredPlace = places[0];
 
   const getGreeting = () => {
     const hour = new Date().getHours();
+
     let greeting = "GOOD EVENING";
+
     if (hour >= 5 && hour < 12) greeting = "GOOD MORNING";
     else if (hour >= 12 && hour < 18) greeting = "GOOD AFTERNOON";
+
     return userName ? `${greeting}, ${userName.toUpperCase()}` : greeting;
   };
 
@@ -196,17 +425,18 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (!coords) return;
-    fetchNearbyPlaces(
-      coords.latitude,
-      coords.longitude,
-      selectedFilter.query,
-      selectedFilter.radius,
-    );
+
+    const timer = setTimeout(() => {
+      fetchNearbyPlaces(coords.latitude, coords.longitude, selectedFilter);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [coords, selectedFilter]);
 
   const loadUser = async () => {
     try {
       const storedName = await SecureStore.getItemAsync("user_name");
+
       if (storedName) {
         const firstName = storedName.split(" ")[0];
         setUserName(firstName);
@@ -219,12 +449,14 @@ export default function HomeScreen() {
   const getLocation = async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
+
       if (status !== "granted") {
         setLocationLabel("Location denied");
         return;
       }
 
       let currentLocation: Location.LocationObject | null;
+
       try {
         currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
@@ -239,16 +471,24 @@ export default function HomeScreen() {
       }
 
       const { latitude, longitude } = currentLocation.coords;
-      setCoords({ latitude, longitude });
+
+      setCoords({
+        latitude,
+        longitude,
+      });
 
       const address = await Location.reverseGeocodeAsync({
         latitude,
         longitude,
       });
+
       if (address.length > 0) {
         const place = address[0];
+
         const city = place.city || place.region || place.subregion || "Unknown";
+
         const countryCode = place.isoCountryCode || "";
+
         setLocationLabel(`${city}, ${countryCode}`);
       }
     } catch (error) {
@@ -260,115 +500,73 @@ export default function HomeScreen() {
   const fetchNearbyPlaces = async (
     latitude: number,
     longitude: number,
-    tagQuery: string,
-    radius: number = 5000,
+    filter: (typeof filters)[number],
   ) => {
     const currentRequestId = ++requestIdRef.current;
+
     console.log(`[fetchNearbyPlaces] #${currentRequestId} START`, {
       latitude,
       longitude,
-      tagQuery,
-      radius,
+      filter: filter.id,
+      radius: filter.radius,
     });
 
     try {
       setLoadingPlaces(true);
 
-      const query = `
-      [out:json][timeout:10];
-      (
-        node[${tagQuery}](around:${radius},${latitude},${longitude});
-        way[${tagQuery}](around:${radius},${latitude},${longitude});
-      );
-      out center 20;
-    `;
+      let results: PlaceResult[] = [];
 
-      console.log(
-        `[fetchNearbyPlaces] #${currentRequestId} Sending query to Overpass...`,
-      );
-      const startTime = Date.now();
-
-      const mirror = "https://overpass.kumi.systems/api/interpreter";
-      const res = await fetch(mirror, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "data=" + encodeURIComponent(query),
-      });
-
-      console.log(
-        `[fetchNearbyPlaces] #${currentRequestId} Response received in ${Date.now() - startTime}ms — status: ${res.status}`,
-      );
-
-      const text = await res.text();
-      console.log(
-        `[fetchNearbyPlaces] #${currentRequestId} Body length: ${text.length}, starts with: ${text.slice(0, 80)}`,
-      );
-
-      if (!text.startsWith("{")) {
-        console.warn(
-          `[fetchNearbyPlaces] #${currentRequestId} Non-JSON response, bailing`,
-          text.slice(0, 200),
+      try {
+        results = await fetchFromGeoapify(
+          latitude,
+          longitude,
+          filter.geoapifyCategory,
+          filter.radius,
         );
-        return;
+
+        console.log(
+          `[fetchNearbyPlaces] #${currentRequestId} Geoapify returned ${results.length} places`,
+        );
+      } catch (geoError: any) {
+        console.warn(
+          `[fetchNearbyPlaces] #${currentRequestId} Geoapify failed: ${geoError?.message}`,
+        );
+
+        results = await fetchFromOverpass(
+          latitude,
+          longitude,
+          filter.query,
+          filter.radius,
+        );
+
+        console.log(
+          `[fetchNearbyPlaces] #${currentRequestId} Overpass returned ${results.length} places`,
+        );
       }
-
-      const data = JSON.parse(text);
-      console.log(
-        `[fetchNearbyPlaces] #${currentRequestId} Parsed OK — total elements: ${data.elements?.length ?? 0}`,
-      );
-
-      const formatted = data.elements
-        .filter((item: any) => item.tags?.name)
-        .map((item: any) => {
-          const placeLat = item.lat ?? item.center?.lat;
-          const placeLon = item.lon ?? item.center?.lon;
-          const distance = calculateDistanceKm(
-            latitude,
-            longitude,
-            placeLat,
-            placeLon,
-          );
-          return {
-            id: item.id,
-            name: item.tags.name,
-            type:
-              item.tags.tourism ||
-              item.tags.leisure ||
-              item.tags.amenity ||
-              item.tags.natural,
-            latitude: placeLat,
-            longitude: placeLon,
-            distance: distance.toFixed(1),
-          };
-        })
-        .slice(0, 50);
-
-      console.log(
-        `[fetchNearbyPlaces] #${currentRequestId} Formatted ${formatted.length} places`,
-      );
 
       if (currentRequestId !== requestIdRef.current) {
         console.log(
-          `[fetchNearbyPlaces] #${currentRequestId} Stale request, discarding (current is #${requestIdRef.current})`,
+          `[fetchNearbyPlaces] #${currentRequestId} Stale request discarded`,
         );
+
         return;
       }
 
-      setPlaces(formatted);
+      setPlaces(results);
+
       console.log(`[fetchNearbyPlaces] #${currentRequestId} DONE ✓`);
     } catch (error: any) {
       console.error(
         `[fetchNearbyPlaces] #${currentRequestId} FAILED`,
         error?.message,
-        error,
       );
+
+      if (currentRequestId === requestIdRef.current) {
+        setPlaces([]);
+      }
     } finally {
       if (currentRequestId === requestIdRef.current) {
         setLoadingPlaces(false);
-      } else {
-        console.log(
-          `[fetchNearbyPlaces] #${currentRequestId} Skipping setLoadingPlaces — stale`,
-        );
       }
     }
   };
@@ -377,7 +575,10 @@ export default function HomeScreen() {
     <View
       style={[
         styles.root,
-        { backgroundColor: theme.background, paddingTop: insets.top },
+        {
+          backgroundColor: theme.background,
+          paddingTop: insets.top,
+        },
       ]}
     >
       <ScrollView
@@ -626,12 +827,14 @@ const styles = StyleSheet.create({
     paddingBottom: 36,
     overflow: "hidden",
   },
+
   leafTopRight: {
     position: "absolute",
     top: -20,
     right: -30,
     transform: [{ rotate: "30deg" }],
   },
+
   leafBottomLeft: {
     position: "absolute",
     bottom: 0,
@@ -648,6 +851,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     ...Shadow.pill,
   },
+
   locationText: {
     fontSize: 12,
     fontWeight: "600",
@@ -661,6 +865,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     fontWeight: "500",
   },
+
   heroHeadline: {
     ...Typography.title1,
     fontSize: 46,
@@ -677,8 +882,18 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: Spacing.xl,
   },
-  statPill: { flex: 1, alignItems: "center" },
-  statValue: { fontSize: 22, fontWeight: "700", letterSpacing: -0.5 },
+
+  statPill: {
+    flex: 1,
+    alignItems: "center",
+  },
+
+  statValue: {
+    fontSize: 22,
+    fontWeight: "700",
+    letterSpacing: -0.5,
+  },
+
   statLabel: {
     fontSize: 10,
     opacity: 0.55,
@@ -686,33 +901,53 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
     textAlign: "center",
   },
-  statDivider: { width: 1, height: 32, opacity: 0.15 },
 
+  statDivider: {
+    width: 1,
+    height: 32,
+    opacity: 0.15,
+  },
   section: {
     paddingHorizontal: 28,
     marginTop: Spacing.sm,
     marginBottom: Spacing.sm,
   },
+
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "baseline",
     marginBottom: 14,
   },
+
   sectionTitle: {
     ...Typography.subtitle,
     fontWeight: "700",
     letterSpacing: -0.3,
   },
-  sectionLink: { fontSize: 13, opacity: 0.45, fontWeight: "500" },
+
+  sectionLink: {
+    fontSize: 13,
+    opacity: 0.45,
+    fontWeight: "500",
+  },
 
   tripCard: {
     borderRadius: Radius.lg,
     marginBottom: 10,
     borderWidth: 1,
   },
-  tripCardInner: { flexDirection: "row", alignItems: "center", padding: 18 },
-  tripCardLeft: { flex: 1 },
+
+  tripCardInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 18,
+  },
+
+  tripCardLeft: {
+    flex: 1,
+  },
+
   tripTag: {
     fontSize: 9.5,
     letterSpacing: 1.5,
@@ -720,13 +955,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 5,
   },
+
   tripTitle: {
     fontSize: 16,
     fontWeight: "700",
     marginBottom: 3,
     letterSpacing: -0.2,
   },
-  tripSubtitle: { fontSize: 13, opacity: 0.5 },
+
+  tripSubtitle: {
+    fontSize: 13,
+    opacity: 0.5,
+  },
+
   tripArrow: {
     width: 36,
     height: 36,
@@ -740,15 +981,23 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingBottom: 12,
   },
+
   filterChip: {
     borderRadius: Radius.pill,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderWidth: 1,
   },
-  filterChipText: { fontWeight: "600", fontSize: 13 },
 
-  loadingContainer: { paddingVertical: 40, alignItems: "center" },
+  filterChipText: {
+    fontWeight: "600",
+    fontSize: 13,
+  },
+
+  loadingContainer: {
+    paddingVertical: 40,
+    alignItems: "center",
+  },
 
   featuredCard: {
     borderRadius: 30,
@@ -756,6 +1005,7 @@ const styles = StyleSheet.create({
     minHeight: 240,
     justifyContent: "flex-end",
   },
+
   featuredTag: {
     opacity: 0.7,
     fontSize: 11,
@@ -763,6 +1013,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.6,
     marginBottom: 18,
   },
+
   featuredTitle: {
     fontSize: 34,
     lineHeight: 38,
@@ -770,32 +1021,48 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     letterSpacing: -1,
   },
+
   featuredSubtitle: {
     opacity: 0.72,
     fontSize: 15,
     lineHeight: 22,
     marginBottom: 22,
   },
+
   featuredType: {
     fontWeight: "700",
     textTransform: "capitalize",
   },
-  emptyText: { opacity: 0.5 },
 
-  discoverRow: { gap: Spacing.md, paddingRight: 28 },
+  emptyText: {
+    opacity: 0.5,
+  },
+
+  discoverRow: {
+    gap: Spacing.md,
+    paddingRight: 28,
+  },
+
   discoverCard: {
     width: 120,
     borderRadius: Radius.lg,
     paddingVertical: Spacing.xl,
     paddingHorizontal: 14,
   },
+
   discoverPlace: {
     fontSize: 17,
     fontWeight: "700",
     marginBottom: 2,
     letterSpacing: -0.2,
   },
-  discoverCountry: { fontSize: 11, opacity: 0.5 },
 
-  bottomSpacer: { height: Spacing.xl },
+  discoverCountry: {
+    fontSize: 11,
+    opacity: 0.5,
+  },
+
+  bottomSpacer: {
+    height: Spacing.xl,
+  },
 });
