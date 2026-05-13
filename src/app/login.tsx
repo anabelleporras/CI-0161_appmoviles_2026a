@@ -5,7 +5,7 @@ import {
 import * as AppleAuthentication from "expo-apple-authentication";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -38,14 +38,29 @@ export default function LoginScreen() {
   async function handleGoogleLogin() {
     try {
       setLoading("google");
+
       await GoogleSignin.hasPlayServices();
+
       const userInfo = await GoogleSignin.signIn();
+
       const idToken = userInfo.data?.idToken;
-      if (!idToken) throw new Error("No ID token returned from Google");
+
+      if (!idToken) {
+        throw new Error("No ID token returned from Google");
+      }
+
+      const name = userInfo.data?.user?.name;
+
+      if (name) {
+        await SecureStore.setItemAsync("user_name", name);
+      }
+
       await sendToBackend("google", idToken);
     } catch (error: any) {
       console.error("Google login error:", error);
+
       if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
+
       if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         Alert.alert(
           "Google Play Services missing",
@@ -53,6 +68,7 @@ export default function LoginScreen() {
         );
         return;
       }
+
       Alert.alert("Login failed", "Could not complete Google sign-in.");
     } finally {
       setLoading(null);
@@ -88,7 +104,8 @@ export default function LoginScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, idToken }),
       });
-      if (!res.ok) throw new Error(`Backend responded with status ${res.status}`);
+      if (!res.ok)
+        throw new Error(`Backend responded with status ${res.status}`);
       const data = await res.json();
       await SecureStore.setItemAsync(SESSION_TOKEN_KEY, data.sessionToken);
       router.replace("/(tabs)/home");
@@ -131,7 +148,9 @@ export default function LoginScreen() {
             ) : (
               <>
                 <AppleLogo size={20} color={theme.textInverse} />
-                <Text style={[styles.buttonLabel, { color: theme.textInverse }]}>
+                <Text
+                  style={[styles.buttonLabel, { color: theme.textInverse }]}
+                >
                   Continue with Apple
                 </Text>
               </>
