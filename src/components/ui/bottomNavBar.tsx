@@ -9,20 +9,16 @@ import React, { useRef } from "react";
 import {
     Animated,
     Platform,
+    Pressable,
     StyleSheet,
     Text,
-    TouchableOpacity,
     View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 const iconColor = (active: boolean) => (active ? "#132017" : "#9aaa9a");
 
 const iconStroke = (active: boolean) => (active ? 2.7 : 2.2);
-
-// ─── Icon Components ──────────────────────────────────────────────────────────
 
 const HomeIcon = ({ active }: { active: boolean }) => (
   <House size={24} color={iconColor(active)} strokeWidth={iconStroke(active)} />
@@ -56,8 +52,6 @@ const ProfileIcon = ({ active }: { active: boolean }) => (
   />
 );
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type TabKey = "home" | "explore" | "map" | "trips" | "profile";
 
 interface Tab {
@@ -73,8 +67,6 @@ const TABS: Tab[] = [
   { key: "trips", label: "Trips", Icon: TripsIcon },
   { key: "profile", label: "Profile", Icon: ProfileIcon },
 ];
-
-// ─── NavItem ──────────────────────────────────────────────────────────────────
 
 interface NavItemProps {
   tab: Tab;
@@ -94,7 +86,6 @@ const NavItem: React.FC<NavItemProps> = ({ tab, active, onPress }) => {
         duration: 80,
         useNativeDriver: true,
       }),
-
       Animated.spring(scaleAnim, {
         toValue: 1,
         friction: 4,
@@ -107,14 +98,14 @@ const NavItem: React.FC<NavItemProps> = ({ tab, active, onPress }) => {
   };
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={styles.navItem}
       onPress={handlePress}
-      activeOpacity={0.8}
+      android_disableSound={true}
+      android_ripple={null}
       accessibilityRole="tab"
       accessibilityLabel={tab.label}
       accessibilityState={{ selected: active }}
-      touchSoundDisabled={true}
     >
       <Animated.View
         style={[
@@ -130,11 +121,9 @@ const NavItem: React.FC<NavItemProps> = ({ tab, active, onPress }) => {
       <Text style={[styles.label, active && styles.labelActive]}>
         {tab.label}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
-
-// ─── BottomNavBar ─────────────────────────────────────────────────────────────
 
 interface BottomNavBarProps {
   activeTab?: TabKey;
@@ -176,8 +165,6 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
     </View>
   );
 };
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   container: {
