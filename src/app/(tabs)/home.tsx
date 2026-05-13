@@ -18,8 +18,7 @@ import { useTheme } from "@/hooks/use-theme";
 
 const GEOAPIFY_API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY;
 
-const placesCache = useRef<Record<string, PlaceResult[]>>({});
-
+// TODO: investigate geohash-based caching for better cache hit rates and offline support
 const getCacheKey = (latitude: number, longitude: number, filterId: string) => {
   const roundedLat = latitude.toFixed(2);
   const roundedLon = longitude.toFixed(2);
@@ -327,6 +326,8 @@ export default function HomeScreen() {
   const heroSlide = useRef(new Animated.Value(24)).current;
 
   const requestIdRef = useRef(0);
+
+  const placesCache = useRef<Record<string, PlaceResult[]>>({});
 
   const [locationLabel, setLocationLabel] = useState("Loading...");
   const [userName, setUserName] = useState("");
