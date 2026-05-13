@@ -12,7 +12,10 @@
 
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.ci0161.appmoviles2026a"
+      "bundleIdentifier": "com.ci0161.appmoviles2026a",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow this app to access your location to discover nearby places and experiences."
+      }
     },
 
     "android": {
@@ -26,6 +29,8 @@
       "predictiveBackGestureEnabled": false,
 
       "package": "com.ci0161.appmoviles2026a",
+
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
 
       "intentFilters": [
         {
@@ -59,6 +64,13 @@
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
+        }
+      ],
+
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow this app to access your location to discover nearby places and experiences."
         }
       ],
 

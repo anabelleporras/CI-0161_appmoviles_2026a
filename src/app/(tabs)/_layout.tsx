@@ -1,4 +1,3 @@
-// src/app/(tabs)/_layout.tsx  ← TABS LAYOUT (inside tabs folder)
 import { Tabs } from "expo-router";
 import BottomNavBar, { TabKey } from "../../components/ui/bottomNavBar";
 

@@ -1,4 +1,3 @@
-// src/app/login.tsx  ← ROOT level (not inside tabs)
 import * as AppleAuthentication from "expo-apple-authentication";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -59,14 +58,29 @@ export default function LoginScreen() {
   async function handleGoogleLogin() {
     try {
       setLoading("google");
+
       await GoogleSignin.hasPlayServices();
+
       const userInfo = await GoogleSignin.signIn();
+
       const idToken = userInfo.data?.idToken;
-      if (!idToken) throw new Error("No ID token returned from Google");
+
+      if (!idToken) {
+        throw new Error("No ID token returned from Google");
+      }
+
+      const name = userInfo.data?.user?.name;
+
+      if (name) {
+        await SecureStore.setItemAsync("user_name", name);
+      }
+
       await sendToBackend("google", idToken);
     } catch (error: any) {
       console.error("Google login error:", error);
+
       if (error.code === statusCodes.SIGN_IN_CANCELLED) return;
+
       if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         Alert.alert(
           "Google Play Services missing",
@@ -74,6 +88,7 @@ export default function LoginScreen() {
         );
         return;
       }
+
       Alert.alert("Login failed", "Could not complete Google sign-in.");
     } finally {
       setLoading(null);
@@ -113,7 +128,7 @@ export default function LoginScreen() {
         throw new Error(`Backend responded with status ${res.status}`);
       const data = await res.json();
       await SecureStore.setItemAsync(SESSION_TOKEN_KEY, data.sessionToken);
-      router.replace("/(tabs)/home"); // 👈 go to hero page
+      router.replace("/(tabs)/home");
     } catch (error) {
       console.error("Backend error:", error);
       Alert.alert("Login failed", "Could not reach the server.");
