@@ -18,6 +18,15 @@ import { useTheme } from "@/hooks/use-theme";
 
 const GEOAPIFY_API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY;
 
+const placesCache = useRef<Record<string, PlaceResult[]>>({});
+
+const getCacheKey = (latitude: number, longitude: number, filterId: string) => {
+  const roundedLat = latitude.toFixed(2);
+  const roundedLon = longitude.toFixed(2);
+
+  return `${filterId}_${roundedLat}_${roundedLon}`;
+};
+
 type Theme = ReturnType<typeof useTheme>;
 
 function LeafDecor({
@@ -120,10 +129,19 @@ const fetchWithTimeout = async (
 
 type PlaceResult = {
   id: string | number;
+
+  placeId?: string;
+  osmId?: number;
+  osmType?: string;
+
+  provider: "geoapify" | "overpass";
+
   name: string;
   type: string;
+
   latitude: number;
   longitude: number;
+
   distance: string;
 };
 
@@ -161,13 +179,22 @@ const fetchFromGeoapify = async (
 
       return {
         id: props.place_id ?? props.osm_id ?? Math.random(),
+
+        placeId: props.place_id,
+        osmId: props.osm_id,
+        osmType: props.osm_type,
+
+        provider: "geoapify",
+
         name: props.name,
         type:
           props.categories?.[0]?.split(".").pop() ??
           props.datasource?.sourcename ??
           "place",
+
         latitude: lat,
         longitude: lon,
+
         distance: calculateDistanceKm(latitude, longitude, lat, lon).toFixed(1),
       };
     });
@@ -244,15 +271,24 @@ const fetchFromOverpass = async (
 
           return {
             id: item.id,
+
+            osmId: item.id,
+            osmType: item.type,
+
+            provider: "overpass",
+
             name: item.tags.name,
+
             type:
               item.tags.tourism ||
               item.tags.leisure ||
               item.tags.amenity ||
               item.tags.natural ||
               "place",
+
             latitude: placeLat,
             longitude: placeLon,
+
             distance: calculateDistanceKm(
               latitude,
               longitude,
@@ -415,6 +451,18 @@ export default function HomeScreen() {
     longitude: number,
     filter: (typeof filters)[number],
   ) => {
+    const cacheKey = getCacheKey(latitude, longitude, filter.id);
+
+    const cached = placesCache.current[cacheKey];
+
+    if (cached) {
+      console.log("Using cached places");
+
+      setPlaces(cached);
+      setLoadingPlaces(false);
+
+      return;
+    }
     const currentRequestId = ++requestIdRef.current;
 
     console.log(`[fetchNearbyPlaces] #${currentRequestId} START`, {
@@ -464,6 +512,8 @@ export default function HomeScreen() {
 
         return;
       }
+
+      placesCache.current[cacheKey] = results;
 
       setPlaces(results);
 
