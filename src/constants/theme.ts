@@ -1,53 +1,97 @@
 import { Platform } from "react-native";
 
 /**
- * Raw brand palette. We need to replace with the correct values
+ * Brand palette. Four families:
+ *  - forestNight    — dark green; light-theme text/cards/buttons + dark-theme background
+ *  - ceibaGreen     — bright green; dark-theme text/cards/buttons
+ *  - sandWhite      — cream; light-theme background and surfaces
+ *  - guanacasteAmber— amber; strong accents (warnings, primary CTAs)
+ *
+ * Each family exposes interaction states (normal / normalHover / darker /
+ * darkerHover). Forest and Ceiba also expose a `text` variant tuned for
+ * readability on top of its counterpart background.
  */
 export const Palette = {
-  forest: "#1A2B1E",
-  forestActive: "#132017",
-  sage400: "#9AAA9A",
-  sand: "#F7F5F0",
-  cream100: "#F5F0E8",
-  beige200: "#E8E5DE",
+  forestNight: {
+    text: "#2A4A30",
+    normal: "#1A2B1E",
+    normalHover: "#223726",
+    darker: "#111C13",
+    darkerHover: "#17261A",
+  },
+  ceibaGreen: {
+    text: "#C8EDD1",
+    normal: "#5DC27A",
+    normalHover: "#8DD9A0",
+    darker: "#3DA65C",
+    darkerHover: "#52B870",
+  },
+  sandWhite: {
+    normal: "#F7F5F0",
+    normalHover: "#EFECE6",
+    darker: "#EDE9E1",
+    darkerHover: "#E3DED6",
+  },
+  guanacasteAmber: {
+    normal: "#D47A15",
+    normalHover: "#F0B355",
+    darker: "#A85E0E",
+    darkerHover: "#C96F12",
+  },
   white: "#FFFFFF",
   black: "#000000",
 } as const;
 
 /**
- * Semantic color tokens. Always read these via `useTheme()` — never reach for
- * Palette in component code.
+ * Semantic color tokens. Always read these via `useTheme()` — never reach
+ * into Palette from component code.
  */
 export const Colors = {
   light: {
-    background: Palette.sand,
+    background: Palette.sandWhite.normal,
     surface: Palette.white,
-    surfaceMuted: Palette.cream100,
-    surfaceInverse: Palette.forest,
-    border: Palette.beige200,
-    text: Palette.forest,
-    textInverse: Palette.sand,
-    textMuted: Palette.sage400,
-    icon: Palette.forest,
-    iconMuted: Palette.sage400,
-    tabBarBackground: Palette.cream100,
-    tabBarIconActive: Palette.forestActive,
-    tabBarIconInactive: Palette.sage400,
+    surfaceMuted: Palette.sandWhite.normalHover,
+    surfacePressed: Palette.sandWhite.darker,
+    surfaceInverse: Palette.forestNight.normal,
+    surfaceInversePressed: Palette.forestNight.normalHover,
+    border: Palette.sandWhite.darker,
+    text: Palette.forestNight.text,
+    textStrong: Palette.forestNight.normal,
+    textInverse: Palette.sandWhite.normal,
+    textMuted: Palette.forestNight.text,
+    icon: Palette.forestNight.normal,
+    iconMuted: Palette.forestNight.text,
+    tabBarBackground: Palette.sandWhite.darker,
+    tabBarIconActive: Palette.forestNight.darker,
+    tabBarIconInactive: Palette.forestNight.text,
+    accent: Palette.guanacasteAmber.normal,
+    accentHover: Palette.guanacasteAmber.normalHover,
+    accentStrong: Palette.guanacasteAmber.darker,
+    accentStrongHover: Palette.guanacasteAmber.darkerHover,
+    textOnAccent: Palette.white,
   },
   dark: {
-    background: Palette.forestActive,
-    surface: Palette.forest,
-    surfaceMuted: Palette.forestActive,
-    surfaceInverse: Palette.sand,
-    border: Palette.forest,
-    text: Palette.sand,
-    textInverse: Palette.forestActive,
-    textMuted: Palette.sage400,
-    icon: Palette.sand,
-    iconMuted: Palette.sage400,
-    tabBarBackground: Palette.forest,
-    tabBarIconActive: Palette.sand,
-    tabBarIconInactive: Palette.sage400,
+    background: Palette.forestNight.normal,
+    surface: Palette.forestNight.normalHover,
+    surfaceMuted: Palette.forestNight.darker,
+    surfacePressed: Palette.forestNight.darkerHover,
+    surfaceInverse: Palette.sandWhite.normal,
+    surfaceInversePressed: Palette.sandWhite.normalHover,
+    border: Palette.forestNight.darkerHover,
+    text: Palette.ceibaGreen.text,
+    textStrong: Palette.ceibaGreen.normalHover,
+    textInverse: Palette.forestNight.normal,
+    textMuted: Palette.ceibaGreen.darker,
+    icon: Palette.ceibaGreen.text,
+    iconMuted: Palette.ceibaGreen.darker,
+    tabBarBackground: Palette.forestNight.normalHover,
+    tabBarIconActive: Palette.ceibaGreen.normal,
+    tabBarIconInactive: Palette.ceibaGreen.darker,
+    accent: Palette.guanacasteAmber.normal,
+    accentHover: Palette.guanacasteAmber.normalHover,
+    accentStrong: Palette.guanacasteAmber.darker,
+    accentStrongHover: Palette.guanacasteAmber.darkerHover,
+    textOnAccent: Palette.white,
   },
 } as const;
 
