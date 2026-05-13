@@ -1,4 +1,7 @@
-// src/app/login.tsx  ← ROOT level (not inside tabs)
+import {
+  GoogleSignin,
+  statusCodes,
+} from "@react-native-google-signin/google-signin";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
@@ -11,12 +14,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Svg, { Path } from "react-native-svg";
 
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+import { AppleLogo, GoogleLogo } from "@/components/brand-icons";
+import { Radius, Spacing, Typography } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL!;
 const GOOGLE_CLIENT_ID_WEB = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB!;
@@ -30,30 +31,8 @@ GoogleSignin.configure({
   offlineAccess: false,
 });
 
-function GoogleLogo({ size = 20 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 48 48">
-      <Path
-        fill="#EA4335"
-        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
-      />
-      <Path
-        fill="#4285F4"
-        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
-      />
-      <Path
-        fill="#FBBC05"
-        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
-      />
-      <Path
-        fill="#34A853"
-        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
-      />
-    </Svg>
-  );
-}
-
 export default function LoginScreen() {
+  const theme = useTheme();
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
 
   async function handleGoogleLogin() {
@@ -109,11 +88,10 @@ export default function LoginScreen() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ provider, idToken }),
       });
-      if (!res.ok)
-        throw new Error(`Backend responded with status ${res.status}`);
+      if (!res.ok) throw new Error(`Backend responded with status ${res.status}`);
       const data = await res.json();
       await SecureStore.setItemAsync(SESSION_TOKEN_KEY, data.sessionToken);
-      router.replace("/(tabs)/home"); // 👈 go to hero page
+      router.replace("/(tabs)/home");
     } catch (error) {
       console.error("Backend error:", error);
       Alert.alert("Login failed", "Could not reach the server.");
@@ -121,33 +99,39 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.headerBlock}>
-        <Text style={styles.welcomeLabel}>WELCOME BACK</Text>
-        <Text style={styles.headline}>Let's get you{"\n"}signed in.</Text>
+        <Text style={[styles.welcomeLabel, { color: theme.text }]}>
+          WELCOME BACK
+        </Text>
+        <Text style={[styles.headline, { color: theme.text }]}>
+          Let&apos;s get you{"\n"}signed in.
+        </Text>
       </View>
 
       <View style={styles.authBlock}>
         <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>LOG IN WITH</Text>
-          <View style={styles.dividerLine} />
+          <View style={[styles.dividerLine, { backgroundColor: theme.text }]} />
+          <Text style={[styles.dividerText, { color: theme.text }]}>
+            LOG IN WITH
+          </Text>
+          <View style={[styles.dividerLine, { backgroundColor: theme.text }]} />
         </View>
 
         {APPLE_AUTH_ENABLED && (
           <TouchableOpacity
-            style={[styles.button, styles.appleButton]}
+            style={[styles.button, { backgroundColor: theme.surfaceInverse }]}
             onPress={handleAppleLogin}
             disabled={loading !== null}
             activeOpacity={0.88}
-            touchSoundDisabled={true}
+            touchSoundDisabled
           >
             {loading === "apple" ? (
-              <ActivityIndicator color="#F7F5F0" />
+              <ActivityIndicator color={theme.textInverse} />
             ) : (
               <>
-                <Text style={styles.appleIcon}></Text>
-                <Text style={[styles.buttonLabel, styles.appleLabel]}>
+                <AppleLogo size={20} color={theme.textInverse} />
+                <Text style={[styles.buttonLabel, { color: theme.textInverse }]}>
                   Continue with Apple
                 </Text>
               </>
@@ -156,18 +140,22 @@ export default function LoginScreen() {
         )}
 
         <TouchableOpacity
-          style={[styles.button, styles.googleButton]}
+          style={[
+            styles.button,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+            styles.googleButton,
+          ]}
           onPress={handleGoogleLogin}
           disabled={loading !== null}
           activeOpacity={0.88}
-          touchSoundDisabled={true}
+          touchSoundDisabled
         >
           {loading === "google" ? (
-            <ActivityIndicator color="#1A2B1E" />
+            <ActivityIndicator color={theme.text} />
           ) : (
             <>
               <GoogleLogo size={20} />
-              <Text style={[styles.buttonLabel, styles.googleLabel]}>
+              <Text style={[styles.buttonLabel, { color: theme.text }]}>
                 Continue with Google
               </Text>
             </>
@@ -181,28 +169,31 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F5F0",
     paddingHorizontal: 28,
     paddingTop: 80,
-    paddingBottom: 48,
+    paddingBottom: Spacing["3xl"],
   },
-  headerBlock: { flex: 1, justifyContent: "flex-start", paddingTop: 32 },
+  headerBlock: {
+    flex: 1,
+    justifyContent: "flex-start",
+    paddingTop: Spacing["2xl"],
+  },
   welcomeLabel: {
+    ...Typography.footnote,
     fontSize: 11,
     letterSpacing: 2,
-    color: "#1A2B1E",
     opacity: 0.55,
     marginBottom: 14,
     fontWeight: "500",
   },
   headline: {
+    ...Typography.title1,
     fontSize: 44,
-    fontWeight: "700",
-    color: "#1A2B1E",
     lineHeight: 50,
+    fontWeight: "700",
     letterSpacing: -0.5,
   },
-  authBlock: { gap: 12 },
+  authBlock: { gap: Spacing.md },
   dividerRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -212,13 +203,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#1A2B1E",
     opacity: 0.15,
   },
   dividerText: {
     fontSize: 11,
     letterSpacing: 1.8,
-    color: "#1A2B1E",
     opacity: 0.45,
     fontWeight: "500",
   },
@@ -227,17 +216,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 56,
-    borderRadius: 100,
+    borderRadius: Radius.pill,
     gap: 10,
   },
-  buttonLabel: { fontSize: 16, fontWeight: "600", letterSpacing: 0.1 },
-  appleButton: { backgroundColor: "#1A2B1E" },
-  appleIcon: { fontSize: 20, color: "#F7F5F0", lineHeight: 24 },
-  appleLabel: { color: "#F7F5F0" },
-  googleButton: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1.5,
-    borderColor: "#E8E5DE",
+  buttonLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.1,
   },
-  googleLabel: { color: "#1A2B1E" },
+  googleButton: {
+    borderWidth: 1.5,
+  },
 });
