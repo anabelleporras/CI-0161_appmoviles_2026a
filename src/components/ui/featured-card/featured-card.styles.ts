@@ -8,6 +8,7 @@ type Theme = ReturnType<typeof useTheme>;
 export const createFeaturedCardStyles = (theme: Theme) =>
   StyleSheet.create({
     card: {
+      height: 330,
       borderRadius: Radius["2xl"],
       backgroundColor: theme.surfaceInverse,
       overflow: "hidden",
@@ -19,6 +20,7 @@ export const createFeaturedCardStyles = (theme: Theme) =>
       borderRadius: 0,
     },
     body: {
+      flex: 1,
       padding: Spacing.lg,
       gap: Spacing.sm,
     },
@@ -42,7 +44,7 @@ export const createFeaturedCardStyles = (theme: Theme) =>
     actions: {
       flexDirection: "row",
       gap: Spacing.sm,
-      marginTop: Spacing.xs,
+      marginTop: "auto",
     },
     primaryButton: {
       flex: 1,
