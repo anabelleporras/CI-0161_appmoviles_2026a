@@ -15,9 +15,6 @@ const config: ExpoConfig = {
   ios: {
     icon: "./assets/expo.icon",
     bundleIdentifier: "com.ci0161.appmoviles2026a",
-    config: {
-      googleMapsApiKey,
-    },
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         "We use your location to show nearby beaches, parks, and places.",
@@ -38,11 +35,6 @@ const config: ExpoConfig = {
       "android.permission.ACCESS_COARSE_LOCATION",
       "android.permission.ACCESS_FINE_LOCATION",
     ],
-    config: {
-      googleMaps: {
-        apiKey: googleMapsApiKey,
-      },
-    },
     intentFilters: [
       {
         action: "VIEW",
@@ -78,6 +70,13 @@ const config: ExpoConfig = {
     "expo-secure-store",
     "@react-native-google-signin/google-signin",
     "expo-web-browser",
+    [
+      "react-native-maps",
+      {
+        iosGoogleMapsApiKey: googleMapsApiKey,
+        androidGoogleMapsApiKey: googleMapsApiKey,
+      },
+    ],
   ],
 
   experiments: {
