@@ -1,6 +1,4 @@
 import {
-  BriefcaseBusiness,
-  Compass,
   House,
   Map,
   UserRound,
@@ -13,7 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Radius, Shadow, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
-export type TabKey = "home" | "explore" | "map" | "trips" | "profile";
+export type TabKey = "home" | "map" | "profile";
 
 type Tab = {
   key: TabKey;
@@ -23,9 +21,7 @@ type Tab = {
 
 const TABS: Tab[] = [
   { key: "home", label: "Home", Icon: House },
-  { key: "explore", label: "Explore", Icon: Compass },
   { key: "map", label: "Map", Icon: Map },
-  { key: "trips", label: "Trips", Icon: BriefcaseBusiness },
   { key: "profile", label: "Profile", Icon: UserRound },
 ];
 
