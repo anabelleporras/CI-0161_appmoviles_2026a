@@ -13,6 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -83,21 +84,24 @@ const FILTERS: Filter[] = [
 ];
 
 const FEATURED_TYPES = ["tourist_attraction"];
+const FEATURED_COUNT = 5;
 
-const rankFeatured = (places: GooglePlace[]): GooglePlace | undefined => {
-  const ranked = [...places].sort((a, b) => {
-    const aScore =
-      (a.rating ?? 0) * Math.log10((a.userRatingCount ?? 0) + 1);
-    const bScore =
-      (b.rating ?? 0) * Math.log10((b.userRatingCount ?? 0) + 1);
-    return bScore - aScore;
-  });
-  return ranked[0];
-};
+const rankFeatured = (places: GooglePlace[]): GooglePlace[] =>
+  [...places]
+    .sort((a, b) => {
+      const aScore =
+        (a.rating ?? 0) * Math.log10((a.userRatingCount ?? 0) + 1);
+      const bScore =
+        (b.rating ?? 0) * Math.log10((b.userRatingCount ?? 0) + 1);
+      return bScore - aScore;
+    })
+    .slice(0, FEATURED_COUNT);
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
+  const featuredCardWidth = windowWidth - Spacing.xl * 2 - Spacing["2xl"];
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -170,16 +174,6 @@ const HomeScreen = () => {
     [featuredQuery.places],
   );
 
-  const featuredDistance =
-    coords && featured?.location
-      ? distanceKm(
-          coords.latitude,
-          coords.longitude,
-          featured.location.latitude,
-          featured.location.longitude,
-        )
-      : undefined;
-
   const withDistance = (place: GooglePlace) => {
     if (!coords || !place.location) return undefined;
     return distanceKm(
@@ -206,6 +200,45 @@ const HomeScreen = () => {
         </View>
 
         <SectionHeader
+          title="Top attractions"
+          action={{ label: "See all", onPress: () => {} }}
+        />
+
+        {featuredQuery.loading && featured.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.text} />
+          </View>
+        ) : featured.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>
+              No featured attractions nearby.
+            </Text>
+          </View>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            decelerationRate="fast"
+            snapToInterval={featuredCardWidth + Spacing.md}
+            snapToAlignment="start"
+            contentContainerStyle={styles.carouselRow}
+          >
+            {featured.map((place) => (
+              <FeaturedCard
+                key={place.id}
+                place={place}
+                distanceKm={withDistance(place)}
+                onViewDetails={() => {}}
+                onOpenInMap={() => {}}
+                style={{ width: featuredCardWidth }}
+              />
+            ))}
+          </ScrollView>
+        )}
+
+        <View style={styles.sectionSpacer} />
+
+        <SectionHeader
           title="Find your pace"
           action={{ label: "See all", onPress: () => {} }}
         />
@@ -226,31 +259,8 @@ const HomeScreen = () => {
           ))}
         </ScrollView>
 
-        <View style={styles.section}>
-          {featuredQuery.loading && !featured ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={theme.text} />
-            </View>
-          ) : featured ? (
-            <FeaturedCard
-              place={featured}
-              distanceKm={featuredDistance}
-              onViewDetails={() => {}}
-              onOpenInMap={() => {}}
-            />
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
-                No featured attraction nearby.
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.sectionSpacer} />
-
         <SectionHeader
-          title={`Because you love ${selectedFilter.label.toLowerCase()}`}
+          title={`Nearby ${selectedFilter.label.toLowerCase()}`}
           action={{ label: "See all", onPress: () => {} }}
         />
 

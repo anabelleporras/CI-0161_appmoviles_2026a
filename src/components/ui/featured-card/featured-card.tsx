@@ -1,5 +1,11 @@
 import { useMemo } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from "react-native";
 
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
@@ -12,6 +18,7 @@ export type FeaturedCardProps = {
   distanceKm?: number;
   onViewDetails?: () => void;
   onOpenInMap?: () => void;
+  style?: StyleProp<ViewStyle>;
 };
 
 const formatPrimaryType = (type?: string) => {
@@ -24,6 +31,7 @@ const FeaturedCard = ({
   distanceKm,
   onViewDetails,
   onOpenInMap,
+  style,
 }: FeaturedCardProps) => {
   const theme = useTheme();
   const styles = useMemo(() => createFeaturedCardStyles(theme), [theme]);
@@ -41,7 +49,7 @@ const FeaturedCard = ({
     .join(" · ");
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, style]}>
       <PlacePhoto
         photoName={photoName}
         style={styles.photo}
