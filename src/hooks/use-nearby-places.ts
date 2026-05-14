@@ -58,6 +58,9 @@ export const useNearbyPlaces = ({
         if (requestId !== requestIdRef.current) return;
         setState({ places: [], loading: false, error: err.message });
       });
+    // typesKey is the stable join of includedTypes; the array reference itself
+    // changes on every render but the contents don't, so we key on the string.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coords?.latitude, coords?.longitude, typesKey, radius, maxResults, enabled]);
 
   return state;
