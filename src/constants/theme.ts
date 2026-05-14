@@ -1,65 +1,229 @@
+import { Platform } from "react-native";
+
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Brand palette. Four families:
+ *  - forestNight    — dark green; light-theme text/cards/buttons + dark-theme background
+ *  - ceibaGreen     — bright green; dark-theme text/cards/buttons
+ *  - sandWhite      — cream; light-theme background and surfaces
+ *  - guanacasteAmber— amber; strong accents (warnings, primary CTAs)
+ *
+ * Each family exposes interaction states (normal / normalHover / darker /
+ * darkerHover). Forest and Ceiba also expose a `text` variant tuned for
+ * readability on top of its counterpart background.
  */
+export const Palette = {
+  forestNight: {
+    text: "#2A4A30",
+    light: "#2A4A30",
+    lightHover: "#355C3C",
+    lightActive: "#203926",
+    normal: "#1A2B1E",
+    normalHover: "#223726",
+    normalActive: "#132017",
+    darker: "#111C13",
+    darkerHover: "#17261A",
+    darkerActive: "#0D160F",
+  },
+  ceibaGreen: {
+    text: "#C8EDD1",
+    light: "#C8EDD1",
+    lightHover: "#DDF5E3",
+    lightActive: "#A9E0B8",
+    normal: "#5DC27A",
+    normalHover: "#8DD9A0",
+    normalActive: "#3DA65C",
+    darker: "#3DA65C",
+    darkerHover: "#52B870",
+    darkerActive: "#2E7D46",
+  },
+  sandWhite: {
+    light: "#FFFFFF",
+    lightHover: "#F7F5F0",
+    lightActive: "#EDE9E1",
+    normal: "#F7F5F0",
+    normalHover: "#EFECE6",
+    normalActive: "#DDD8CE",
+    darker: "#EDE9E1",
+    darkerHover: "#E3DED6",
+    darkerActive: "#CFC9BD",
+  },
+  guanacasteAmber: {
+    light: "#FEF7EC",
+    lightHover: "#FFF2DB",
+    lightActive: "#FDE7C2",
+    normal: "#D47A15",
+    normalHover: "#F0B355",
+    normalActive: "#A85E0E",
+    darker: "#A85E0E",
+    darkerHover: "#C96F12",
+    darkerActive: "#7A420A",
+  },
+  grayscale: {
+    gray100: "#fcfcfc",
+    gray200: "#f5f5f5",
+    gray300: "#f0f0f0",
+    gray400: "#d9d9d9",
+    gray500: "#bfbfbf",
+    gray600: "#8c8c8c",
+    gray700: "#595959",
+    gray800: "#454545",
+    gray900: "#262626",
+  },
+  white: "#FFFFFF",
+  black: "#000000",
+} as const;
 
-import '@/global.css';
-
-import { Platform } from 'react-native';
-
+/**
+ * Semantic color tokens. Always read these via `useTheme()` — never reach
+ * into Palette from component code.
+ */
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    background: Palette.sandWhite.normal,
+    surface: Palette.white,
+    surfaceMuted: Palette.sandWhite.normalHover,
+    surfacePressed: Palette.sandWhite.darker,
+    surfaceInverse: Palette.forestNight.normal,
+    surfaceInversePressed: Palette.forestNight.normalHover,
+    border: Palette.sandWhite.darker,
+    text: Palette.forestNight.text,
+    textAccent: Palette.ceibaGreen.normal,
+    textStrong: Palette.forestNight.normal,
+    textInverse: Palette.sandWhite.normal,
+    textMuted: Palette.forestNight.text,
+    icon: Palette.forestNight.normal,
+    iconMuted: Palette.forestNight.text,
+    tabBarBackground: Palette.sandWhite.darker,
+    tabBarIconActive: Palette.ceibaGreen.normalActive,
+    tabBarIconInactive: Palette.forestNight.text,
+    accent: Palette.guanacasteAmber.normal,
+    accentHover: Palette.guanacasteAmber.normalHover,
+    accentStrong: Palette.guanacasteAmber.darker,
+    accentStrongHover: Palette.guanacasteAmber.darkerHover,
+    textOnAccent: Palette.white,
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    background: Palette.forestNight.normal,
+    surface: Palette.forestNight.normalHover,
+    surfaceMuted: Palette.forestNight.darker,
+    surfacePressed: Palette.forestNight.darkerHover,
+    surfaceInverse: Palette.sandWhite.normal,
+    surfaceInversePressed: Palette.sandWhite.normalHover,
+    border: Palette.forestNight.darkerHover,
+    text: Palette.ceibaGreen.text,
+    textAccent: Palette.sandWhite.normal,
+    textStrong: Palette.ceibaGreen.normalHover,
+    textInverse: Palette.forestNight.normal,
+    textMuted: Palette.ceibaGreen.darker,
+    icon: Palette.ceibaGreen.text,
+    iconMuted: Palette.ceibaGreen.darker,
+    tabBarBackground: Palette.forestNight.normalHover,
+    tabBarIconActive: Palette.ceibaGreen.normal,
+    tabBarIconInactive: Palette.ceibaGreen.darker,
+    accent: Palette.guanacasteAmber.normal,
+    accentHover: Palette.guanacasteAmber.normalHover,
+    accentStrong: Palette.guanacasteAmber.darker,
+    accentStrongHover: Palette.guanacasteAmber.darkerHover,
+    textOnAccent: Palette.white,
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  "2xl": 32,
+  "3xl": 48,
+  "4xl": 64,
+} as const;
+
+export const Radius = {
+  sm: 8,
+  md: 12,
+  lg: 18,
+  xl: 24,
+  "2xl": 28,
+  pill: 999,
+} as const;
+
+export const Typography = {
+  title1: { fontSize: 48, lineHeight: 65, fontWeight: "600", letterSpacing: 0 },
+  title2: { fontSize: 40, lineHeight: 54, fontWeight: "600", letterSpacing: 0 },
+  title3: { fontSize: 32, lineHeight: 43, fontWeight: "600", letterSpacing: 0 },
+  title4: { fontSize: 24, lineHeight: 32, fontWeight: "500", letterSpacing: 0 },
+  subtitle: {
+    fontSize: 20,
+    lineHeight: 27,
+    fontWeight: "500",
+    letterSpacing: 0,
+  },
+  body1: { fontSize: 20, lineHeight: 27, fontWeight: "400", letterSpacing: 0 },
+  body2: { fontSize: 16, lineHeight: 22, fontWeight: "400", letterSpacing: 0 },
+  body3: { fontSize: 12, lineHeight: 16, fontWeight: "400", letterSpacing: 0 },
+  body4: { fontSize: 10, lineHeight: 14, fontWeight: "400", letterSpacing: 0 },
+  label: { fontSize: 18, lineHeight: 24, fontWeight: "500", letterSpacing: 0 },
+  caption: {
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: "400",
+    letterSpacing: 0,
+  },
+  footnote: {
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: "400",
+    letterSpacing: 0,
+  },
+} as const;
+
+export const Shadow = {
+  card: {
+    shadowColor: Palette.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  pill: {
+    shadowColor: Palette.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  navbar: {
+    shadowColor: Palette.black,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+} as const;
+
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
+    sans: "system-ui",
+    serif: "ui-serif",
+    rounded: "ui-rounded",
+    mono: "ui-monospace",
   },
   default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
+    sans: "normal",
+    serif: "serif",
+    rounded: "normal",
+    mono: "monospace",
   },
   web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
+    sans: "var(--font-display)",
+    serif: "var(--font-serif)",
+    rounded: "var(--font-rounded)",
+    mono: "var(--font-mono)",
   },
 });
-
-export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
-} as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
