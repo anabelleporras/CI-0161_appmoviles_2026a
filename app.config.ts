@@ -3,6 +3,14 @@ import type { ExpoConfig } from "expo/config";
 const googleMapsApiKey =
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_PLATFORM_API_KEY ?? "";
 
+const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS ?? "";
+const iosUrlScheme = iosClientId
+  ? `com.googleusercontent.apps.${iosClientId.replace(
+      ".apps.googleusercontent.com",
+      "",
+    )}`
+  : "";
+
 const config: ExpoConfig = {
   name: "CI-0161_appmoviles_2026a",
   slug: "CI-0161_appmoviles_2026a",
@@ -68,7 +76,10 @@ const config: ExpoConfig = {
       },
     ],
     "expo-secure-store",
-    "@react-native-google-signin/google-signin",
+    [
+      "@react-native-google-signin/google-signin",
+      { iosUrlScheme },
+    ],
     "expo-web-browser",
     [
       "react-native-maps",
