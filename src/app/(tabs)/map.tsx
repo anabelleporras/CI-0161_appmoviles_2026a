@@ -8,7 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Linking, ScrollView, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,14 +16,13 @@ import CategoryPill from "@/components/ui/category-pill";
 import MapMarkerPill from "@/components/ui/map-marker-pill";
 import PlaceDetailSheet from "@/components/ui/place-detail-sheet";
 import SearchBar from "@/components/ui/search-bar";
+import { Spacing } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
-
-import { createMapStyles } from "./map.styles";
 
 type MapFilter = {
   id: string;
@@ -143,7 +142,27 @@ const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const scheme = useColorScheme();
-  const styles = useMemo(() => createMapStyles(theme), [theme]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        root: { flex: 1, backgroundColor: theme.background },
+        map: { ...StyleSheet.absoluteFill},
+        overlay: {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          paddingHorizontal: Spacing.lg,
+          gap: Spacing.sm,
+        },
+        chipsRow: {
+          gap: Spacing.sm,
+          paddingVertical: Spacing.xs,
+          paddingRight: Spacing.lg,
+        },
+      }),
+    [theme],
+  );
 
   const { coords } = useDeviceLocation();
   const [selectedFilterId, setSelectedFilterId] = useState<string>("all");

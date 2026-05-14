@@ -8,7 +8,13 @@ import {
   Waves,
 } from "lucide-react-native";
 import { useMemo, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import CategoryPill from "@/components/ui/category-pill";
@@ -17,13 +23,12 @@ import IconButton from "@/components/ui/icon-button";
 import LocationChip from "@/components/ui/location-chip";
 import PlaceCard from "@/components/ui/place-card";
 import SectionHeader from "@/components/ui/section-header";
+import { Spacing, Typography } from "@/constants/theme";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
-
-import { createHomeStyles } from "./home.styles";
 
 type Filter = {
   id: string;
@@ -93,7 +98,55 @@ const rankFeatured = (places: GooglePlace[]): GooglePlace | undefined => {
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
-  const styles = useMemo(() => createHomeStyles(theme), [theme]);
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        root: { flex: 1, backgroundColor: theme.background },
+        scroll: { flex: 1 },
+        scrollContent: { paddingBottom: 120 },
+        headerRow: {
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: Spacing.xl,
+          paddingTop: Spacing.md,
+          paddingBottom: Spacing.lg,
+        },
+        headerActions: {
+          flexDirection: "row",
+          alignItems: "center",
+          gap: Spacing.sm,
+        },
+        sectionSpacer: { marginTop: Spacing["2xl"] },
+        filtersRow: {
+          paddingHorizontal: Spacing.xl,
+          gap: Spacing.sm,
+          paddingBottom: Spacing.md,
+        },
+        section: {
+          paddingHorizontal: Spacing.xl,
+          marginTop: Spacing.md,
+        },
+        loadingContainer: {
+          paddingVertical: Spacing["2xl"],
+          alignItems: "center",
+        },
+        emptyState: {
+          paddingVertical: Spacing["2xl"],
+          alignItems: "center",
+        },
+        emptyText: {
+          ...Typography.body2,
+          color: theme.textMuted,
+        },
+        carouselRow: {
+          paddingHorizontal: Spacing.xl,
+          gap: Spacing.md,
+        },
+        bottomSpacer: { height: Spacing.xl },
+      }),
+    [theme],
+  );
 
   const { coords, label } = useDeviceLocation();
   const [selectedFilter, setSelectedFilter] = useState<Filter>(FILTERS[0]);
