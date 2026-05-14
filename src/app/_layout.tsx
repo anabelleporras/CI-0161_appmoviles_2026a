@@ -1,16 +1,62 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import React from 'react';
-import { useColorScheme } from 'react-native';
+import { Stack, router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import * as SecureStore from "expo-secure-store";
+import { View, ActivityIndicator } from "react-native";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { BACKEND_URL } from "@/lib/backend";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+import { SESSION_TOKEN_KEY } from "./login";
+
+export default function RootLayout() {
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    async function restoreSession() {
+      try {
+        const token = await SecureStore.getItemAsync(SESSION_TOKEN_KEY);
+
+        if (!token) {
+          router.replace("/login");
+          return;
+        }
+
+        const res = await fetch(`${BACKEND_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          router.replace("/(tabs)/home");
+        } else {
+          await SecureStore.deleteItemAsync(SESSION_TOKEN_KEY);
+          router.replace("/login");
+        }
+      } catch {
+        router.replace("/login");
+      } finally {
+        setChecking(false);
+      }
+    }
+
+    restoreSession();
+  }, []);
+
+  if (checking) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <>
+      <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="(tabs)" />
+      </Stack>
+    </>
   );
 }
