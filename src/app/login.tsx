@@ -9,7 +9,6 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,13 +18,8 @@ import {
 import { AppleLogo, GoogleLogo } from "@/components/brand-icons";
 import { Radius, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { BACKEND_URL } from "@/lib/backend";
 
-// 10.0.2.2 is the Android emulator's alias for the host machine. iOS simulator
-// shares the host network so it reaches the same backend over localhost.
-const BACKEND_URL =
-  Platform.OS === "ios"
-    ? process.env.EXPO_PUBLIC_BACKEND_URL!.replace("10.0.2.2", "localhost")
-    : process.env.EXPO_PUBLIC_BACKEND_URL!;
 const GOOGLE_CLIENT_ID_WEB = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB!;
 const GOOGLE_CLIENT_ID_IOS = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS!;
 const APPLE_AUTH_ENABLED =
