@@ -18,9 +18,10 @@ import {
 import { AppleLogo, GoogleLogo } from "@/components/brand-icons";
 import { Radius, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
+import { BACKEND_URL } from "@/lib/backend";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL!;
 const GOOGLE_CLIENT_ID_WEB = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB!;
+const GOOGLE_CLIENT_ID_IOS = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS!;
 const APPLE_AUTH_ENABLED =
   process.env.EXPO_PUBLIC_APPLE_AUTH_ENABLED === "true";
 
@@ -28,6 +29,7 @@ export const SESSION_TOKEN_KEY = "session_token";
 
 GoogleSignin.configure({
   webClientId: GOOGLE_CLIENT_ID_WEB,
+  iosClientId: GOOGLE_CLIENT_ID_IOS,
   offlineAccess: false,
 });
 

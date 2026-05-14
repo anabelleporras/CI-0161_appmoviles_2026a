@@ -31,7 +31,7 @@ export default function ProfileScreen() {
         const data = await res.json();
         setUser(data.user);
       } catch {
-        // network error
+        // network error — just show nothing
       } finally {
         setLoading(false);
       }

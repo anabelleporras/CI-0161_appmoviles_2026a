@@ -3,9 +3,10 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { View, ActivityIndicator } from "react-native";
-import { SESSION_TOKEN_KEY } from "./login";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL!;
+import { BACKEND_URL } from "@/lib/backend";
+
+import { SESSION_TOKEN_KEY } from "./login";
 
 export default function RootLayout() {
   const [checking, setChecking] = useState(true);

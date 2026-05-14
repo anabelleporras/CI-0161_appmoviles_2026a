@@ -1,19 +1,17 @@
 import {
-  BriefcaseBusiness,
-  Compass,
   House,
   Map,
   UserRound,
   type LucideIcon,
 } from "lucide-react-native";
 import React, { useRef } from "react";
-import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Radius, Shadow, Spacing, Typography } from "@/constants/theme";
+import { Radius, Shadow, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
-export type TabKey = "home" | "explore" | "map" | "trips" | "profile";
+export type TabKey = "home" | "map" | "profile";
 
 type Tab = {
   key: TabKey;
@@ -23,9 +21,7 @@ type Tab = {
 
 const TABS: Tab[] = [
   { key: "home", label: "Home", Icon: House },
-  { key: "explore", label: "Explore", Icon: Compass },
   { key: "map", label: "Map", Icon: Map },
-  { key: "trips", label: "Trips", Icon: BriefcaseBusiness },
   { key: "profile", label: "Profile", Icon: UserRound },
 ];
 
@@ -51,7 +47,7 @@ const NavItem: React.FC<NavItemProps> = ({
   const handlePress = () => {
     Animated.sequence([
       Animated.timing(scaleAnim, {
-        toValue: 0.88,
+        toValue: 0.85,
         duration: 80,
         useNativeDriver: true,
       }),
@@ -75,20 +71,9 @@ const NavItem: React.FC<NavItemProps> = ({
       accessibilityLabel={tab.label}
       accessibilityState={{ selected: active }}
     >
-      <Animated.View
-        style={[styles.iconWrapper, { transform: [{ scale: scaleAnim }] }]}
-      >
-        <Icon size={24} color={color} strokeWidth={active ? 2.7 : 2.2} />
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Icon size={24} color={color} strokeWidth={active ? 2.6 : 2.2} />
       </Animated.View>
-      <Text
-        style={[
-          styles.label,
-          { color: inactiveColor },
-          active && { color: activeColor, fontWeight: "700" },
-        ]}
-      >
-        {tab.label}
-      </Text>
     </Pressable>
   );
 };
@@ -138,29 +123,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 14,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius["2xl"],
+    paddingVertical: Spacing.sm + 2,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.pill,
     borderWidth: 1,
+    overflow: "hidden",
     ...Shadow.navbar,
   },
   navItem: {
     flex: 1,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    gap: 5,
-  },
-  iconWrapper: {
-    width: 36,
-    height: 36,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: Radius.md,
-  },
-  label: {
-    ...Typography.body4,
-    letterSpacing: 0.15,
-    fontWeight: "500",
   },
 });
 

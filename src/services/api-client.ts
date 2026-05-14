@@ -4,6 +4,7 @@ import { SESSION_TOKEN_KEY } from '@/app/login';
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL!;
 
+// A wrapper around fetch that automatically includes the auth token and handles 401 responses
 export async function apiFetch(path: string, init: RequestInit = {}) {
   const token = await SecureStore.getItemAsync(SESSION_TOKEN_KEY);
 
