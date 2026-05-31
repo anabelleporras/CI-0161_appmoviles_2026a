@@ -1,6 +1,11 @@
 import { Redirect } from "expo-router";
 
+import { useAuth } from "@/context/AuthContext";
+
 export default function Index() {
-  // TODO: check for stored sessionToken here and redirect to (app) instead
-  return <Redirect href="/login" />;
+  const { isLoggedIn, isLoading } = useAuth();
+
+  if (isLoading) return null;
+
+  return <Redirect href={isLoggedIn ? "/(tabs)/home" : "/login"} />;
 }
