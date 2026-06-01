@@ -32,6 +32,8 @@ const DETAIL_MASK = [
   "regularOpeningHours",
 ].join(",");
 
+const IDS_MASK = "places.id";
+
 export type GooglePlace = {
   id: string;
   displayName?: { text?: string };
@@ -43,13 +45,23 @@ export type GooglePlace = {
   userRatingCount?: number;
   photos?: { name: string }[];
   editorialSummary?: { text?: string };
+  regularOpeningHours?: {
+    openNow?: boolean;
+    weekdayDescriptions?: string[];
+  };
 };
 
 type CacheEntry = { data: GooglePlace[]; expiresAt: number };
 const cache = new Map<string, CacheEntry>();
 
-const cacheKey = (types: string[], lat: number, lon: number, radius: number) =>
-  `${[...types].sort().join("|")}_${lat.toFixed(2)}_${lon.toFixed(2)}_${radius}`;
+const cacheKey = (
+  types: string[],
+  lat: number,
+  lon: number,
+  radius: number,
+  prefix = "",
+) =>
+  `${prefix}${[...types].sort().join("|")}_${lat.toFixed(2)}_${lon.toFixed(2)}_${radius}`;
 
 const readCache = (key: string): GooglePlace[] | null => {
   const entry = cache.get(key);
@@ -117,9 +129,65 @@ export const searchNearby = async ({
   }
 
   const data = await res.json();
-  const places: GooglePlace[] = data.places ?? [];
+  const raw: GooglePlace[] = data.places ?? [];
+  const seen = new Set<string>();
+  const places = raw.filter((p) => {
+    if (!p.id || seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
   writeCache(key, places);
   return places;
+};
+
+export const countNearby = async ({
+  lat,
+  lon,
+  includedTypes,
+  maxResults = 20,
+  radius = 15000,
+}: SearchNearbyParams): Promise<number> => {
+  if (!API_KEY) throw new Error("Missing EXPO_PUBLIC_GOOGLE_MAPS_PLATFORM_API_KEY");
+  if (includedTypes.length === 0) return 0;
+
+  const safeRadius = Math.min(radius, PLACES_API_MAX_RADIUS_M);
+  const key = cacheKey(includedTypes, lat, lon, safeRadius, "count:");
+
+  const cached = readCache(key);
+  if (cached) return cached.length;
+
+  const res = await fetchWithTimeout(
+    `${BASE}/places:searchNearby`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": API_KEY,
+        "X-Goog-FieldMask": IDS_MASK,
+      },
+      body: JSON.stringify({
+        includedTypes,
+        maxResultCount: maxResults,
+        locationRestriction: {
+          circle: {
+            center: { latitude: lat, longitude: lon },
+            radius: safeRadius,
+          },
+        },
+      }),
+    },
+    10000,
+  );
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Places countNearby ${res.status}: ${text.slice(0, 200)}`);
+  }
+
+  const data = await res.json();
+  const places: GooglePlace[] = data.places ?? [];
+  writeCache(key, places);
+  return places.length;
 };
 
 export const placeDetails = async (placeId: string): Promise<GooglePlace> => {
