@@ -24,6 +24,9 @@ import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
 
+import { useFavoritesStore } from '@/store/favorites';
+import type { FavoritePlace } from '@/store/favorites';
+
 type MapFilter = {
   id: string;
   label: string;
@@ -170,6 +173,20 @@ const MapScreen = () => {
   const [selectedPlace, setSelectedPlace] = useState<GooglePlace | null>(null);
   const [tracksMarkers, setTracksMarkers] = useState(true);
 
+  const { addFavorite, removeFavorite } = useFavoritesStore();
+  const favorites = useFavoritesStore((state) => state.favorites);
+
+  const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
+    placeId: place.id!,
+    name: place.displayName?.text,
+    address: place.formattedAddress,
+    lat: place.location?.latitude,
+    lng: place.location?.longitude,
+    types: place.types ?? [],
+    rating: place.rating,
+    photoName: place.photos?.[0]?.name,
+  });
+
   const activeFilter =
     FILTERS.find((f) => f.id === selectedFilterId) ?? FILTERS[0];
 
@@ -285,6 +302,18 @@ const MapScreen = () => {
         distanceKm={selectedDistance}
         onViewDetails={() => {}}
         onOpenInMap={() => selectedPlace && openInExternalMap(selectedPlace)}
+        bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id!) : false}
+        onBookmark={() => {
+          if (!selectedPlace) return;
+          const current = useFavoritesStore.getState().favorites.some(
+            (f) => f.placeId === selectedPlace.id!
+          );
+          if (current) {
+            removeFavorite(selectedPlace.id!);
+          } else {
+            addFavorite(toFavoritePlace(selectedPlace));
+          }
+        }}
       />
     </View>
   );
