@@ -22,6 +22,8 @@ function RootNavigator() {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="activity/[id]" />
+        <Stack.Screen name="place/[id]" />
       </Stack>
     </>
   );

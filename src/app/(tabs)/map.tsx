@@ -1,21 +1,25 @@
 import {
   Compass,
-  Hotel,
+  Dog,
+  Footprints,
   LayoutGrid,
+  Sandwich,
+  Tent,
   TreePine,
-  UtensilsCrossed,
   Waves,
   type LucideIcon,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Linking, ScrollView, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import CategoryPill from "@/components/ui/category-pill";
 import MapMarkerPill from "@/components/ui/map-marker-pill";
 import PlaceDetailSheet from "@/components/ui/place-detail-sheet";
 import SearchBar from "@/components/ui/search-bar";
+import { ACTIVITIES, ALL_ACTIVITY_TYPES } from "@/constants/activities";
 import { Spacing } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useDeviceLocation } from "@/hooks/use-device-location";
@@ -34,46 +38,14 @@ type MapFilter = {
   includedTypes: string[];
 };
 
-const ALL_TYPES = [
-  "beach",
-  "park",
-  "national_park",
-  "lodging",
-  "hotel",
-  "resort_hotel",
-  "restaurant",
-  "cafe",
-  "tourist_attraction",
-  "museum",
-];
-
 const FILTERS: MapFilter[] = [
-  { id: "all", label: "All", icon: LayoutGrid, includedTypes: ALL_TYPES },
-  { id: "beaches", label: "Beaches", icon: Waves, includedTypes: ["beach"] },
-  {
-    id: "hotels",
-    label: "Hotels",
-    icon: Hotel,
-    includedTypes: ["lodging", "hotel", "resort_hotel"],
-  },
-  {
-    id: "restaurants",
-    label: "Restaurants",
-    icon: UtensilsCrossed,
-    includedTypes: ["restaurant", "cafe"],
-  },
-  {
-    id: "parks",
-    label: "Parks",
-    icon: TreePine,
-    includedTypes: ["park", "national_park"],
-  },
-  {
-    id: "attractions",
-    label: "Attractions",
-    icon: Compass,
-    includedTypes: ["tourist_attraction", "museum"],
-  },
+  { id: "all", label: "All", icon: LayoutGrid, includedTypes: ALL_ACTIVITY_TYPES },
+  ...ACTIVITIES.map((a) => ({
+    id: a.id,
+    label: a.label,
+    icon: a.icon,
+    includedTypes: a.includedTypes,
+  })),
 ];
 
 const DARK_MAP_STYLE = [
@@ -100,15 +72,24 @@ const DARK_MAP_STYLE = [
 const iconForPlace = (place: GooglePlace): LucideIcon => {
   const types = place.types ?? [];
   if (types.includes("beach")) return Waves;
-  if (types.includes("park") || types.includes("national_park")) return TreePine;
+  if (types.includes("hiking_area")) return Footprints;
+  if (types.includes("dog_park")) return Dog;
   if (
-    types.includes("lodging") ||
-    types.includes("hotel") ||
-    types.includes("resort_hotel")
+    types.includes("campground") ||
+    types.includes("camping_cabin") ||
+    types.includes("rv_park")
   )
-    return Hotel;
-  if (types.includes("restaurant") || types.includes("cafe"))
-    return UtensilsCrossed;
+    return Tent;
+  if (types.includes("picnic_ground") || types.includes("barbecue_area"))
+    return Sandwich;
+  if (
+    types.includes("park") ||
+    types.includes("national_park") ||
+    types.includes("state_park") ||
+    types.includes("city_park") ||
+    types.includes("garden")
+  )
+    return TreePine;
   return Compass;
 };
 
@@ -149,7 +130,7 @@ const MapScreen = () => {
     () =>
       StyleSheet.create({
         root: { flex: 1, backgroundColor: theme.background },
-        map: { ...StyleSheet.absoluteFill},
+        map: { ...StyleSheet.absoluteFill },
         overlay: {
           position: "absolute",
           top: 0,
@@ -274,7 +255,7 @@ const MapScreen = () => {
         <SearchBar
           value={searchTerm}
           onChangeText={setSearchTerm}
-          placeholder="La Fortuna and around"
+          placeholder="Search places nearby"
         />
         <ScrollView
           horizontal
@@ -300,7 +281,7 @@ const MapScreen = () => {
       <PlaceDetailSheet
         place={selectedPlace}
         distanceKm={selectedDistance}
-        onViewDetails={() => {}}
+        onViewDetails={() => selectedPlace && router.push(`/place/${selectedPlace.id}`)}
         onOpenInMap={() => selectedPlace && openInExternalMap(selectedPlace)}
         bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id!) : false}
         onBookmark={() => {
