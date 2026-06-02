@@ -5,6 +5,8 @@ import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
 import type { GooglePlace } from "@/services/google-places";
+import { formatDistance } from '@/lib/distance';
+import { useSettingsStore } from '@/store/settings';
 
 import { createPlaceDetailSheetStyles } from "./place-detail-sheet.styles";
 
@@ -36,6 +38,7 @@ const PlaceDetailSheet = ({
 
   const translateY = useRef(new Animated.Value(200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const units = useSettingsStore((state) => state.units);
 
   useEffect(() => {
     Animated.parallel([
@@ -59,7 +62,7 @@ const PlaceDetailSheet = ({
     typeof place.userRatingCount === "number"
       ? `${place.userRatingCount.toLocaleString()} reviews`
       : null,
-    typeof distanceKm === "number" ? `${distanceKm.toFixed(1)} km` : null,
+    typeof distanceKm === "number" ? formatDistance(distanceKm, units) : null,
   ]
     .filter(Boolean)
     .join(" · ");

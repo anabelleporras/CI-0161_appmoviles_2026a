@@ -4,7 +4,9 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
+import { formatDistance } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
+import { useSettingsStore } from "@/store/settings";
 
 import { createPlaceCardStyles } from "./place-card.styles";
 
@@ -27,12 +29,13 @@ const PlaceCard = ({
 }: PlaceCardProps) => {
   const theme = useTheme();
   const styles = useMemo(() => createPlaceCardStyles(theme), [theme]);
+  const units = useSettingsStore((state) => state.units);
 
   const photoName = place.photos?.[0]?.name;
   const name = place.displayName?.text ?? "Unnamed place";
   const meta = [
     typeof place.rating === "number" ? `★ ${place.rating.toFixed(1)}` : null,
-    typeof distanceKm === "number" ? `${distanceKm.toFixed(1)} km` : null,
+    typeof distanceKm === "number" ? formatDistance(distanceKm, units) : null,
   ]
     .filter(Boolean)
     .join(" · ");

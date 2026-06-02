@@ -23,6 +23,7 @@ import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
+import { useSettingsStore } from '@/store/settings';
 
 import { useFavoritesStore } from '@/store/favorites';
 import type { FavoritePlace } from '@/store/favorites';
@@ -145,6 +146,7 @@ const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const scheme = useColorScheme();
+  const searchRadius = useSettingsStore((state) => state.searchRadius);
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -193,7 +195,7 @@ const MapScreen = () => {
   const { places } = useNearbyPlaces({
     coords,
     includedTypes: activeFilter.includedTypes,
-    radius: 15000,
+    radius: searchRadius,
     maxResults: 20,
   });
 

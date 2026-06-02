@@ -9,6 +9,8 @@ interface User {
   id: string;
   name: string | null;
   email: string | null;
+  provider: string | null;
+  picture: string | null;
 }
 
 interface AuthContextValue {

@@ -27,6 +27,7 @@ import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
+import { useSettingsStore } from '@/store/settings';
 
 const FEATURED_TYPES = ["tourist_attraction"];
 const FEATURED_COUNT = 5;
@@ -92,6 +93,7 @@ const HomeScreen = () => {
   const theme = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const featuredCardWidth = windowWidth - Spacing.xl * 2 - Spacing["2xl"];
+  const searchRadius = useSettingsStore((state) => state.searchRadius);
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -152,7 +154,7 @@ const HomeScreen = () => {
   const { places, loading } = useNearbyPlaces({
     coords,
     includedTypes: selectedActivity.includedTypes,
-    radius: selectedActivity.radius,
+    radius: searchRadius,
     maxResults: 20,
   });
 
