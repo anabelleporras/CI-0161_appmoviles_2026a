@@ -1,12 +1,5 @@
-import {
-  Bell,
-  Compass,
-  Hotel,
-  Search,
-  TreePine,
-  UtensilsCrossed,
-  Waves,
-} from "lucide-react-native";
+import { Bell, Search } from "lucide-react-native";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,13 +11,15 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import CategoryPill from "@/components/ui/category-pill";
+import ActivityCard from "@/components/ui/activity-card";
 import FeaturedCard from "@/components/ui/featured-card";
 import IconButton from "@/components/ui/icon-button";
 import LocationChip from "@/components/ui/location-chip";
 import PlaceCard from "@/components/ui/place-card";
 import SectionHeader from "@/components/ui/section-header";
+import { ACTIVITIES, type Activity } from "@/constants/activities";
 import { Spacing, Typography } from "@/constants/theme";
+import { useActivityCounts } from "@/hooks/use-activity-counts";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
@@ -33,60 +28,9 @@ import type { GooglePlace } from "@/services/google-places";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 
-type Filter = {
-  id: string;
-  label: string;
-  badge: string;
-  icon: typeof Waves;
-  includedTypes: string[];
-  radius: number;
-};
-
-const FILTERS: Filter[] = [
-  {
-    id: "beach",
-    label: "Beaches",
-    badge: "Beach",
-    icon: Waves,
-    includedTypes: ["beach"],
-    radius: 50000,
-  },
-  {
-    id: "park",
-    label: "Parks",
-    badge: "Park",
-    icon: TreePine,
-    includedTypes: ["park", "national_park"],
-    radius: 30000,
-  },
-  {
-    id: "lodging",
-    label: "Lodges",
-    badge: "Lodge",
-    icon: Hotel,
-    includedTypes: ["lodging", "resort_hotel", "bed_and_breakfast", "cottage"],
-    radius: 30000,
-  },
-  {
-    id: "restaurant",
-    label: "Food",
-    badge: "Food",
-    icon: UtensilsCrossed,
-    includedTypes: ["restaurant", "cafe"],
-    radius: 10000,
-  },
-  {
-    id: "explore",
-    label: "Explore",
-    badge: "Spot",
-    icon: Compass,
-    includedTypes: ["tourist_attraction", "museum"],
-    radius: 30000,
-  },
-];
-
 const FEATURED_TYPES = ["tourist_attraction"];
 const FEATURED_COUNT = 5;
+const COUNT_CAP = 20;
 
 const rankFeatured = (places: GooglePlace[]): GooglePlace[] =>
   [...places]
@@ -131,7 +75,7 @@ const BookmarkablePlaceCard = ({
       badgeLabel={badge}
       distanceKm={distance}
       bookmarked={bookmarked}
-      onPress={() => {}}
+      onPress={() => router.push(`/place/${place.id}`)}
       onBookmark={() => {
         if (bookmarked) {
           removeFavorite(place.id!);
@@ -168,14 +112,10 @@ const HomeScreen = () => {
           gap: Spacing.sm,
         },
         sectionSpacer: { marginTop: Spacing["2xl"] },
-        filtersRow: {
+        activitiesRow: {
           paddingHorizontal: Spacing.xl,
           gap: Spacing.sm,
           paddingBottom: Spacing.md,
-        },
-        section: {
-          paddingHorizontal: Spacing.xl,
-          marginTop: Spacing.md,
         },
         loadingContainer: {
           paddingVertical: Spacing["2xl"],
@@ -199,12 +139,20 @@ const HomeScreen = () => {
   );
 
   const { coords, label } = useDeviceLocation();
-  const [selectedFilter, setSelectedFilter] = useState<Filter>(FILTERS[0]);
+  const [selectedActivity, setSelectedActivity] = useState<Activity>(
+    ACTIVITIES[0],
+  );
+
+  const { counts, loading: countsLoading } = useActivityCounts({
+    coords,
+    activities: ACTIVITIES,
+    maxPerActivity: COUNT_CAP,
+  });
 
   const { places, loading } = useNearbyPlaces({
     coords,
-    includedTypes: selectedFilter.includedTypes,
-    radius: selectedFilter.radius,
+    includedTypes: selectedActivity.includedTypes,
+    radius: selectedActivity.radius,
     maxResults: 20,
   });
 
@@ -230,6 +178,12 @@ const HomeScreen = () => {
     );
   };
 
+  const openPlace = (place: GooglePlace) =>
+    router.push(`/place/${place.id}`);
+
+  const openActivityList = (activityId: string) =>
+    router.push(`/activity/${activityId}`);
+
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
       <ScrollView
@@ -247,7 +201,7 @@ const HomeScreen = () => {
 
         <SectionHeader
           title="Top attractions"
-          action={{ label: "See all", onPress: () => {} }}
+          action={{ label: "See all", onPress: () => openActivityList("explore") }}
         />
 
         {featuredQuery.loading && featured.length === 0 ? (
@@ -274,8 +228,8 @@ const HomeScreen = () => {
                 key={place.id}
                 place={place}
                 distanceKm={withDistance(place)}
-                onViewDetails={() => {}}
-                onOpenInMap={() => {}}
+                onViewDetails={() => openPlace(place)}
+                onOpenInMap={() => openPlace(place)}
                 style={{ width: featuredCardWidth }}
               />
             ))}
@@ -284,30 +238,33 @@ const HomeScreen = () => {
 
         <View style={styles.sectionSpacer} />
 
-        <SectionHeader
-          title="Find your pace"
-          action={{ label: "See all", onPress: () => {} }}
-        />
+        <SectionHeader title="Find your pace" />
 
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filtersRow}
+          contentContainerStyle={styles.activitiesRow}
         >
-          {FILTERS.map((filter) => (
-            <CategoryPill
-              key={filter.id}
-              icon={filter.icon}
-              label={filter.label}
-              selected={selectedFilter.id === filter.id}
-              onPress={() => setSelectedFilter(filter)}
+          {ACTIVITIES.map((activity) => (
+            <ActivityCard
+              key={activity.id}
+              icon={activity.icon}
+              label={activity.label}
+              count={counts[activity.id]}
+              loading={countsLoading}
+              maxCount={COUNT_CAP}
+              selected={selectedActivity.id === activity.id}
+              onPress={() => setSelectedActivity(activity)}
             />
           ))}
         </ScrollView>
 
         <SectionHeader
-          title={`Nearby ${selectedFilter.label.toLowerCase()}`}
-          action={{ label: "See all", onPress: () => {} }}
+          title={`Nearby ${selectedActivity.label.toLowerCase()}`}
+          action={{
+            label: "See all",
+            onPress: () => openActivityList(selectedActivity.id),
+          }}
         />
 
         {loading ? (
@@ -328,7 +285,7 @@ const HomeScreen = () => {
               <BookmarkablePlaceCard
                 key={place.id}
                 place={place}
-                badge={selectedFilter.badge}
+                badge={selectedActivity.badge}
                 distanceKm={withDistance(place)}
               />
             ))}
