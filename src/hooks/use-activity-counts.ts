@@ -17,6 +17,7 @@ export type UseActivityCountsParams = {
   coords: Coords | null;
   activities: Activity[];
   maxPerActivity?: number;
+  radius?: number;
   enabled?: boolean;
 };
 
@@ -24,6 +25,7 @@ export const useActivityCounts = ({
   coords,
   activities,
   maxPerActivity = 20,
+  radius,
   enabled = true,
 }: UseActivityCountsParams): UseActivityCountsState => {
   const [state, setState] = useState<UseActivityCountsState>({
@@ -50,7 +52,7 @@ export const useActivityCounts = ({
           lat: coords.latitude,
           lon: coords.longitude,
           includedTypes: activity.includedTypes,
-          radius: activity.radius,
+          radius: radius ?? activity.radius,
           maxResults: maxPerActivity,
         }),
       ),
@@ -72,7 +74,7 @@ export const useActivityCounts = ({
 
       setState({ counts, loading: false, error: firstError });
     });
-  }, [coords?.latitude, coords?.longitude, activitiesKey, maxPerActivity, enabled]);
+  }, [coords?.latitude, coords?.longitude, activitiesKey, maxPerActivity, radius, enabled]);
 
   return state;
 };
