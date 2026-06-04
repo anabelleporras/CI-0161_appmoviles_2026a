@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Spacing, Typography } from "@/constants/theme";
+import { PhotoStrip } from "@/components/ui/photo-strip";
 import { PopularityCard } from "@/components/ui/popularity-card";
 import { WeatherCard } from "@/components/ui/weather-card";
 import { useDeviceLocation } from "@/hooks/use-device-location";
@@ -53,6 +54,7 @@ const PlaceDetailScreen = () => {
   const [place, setPlace] = useState<GooglePlace | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
@@ -137,7 +139,7 @@ const PlaceDetailScreen = () => {
     );
   }
 
-  const heroUrl = photoUrl(place.photos?.[0]?.name, { maxWidthPx: 1000 });
+  const heroUrl = photoUrl(place.photos?.[selectedPhotoIndex]?.name, { maxWidthPx: 1000 });
   const distance =
     coords && place.location
       ? distanceKm(
@@ -170,9 +172,16 @@ const PlaceDetailScreen = () => {
           </Pressable>
         </View>
 
+        {place.photos && place.photos.length > 1 && (
+          <PhotoStrip
+            photos={place.photos}
+            selectedIndex={selectedPhotoIndex}
+            onSelect={setSelectedPhotoIndex}
+          />
+        )}
+
         <View style={styles.body}>
           <Text style={styles.title}>{place.displayName?.text ?? "Place"}</Text>
-
           <View style={styles.metaRow}>
             {place.rating !== undefined && (
               <View style={styles.metaItem}>
