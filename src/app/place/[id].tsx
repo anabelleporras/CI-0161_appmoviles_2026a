@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, Heart, MapPin, Navigation, Star } from "lucide-react-native";
+import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Navigation, Star } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,6 +18,8 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import { placeDetails, photoUrl, type GooglePlace } from "@/services/google-places";
+import { useFavoritesStore } from "@/store/favorites";
+import type { FavoritePlace } from "@/store/favorites";
 
 const openInExternalMap = (place: GooglePlace) => {
   if (!place.location) return;
@@ -26,6 +28,17 @@ const openInExternalMap = (place: GooglePlace) => {
     `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
   ).catch(() => {});
 };
+
+const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
+  placeId: place.id!,
+  name: place.displayName?.text,
+  address: place.formattedAddress,
+  lat: place.location?.latitude,
+  lng: place.location?.longitude,
+  types: place.types ?? [],
+  rating: place.rating,
+  photoName: place.photos?.[0]?.name,
+});
 
 const PlaceDetailScreen = () => {
   const insets = useSafeAreaInsets();
@@ -36,6 +49,10 @@ const PlaceDetailScreen = () => {
   const [place, setPlace] = useState<GooglePlace | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const favorites = useFavoritesStore((state) => state.favorites);
+  const { addFavorite, removeFavorite } = useFavoritesStore();
+  const bookmarked = favorites.some((f) => f.placeId === id);
 
   useEffect(() => {
     let active = true;
@@ -93,10 +110,10 @@ const PlaceDetailScreen = () => {
           justifyContent: "center",
           borderRadius: 99,
           borderWidth: 1.5,
-          borderColor: theme.text,
+          borderColor: bookmarked ? theme.accent : theme.text,
         },
       }),
-    [theme],
+    [theme, bookmarked],
   );
 
   if (loading) {
@@ -157,9 +174,7 @@ const PlaceDetailScreen = () => {
                 <Star size={14} color={theme.text} fill={theme.text} />
                 <Text style={styles.metaText}>
                   {place.rating.toFixed(1)}
-                  {place.userRatingCount
-                    ? ` (${place.userRatingCount})`
-                    : ""}
+                  {place.userRatingCount ? ` (${place.userRatingCount})` : ""}
                 </Text>
               </View>
             )}
@@ -178,9 +193,6 @@ const PlaceDetailScreen = () => {
           {place.editorialSummary?.text && (
             <Text style={styles.summary}>{place.editorialSummary.text}</Text>
           )}
-
-          {/* TODO(phase-2): weather (Open-Meteo) + affluence cards go here,
-              keyed off place.location. */}
 
           {hours.length > 0 && (
             <>
@@ -204,11 +216,22 @@ const PlaceDetailScreen = () => {
             <Pressable
               style={styles.favBtn}
               onPress={() => {
-                // TODO(phase-3): toggle favourite
+                const current = useFavoritesStore.getState().favorites.some(
+                  (f) => f.placeId === id
+                );
+                if (current) {
+                  removeFavorite(id!);
+                } else if (place) {
+                  addFavorite(toFavoritePlace(place));
+                }
               }}
               accessibilityLabel="Save to favourites"
             >
-              <Heart size={20} color={theme.text} />
+              {bookmarked ? (
+                <BookmarkCheck size={20} color={theme.accent} strokeWidth={2} />
+              ) : (
+                <Bookmark size={20} color={theme.text} strokeWidth={2} />
+              )}
             </Pressable>
           </View>
         </View>

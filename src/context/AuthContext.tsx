@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { SESSION_TOKEN_KEY } from '@/constants/auth';
 import { apiFetch } from '@/services/api-client';
+import { useFavoritesStore } from '@/store/favorites';
 
 interface User {
   id: string;
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        useFavoritesStore.getState().syncFromBackend();
       }
     } catch {
       // no-op: stay logged out

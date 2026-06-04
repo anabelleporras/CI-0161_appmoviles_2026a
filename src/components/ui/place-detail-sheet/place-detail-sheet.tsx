@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
+import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
@@ -12,6 +13,8 @@ export type PlaceDetailSheetProps = {
   distanceKm?: number;
   onViewDetails?: () => void;
   onOpenInMap?: () => void;
+  bookmarked?: boolean;
+  onBookmark?: () => void;
 };
 
 const formatTag = (place: GooglePlace) => {
@@ -25,6 +28,8 @@ const PlaceDetailSheet = ({
   distanceKm,
   onViewDetails,
   onOpenInMap,
+  bookmarked = false,
+  onBookmark,
 }: PlaceDetailSheetProps) => {
   const theme = useTheme();
   const styles = useMemo(() => createPlaceDetailSheetStyles(theme), [theme]);
@@ -82,6 +87,19 @@ const PlaceDetailSheet = ({
           </Text>
         ) : null}
         <View style={styles.actions}>
+          {onBookmark && (
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={onBookmark}
+              activeOpacity={0.85}
+            >
+              {bookmarked ? (
+                <BookmarkCheck size={18} color={theme.accent} strokeWidth={2} />
+              ) : (
+                <Bookmark size={18} color={theme.icon} strokeWidth={2} />
+              )}
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={onViewDetails}

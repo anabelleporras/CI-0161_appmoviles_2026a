@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import MapMarkerPill from "@/components/ui/map-marker-pill";
@@ -21,6 +21,8 @@ import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
+import { useFavoritesStore } from "@/store/favorites";
+import type { FavoritePlace } from "@/store/favorites";
 
 const COSTA_RICA_FALLBACK = {
   latitude: 9.7489,
@@ -30,6 +32,50 @@ const COSTA_RICA_FALLBACK = {
 };
 
 type ViewMode = "list" | "map";
+
+const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
+  placeId: place.id!,
+  name: place.displayName?.text,
+  address: place.formattedAddress,
+  lat: place.location?.latitude,
+  lng: place.location?.longitude,
+  types: place.types ?? [],
+  rating: place.rating,
+  photoName: place.photos?.[0]?.name,
+});
+
+type BookmarkablePlaceCardProps = {
+  place: GooglePlace;
+  badge: string;
+  distanceKm?: number;
+};
+
+const BookmarkablePlaceCard = ({
+  place,
+  badge,
+  distanceKm: distance,
+}: BookmarkablePlaceCardProps) => {
+  const favorites = useFavoritesStore((state) => state.favorites);
+  const { addFavorite, removeFavorite } = useFavoritesStore();
+  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+
+  return (
+    <PlaceCard
+      place={place}
+      badgeLabel={badge}
+      distanceKm={distance}
+      bookmarked={bookmarked}
+      onPress={() => router.push(`/place/${place.id}`)}
+      onBookmark={() => {
+        if (bookmarked) {
+          removeFavorite(place.id!);
+        } else {
+          addFavorite(toFavoritePlace(place));
+        }
+      }}
+    />
+  );
+};
 
 const ActivityListScreen = () => {
   const insets = useSafeAreaInsets();
@@ -100,8 +146,6 @@ const ActivityListScreen = () => {
       }
     : COSTA_RICA_FALLBACK;
 
-  const openPlace = (place: GooglePlace) => router.push(`/place/${place.id}`);
-
   if (!activity) {
     return (
       <View style={[styles.root, styles.center, { paddingTop: insets.top }]}>
@@ -150,21 +194,16 @@ const ActivityListScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {places.map((place) => (
-            <PlaceCard
+            <BookmarkablePlaceCard
               key={place.id}
               place={place}
-              badgeLabel={activity.badge}
+              badge={activity.badge}
               distanceKm={withDistance(place)}
-              onPress={() => openPlace(place)}
-              onBookmark={() => {
-                // TODO(phase-3): toggle favourite
-              }}
             />
           ))}
         </ScrollView>
       ) : (
         <MapView
-          provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={initialRegion}
           showsUserLocation
@@ -180,7 +219,7 @@ const ActivityListScreen = () => {
                   latitude: place.location.latitude,
                   longitude: place.location.longitude,
                 }}
-                onPress={() => openPlace(place)}
+                onPress={() => router.push(`/place/${place.id}`)}
                 anchor={{ x: 0.5, y: 1 }}
               >
                 <MapMarkerPill

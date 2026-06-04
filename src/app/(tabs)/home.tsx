@@ -25,6 +25,8 @@ import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
+import { useFavoritesStore } from "@/store/favorites";
+import type { FavoritePlace } from "@/store/favorites";
 
 const FEATURED_TYPES = ["tourist_attraction"];
 const FEATURED_COUNT = 5;
@@ -40,6 +42,50 @@ const rankFeatured = (places: GooglePlace[]): GooglePlace[] =>
       return bScore - aScore;
     })
     .slice(0, FEATURED_COUNT);
+
+const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
+  placeId: place.id!,
+  name: place.displayName?.text,
+  address: place.formattedAddress,
+  lat: place.location?.latitude,
+  lng: place.location?.longitude,
+  types: place.types ?? [],
+  rating: place.rating,
+  photoName: place.photos?.[0]?.name,
+});
+
+type BookmarkablePlaceCardProps = {
+  place: GooglePlace;
+  badge: string;
+  distanceKm?: number;
+};
+
+const BookmarkablePlaceCard = ({
+  place,
+  badge,
+  distanceKm: distance,
+}: BookmarkablePlaceCardProps) => {
+  const favorites = useFavoritesStore((state) => state.favorites);
+  const { addFavorite, removeFavorite } = useFavoritesStore();
+  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+
+  return (
+    <PlaceCard
+      place={place}
+      badgeLabel={badge}
+      distanceKm={distance}
+      bookmarked={bookmarked}
+      onPress={() => router.push(`/place/${place.id}`)}
+      onBookmark={() => {
+        if (bookmarked) {
+          removeFavorite(place.id!);
+        } else {
+          addFavorite(toFavoritePlace(place));
+        }
+      }}
+    />
+  );
+};
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
@@ -236,15 +282,11 @@ const HomeScreen = () => {
             contentContainerStyle={styles.carouselRow}
           >
             {places.map((place) => (
-              <PlaceCard
+              <BookmarkablePlaceCard
                 key={place.id}
                 place={place}
-                badgeLabel={selectedActivity.badge}
+                badge={selectedActivity.badge}
                 distanceKm={withDistance(place)}
-                onPress={() => openPlace(place)}
-                onBookmark={() => {
-                  // TODO(phase-3): toggle favourite
-                }}
               />
             ))}
           </ScrollView>
