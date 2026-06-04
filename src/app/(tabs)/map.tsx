@@ -28,7 +28,6 @@ import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
 import { useSettingsStore } from '@/store/settings';
-
 import { useFavoritesStore } from '@/store/favorites';
 import type { FavoritePlace } from '@/store/favorites';
 
