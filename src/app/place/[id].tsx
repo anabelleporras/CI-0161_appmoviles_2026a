@@ -20,6 +20,8 @@ import { distanceKm } from "@/lib/distance";
 import { placeDetails, photoUrl, type GooglePlace } from "@/services/google-places";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
+import { formatDistance } from '@/lib/distance';
+import { useSettingsStore } from '@/store/settings';
 
 const openInExternalMap = (place: GooglePlace) => {
   if (!place.location) return;
@@ -53,6 +55,7 @@ const PlaceDetailScreen = () => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
   const bookmarked = favorites.some((f) => f.placeId === id);
+  const units = useSettingsStore((state) => state.units);
 
   useEffect(() => {
     let active = true;
@@ -181,7 +184,7 @@ const PlaceDetailScreen = () => {
             {distance !== undefined && (
               <View style={styles.metaItem}>
                 <MapPin size={14} color={theme.textMuted} />
-                <Text style={styles.metaText}>{distance.toFixed(1)} km away</Text>
+                <Text style={styles.metaText}>{formatDistance(distance, units)} away</Text>
               </View>
             )}
           </View>
