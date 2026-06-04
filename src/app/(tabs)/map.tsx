@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Linking, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -91,28 +91,6 @@ const iconForPlace = (place: GooglePlace): LucideIcon => {
   )
     return TreePine;
   return Compass;
-};
-
-const openInExternalMap = async (place: GooglePlace) => {
-  if (!place.location) return;
-  const { latitude, longitude } = place.location;
-  const candidates = [
-    `comgooglemaps://?q=${latitude},${longitude}&zoom=14`,
-    `google.navigation:q=${latitude},${longitude}`,
-    `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
-  ];
-
-  for (const url of candidates) {
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-        return;
-      }
-    } catch {
-      // try next
-    }
-  }
 };
 
 const COSTA_RICA_FALLBACK = {
@@ -283,7 +261,6 @@ const MapScreen = () => {
         place={selectedPlace}
         distanceKm={selectedDistance}
         onViewDetails={() => selectedPlace && router.push(`/place/${selectedPlace.id}`)}
-        onOpenInMap={() => selectedPlace && openInExternalMap(selectedPlace)}
         bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id!) : false}
         onBookmark={() => {
           if (!selectedPlace) return;

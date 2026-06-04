@@ -14,7 +14,6 @@ export type PlaceDetailSheetProps = {
   place: GooglePlace | null;
   distanceKm?: number;
   onViewDetails?: () => void;
-  onOpenInMap?: () => void;
   bookmarked?: boolean;
   onBookmark?: () => void;
 };
@@ -29,7 +28,6 @@ const PlaceDetailSheet = ({
   place,
   distanceKm,
   onViewDetails,
-  onOpenInMap,
   bookmarked = false,
   onBookmark,
 }: PlaceDetailSheetProps) => {
@@ -104,18 +102,13 @@ const PlaceDetailSheet = ({
             </TouchableOpacity>
           )}
           <TouchableOpacity
-            style={styles.secondaryButton}
+            style={styles.primaryButton}
             onPress={onViewDetails}
             activeOpacity={0.85}
           >
-            <Text style={styles.secondaryButtonText}>View details</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={onOpenInMap}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.primaryButtonText}>Open in map</Text>
+            <Text style={styles.primaryButtonText} numberOfLines={1}>
+              View details
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

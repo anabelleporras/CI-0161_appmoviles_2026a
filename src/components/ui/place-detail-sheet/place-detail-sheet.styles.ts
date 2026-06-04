@@ -11,7 +11,7 @@ export const createPlaceDetailSheetStyles = (theme: Theme) =>
       position: "absolute",
       left: Spacing.lg,
       right: Spacing.lg,
-      bottom: Spacing.lg,
+      bottom: Spacing["5xl"],
       borderRadius: Radius["2xl"],
       backgroundColor: theme.surface,
       padding: Spacing.lg,
@@ -50,17 +50,12 @@ export const createPlaceDetailSheetStyles = (theme: Theme) =>
       marginTop: Spacing.sm,
     },
     secondaryButton: {
-      flex: 1,
-      paddingVertical: Spacing.sm + 2,
+      padding: Spacing.sm + 2,
       borderRadius: Radius.pill,
       borderWidth: 1,
       borderColor: theme.border,
       alignItems: "center",
-    },
-    secondaryButtonText: {
-      ...Typography.caption,
-      fontWeight: "600",
-      color: theme.textStrong,
+      justifyContent: "center",
     },
     primaryButton: {
       flex: 1,
@@ -73,5 +68,6 @@ export const createPlaceDetailSheetStyles = (theme: Theme) =>
       ...Typography.caption,
       fontWeight: "600",
       color: theme.textOnAccent,
+      textAlign: "center",
     },
   });
