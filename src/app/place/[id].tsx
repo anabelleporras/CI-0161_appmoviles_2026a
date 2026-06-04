@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Spacing, Typography } from "@/constants/theme";
+import { WeatherCard } from "@/components/ui/weather-card";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
@@ -197,6 +198,12 @@ const PlaceDetailScreen = () => {
             <Text style={styles.summary}>{place.editorialSummary.text}</Text>
           )}
 
+          {place.location && (
+            <WeatherCard
+              lat={place.location.latitude}
+              lon={place.location.longitude}
+            />
+          )}
           {hours.length > 0 && (
             <>
               <Text style={styles.hoursTitle}>Opening hours</Text>
