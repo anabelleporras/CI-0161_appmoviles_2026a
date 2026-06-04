@@ -149,6 +149,7 @@ const HomeScreen = () => {
     coords,
     activities: ACTIVITIES,
     maxPerActivity: COUNT_CAP,
+    radius: searchRadius,
   });
 
   const { places, loading } = useNearbyPlaces({
