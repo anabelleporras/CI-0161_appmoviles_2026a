@@ -3,7 +3,6 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import * as AppleAuthentication from "expo-apple-authentication";
-import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import {
@@ -19,13 +18,13 @@ import { AppleLogo, GoogleLogo } from "@/components/brand-icons";
 import { Radius, Spacing, Typography } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { BACKEND_URL } from "@/lib/backend";
+import { useAuth } from '@/context/AuthContext';
 
 const GOOGLE_CLIENT_ID_WEB = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_WEB!;
 const GOOGLE_CLIENT_ID_IOS = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS!;
 const APPLE_AUTH_ENABLED =
   process.env.EXPO_PUBLIC_APPLE_AUTH_ENABLED === "true";
 
-export const SESSION_TOKEN_KEY = "session_token";
 
 GoogleSignin.configure({
   webClientId: GOOGLE_CLIENT_ID_WEB,
@@ -36,6 +35,7 @@ GoogleSignin.configure({
 export default function LoginScreen() {
   const theme = useTheme();
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
+  const { login } = useAuth();
 
   async function handleGoogleLogin() {
     try {
@@ -109,8 +109,7 @@ export default function LoginScreen() {
       if (!res.ok)
         throw new Error(`Backend responded with status ${res.status}`);
       const data = await res.json();
-      await SecureStore.setItemAsync(SESSION_TOKEN_KEY, data.sessionToken);
-      router.replace("/(tabs)/home");
+      await login(data.sessionToken);
     } catch (error) {
       console.error("Backend error:", error);
       Alert.alert("Login failed", "Could not reach the server.");

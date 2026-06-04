@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
-import { SESSION_TOKEN_KEY } from '@/app/login';
+import { SESSION_TOKEN_KEY } from '@/constants/auth';
 
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL!;
 
