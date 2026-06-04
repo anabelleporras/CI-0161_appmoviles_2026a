@@ -32,6 +32,9 @@ import { useSettingsStore } from '@/store/settings';
 import { useFavoritesStore } from '@/store/favorites';
 import type { FavoritePlace } from '@/store/favorites';
 
+import { useFavoritesStore } from '@/store/favorites';
+import type { FavoritePlace } from '@/store/favorites';
+
 type MapFilter = {
   id: string;
   label: string;
