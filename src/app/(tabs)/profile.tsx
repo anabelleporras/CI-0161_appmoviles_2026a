@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { SESSION_TOKEN_KEY } from "@/app/login";
 import { apiFetch } from "@/services/api-client";
+import { useAuth } from "@/context/AuthContext";
 
 interface User {
   id: string;
@@ -13,15 +11,11 @@ interface User {
   provider: string;
 }
 
-async function handleLogout() {
-  await SecureStore.deleteItemAsync(SESSION_TOKEN_KEY);
-  router.replace("/login");
-}
-
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { logout } = useAuth();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -54,7 +48,7 @@ export default function ProfileScreen() {
         </>
       )}
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>
     </View>
