@@ -27,6 +27,13 @@ import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
 import type { GooglePlace } from "@/services/google-places";
+import { useSettingsStore } from '@/store/settings';
+
+import { useFavoritesStore } from '@/store/favorites';
+import type { FavoritePlace } from '@/store/favorites';
+
+import { useFavoritesStore } from '@/store/favorites';
+import type { FavoritePlace } from '@/store/favorites';
 
 type MapFilter = {
   id: string;
@@ -123,6 +130,7 @@ const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const scheme = useColorScheme();
+  const searchRadius = useSettingsStore((state) => state.searchRadius);
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -151,13 +159,27 @@ const MapScreen = () => {
   const [selectedPlace, setSelectedPlace] = useState<GooglePlace | null>(null);
   const [tracksMarkers, setTracksMarkers] = useState(true);
 
+  const { addFavorite, removeFavorite } = useFavoritesStore();
+  const favorites = useFavoritesStore((state) => state.favorites);
+
+  const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
+    placeId: place.id!,
+    name: place.displayName?.text,
+    address: place.formattedAddress,
+    lat: place.location?.latitude,
+    lng: place.location?.longitude,
+    types: place.types ?? [],
+    rating: place.rating,
+    photoName: place.photos?.[0]?.name,
+  });
+
   const activeFilter =
     FILTERS.find((f) => f.id === selectedFilterId) ?? FILTERS[0];
 
   const { places } = useNearbyPlaces({
     coords,
     includedTypes: activeFilter.includedTypes,
-    radius: 15000,
+    radius: searchRadius,
     maxResults: 20,
   });
 
@@ -266,6 +288,18 @@ const MapScreen = () => {
         distanceKm={selectedDistance}
         onViewDetails={() => selectedPlace && router.push(`/place/${selectedPlace.id}`)}
         onOpenInMap={() => selectedPlace && openInExternalMap(selectedPlace)}
+        bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id!) : false}
+        onBookmark={() => {
+          if (!selectedPlace) return;
+          const current = useFavoritesStore.getState().favorites.some(
+            (f) => f.placeId === selectedPlace.id!
+          );
+          if (current) {
+            removeFavorite(selectedPlace.id!);
+          } else {
+            addFavorite(toFavoritePlace(selectedPlace));
+          }
+        }}
       />
     </View>
   );

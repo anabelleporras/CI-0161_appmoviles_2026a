@@ -23,6 +23,13 @@ export const distanceKm = (
   return EARTH_RADIUS_KM * c;
 };
 
+export const formatDistance = (km: number, units: 'km' | 'mi'): string => {
+  if (units === 'mi') {
+    return `${(km * 0.621371).toFixed(1)} mi`;
+  }
+  return `${km.toFixed(1)} km`;
+};
+
 export const fetchWithTimeout = async (
   url: string,
   options: RequestInit = {},
