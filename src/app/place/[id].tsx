@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Spacing, Typography } from "@/constants/theme";
+import { PopularityCard } from "@/components/ui/popularity-card";
 import { WeatherCard } from "@/components/ui/weather-card";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useTheme } from "@/hooks/use-theme";
@@ -204,6 +205,11 @@ const PlaceDetailScreen = () => {
               lon={place.location.longitude}
             />
           )}
+
+          <PopularityCard
+            rating={place.rating}
+            userRatingCount={place.userRatingCount}
+          />
           {hours.length > 0 && (
             <>
               <Text style={styles.hoursTitle}>Opening hours</Text>

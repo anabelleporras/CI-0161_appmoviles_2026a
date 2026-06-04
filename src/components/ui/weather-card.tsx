@@ -19,6 +19,7 @@ import { useWeather, type WeatherCondition } from "@/hooks/use-weather";
 
 type Props = { lat: number; lon: number };
 
+// Readable label for each WMO condition
 const CONDITION_LABEL: Record<WeatherCondition, string> = {
   clear: "Clear",
   "partly-cloudy": "Partly cloudy",
@@ -31,6 +32,7 @@ const CONDITION_LABEL: Record<WeatherCondition, string> = {
   unknown: "Unknown",
 };
 
+// Picks the right lucide icon for each condition
 const ConditionIcon = ({
   condition,
   color,
@@ -63,8 +65,10 @@ const ConditionIcon = ({
   }
 };
 
+// Calls useWeather with the place's coordinates and renders a card.
 export const WeatherCard = ({ lat, lon }: Props) => {
   const theme = useTheme();
+  // useWeather handles fetching + 15-min cache internally
   const weather = useWeather(lat, lon);
 
   const styles = useMemo(
@@ -102,6 +106,7 @@ export const WeatherCard = ({ lat, lon }: Props) => {
     [theme],
   );
 
+  // Still fetching. Shows a small spinner
   if (weather.status === "loading" || weather.status === "idle") {
     return (
       <View style={styles.loading}>
@@ -110,6 +115,7 @@ export const WeatherCard = ({ lat, lon }: Props) => {
     );
   }
 
+  // If the API call failed hide the card
   if (weather.status === "error") return null;
 
   const { temperatureC, condition, windSpeedKmh } = weather.weather;
@@ -117,6 +123,7 @@ export const WeatherCard = ({ lat, lon }: Props) => {
   return (
     <View>
       <Text style={styles.sectionLabel}>Current weather</Text>
+      {/* Icon | temp + condition label | wind speed */}
       <View style={styles.card}>
         <View style={styles.iconCol}>
           <ConditionIcon condition={condition} color={theme.text} />
