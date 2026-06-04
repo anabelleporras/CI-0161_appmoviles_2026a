@@ -39,11 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-          useFavoritesStore.getState().syncFromBackend();
-        }
+        useFavoritesStore.getState().syncFromBackend();
       }
     } catch {
       // no-op: stay logged out

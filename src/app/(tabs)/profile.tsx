@@ -88,8 +88,6 @@ export default function ProfileScreen() {
         root: { flex: 1, backgroundColor: theme.background },
         scroll: { flex: 1 },
         scrollContent: { paddingBottom: 120 },
-
-        // header
         header: {
           paddingHorizontal: Spacing.xl,
           paddingBottom: Spacing.xl,
@@ -114,8 +112,6 @@ export default function ProfileScreen() {
           borderWidth: 1,
           borderColor: theme.border,
         },
-
-        // user card
         userCard: {
           backgroundColor: theme.surface,
           borderRadius: Radius.lg,
@@ -128,13 +124,11 @@ export default function ProfileScreen() {
           alignItems: 'center',
           gap: Spacing.md,
         },
-
         avatar: {
           width: 64,
           height: 64,
           borderRadius: Radius.pill,
         },
-
         avatarPlaceholder: {
           width: 64,
           height: 64,
@@ -143,13 +137,11 @@ export default function ProfileScreen() {
           alignItems: 'center',
           justifyContent: 'center',
         },
-
         avatarText: {
           ...Typography.subtitle,
           color: theme.text,
           fontWeight: '700',
         },
-
         userInfo: {
           flex: 1,
         },
@@ -168,8 +160,6 @@ export default function ProfileScreen() {
           opacity: 0.6,
           textTransform: 'capitalize',
         },
-
-        // sections
         section: {
           paddingHorizontal: Spacing.xl,
           gap: Spacing.sm,
@@ -187,8 +177,6 @@ export default function ProfileScreen() {
           paddingHorizontal: Spacing.lg,
           ...Shadow.card,
         },
-
-        // empty favorites
         emptyFavorites: {
           alignItems: 'center',
           paddingVertical: Spacing.xl,
@@ -203,8 +191,6 @@ export default function ProfileScreen() {
           color: theme.textMuted,
           opacity: 0.6,
         },
-
-        // logout
         logoutBtn: {
           marginHorizontal: Spacing.xl,
           flexDirection: 'row',
@@ -221,8 +207,6 @@ export default function ProfileScreen() {
           color: theme.text,
           fontWeight: '600',
         },
-
-        // loading
         center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
       }),
     [theme],
@@ -243,7 +227,6 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <Text style={styles.headerTitle}>Profile</Text>
@@ -256,14 +239,10 @@ export default function ProfileScreen() {
             </Pressable>
           </View>
 
-          {/* User card */}
           <View style={styles.userCard}>
             <View style={styles.avatarRow}>
               {user?.picture ? (
-                <Image
-                  source={{ uri: user.picture }}
-                  style={styles.avatar}
-                />
+                <Image source={{ uri: user.picture }} style={styles.avatar} />
               ) : (
                 <View style={styles.avatarPlaceholder}>
                   <Text style={styles.avatarText}>
@@ -271,18 +250,13 @@ export default function ProfileScreen() {
                   </Text>
                 </View>
               )}
-
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
                   {user?.name ?? 'Traveller'}
                 </Text>
-
                 {user?.email ? (
-                  <Text style={styles.userEmail}>
-                    {user.email}
-                  </Text>
+                  <Text style={styles.userEmail}>{user.email}</Text>
                 ) : null}
-
                 <Text style={styles.userProvider}>
                   Signed in with {user?.provider ?? ''}
                 </Text>
@@ -291,7 +265,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Favorites */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Saved places</Text>
           <View style={styles.sectionCard}>
@@ -305,16 +278,12 @@ export default function ProfileScreen() {
               </View>
             ) : (
               favorites.map((place) => (
-                <FavoriteRow
-                  key={place.placeId}
-                  place={place}
-                />
+                <FavoriteRow key={place.placeId} place={place} />
               ))
             )}
           </View>
         </View>
 
-        {/* Logout */}
         <Pressable
           style={[styles.logoutBtn, { marginTop: Spacing.xl }]}
           onPress={logout}
