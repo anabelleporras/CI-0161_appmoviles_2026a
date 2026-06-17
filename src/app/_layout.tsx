@@ -17,7 +17,7 @@ function RootNavigator() {
 
   return (
     <>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
