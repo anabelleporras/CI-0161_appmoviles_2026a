@@ -13,18 +13,18 @@ export const createActivityCardStyles = (theme: Theme, selected: boolean) =>
       paddingVertical: Spacing.lg,
       paddingHorizontal: Spacing.md,
       gap: Spacing.sm,
-      backgroundColor: selected ? theme.accent : theme.surfaceInverse,
+      backgroundColor: selected ? theme.accent : theme.surface,
       ...Shadow.card,
     },
     label: {
       ...Typography.subtitle,
       fontWeight: "700",
       letterSpacing: -0.3,
-      color: selected ? theme.textOnAccent : theme.textInverse,
+      color: selected ? theme.textOnAccent : theme.text,
     },
     count: {
       ...Typography.caption,
-      color: selected ? theme.textOnAccent : theme.textInverse,
+      color: selected ? theme.textOnAccent : theme.text,
       opacity: selected ? 0.85 : 0.7,
     },
   });

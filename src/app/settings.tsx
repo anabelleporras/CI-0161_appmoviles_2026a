@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import IconButton from '@/components/ui/icon-button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Radius, Spacing, Typography } from '@/constants/theme';
@@ -79,15 +80,6 @@ export default function SettingsScreen() {
         },
         radiusList: {
           gap: Spacing.xs,
-        },
-        backBtn: {
-          width: 40,
-          height: 40,
-          borderRadius: Radius.pill,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderWidth: 1,
-          borderColor: theme.border,
         },
         headerTitle: {
           ...Typography.subtitle,
@@ -160,13 +152,11 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + Spacing.sm }]}>
       <View style={styles.header}>
-        <Pressable
-          style={styles.backBtn}
+        <IconButton
+          icon={ArrowLeft}
           onPress={() => router.back()}
           accessibilityLabel="Back"
-        >
-          <ArrowLeft size={20} color={theme.text} />
-        </Pressable>
+        />
         <Text style={styles.headerTitle}>Settings</Text>
       </View>
 

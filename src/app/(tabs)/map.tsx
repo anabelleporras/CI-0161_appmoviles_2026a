@@ -20,8 +20,7 @@ import MapMarkerPill from "@/components/ui/map-marker-pill";
 import PlaceDetailSheet from "@/components/ui/place-detail-sheet";
 import SearchBar from "@/components/ui/search-bar";
 import { ACTIVITIES, ALL_ACTIVITY_TYPES } from "@/constants/activities";
-import { Spacing } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors, Palette, Spacing } from "@/constants/theme";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
@@ -49,9 +48,15 @@ const FILTERS: MapFilter[] = [
 ];
 
 const DARK_MAP_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#1A2B1E" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#C8EDD1" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#1A2B1E" }] },
+  { elementType: "geometry", stylers: [{ color: Palette.forestNight.normal }] },
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: Palette.ceibaGreen.text }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ color: Palette.forestNight.normal }],
+  },
   {
     featureType: "poi",
     elementType: "labels",
@@ -60,12 +65,12 @@ const DARK_MAP_STYLE = [
   {
     featureType: "road",
     elementType: "geometry",
-    stylers: [{ color: "#223726" }],
+    stylers: [{ color: Palette.forestNight.normalHover }],
   },
   {
     featureType: "water",
     elementType: "geometry",
-    stylers: [{ color: "#132017" }],
+    stylers: [{ color: Palette.forestNight.normalActive }],
   },
 ];
 
@@ -103,7 +108,7 @@ const COSTA_RICA_FALLBACK = {
 const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
-  const scheme = useColorScheme();
+  const isDark = theme === Colors.dark;
   const searchRadius = useSettingsStore((state) => state.searchRadius);
   const styles = useMemo(
     () =>
@@ -200,7 +205,7 @@ const MapScreen = () => {
         showsUserLocation
         showsMyLocationButton={false}
         showsPointsOfInterests={false}
-        customMapStyle={scheme === "dark" ? DARK_MAP_STYLE : []}
+        customMapStyle={isDark ? DARK_MAP_STYLE : []}
         onPress={() => setSelectedPlace(null)}
       >
         {filteredPlaces.map((place) => {
