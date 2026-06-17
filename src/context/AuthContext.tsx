@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { SESSION_TOKEN_KEY } from '@/constants/auth';
 import { apiFetch } from '@/services/api-client';
 import { useFavoritesStore } from '@/store/favorites';
+import { useSettingsStore } from '@/store/settings';
 
 interface User {
   id: string;
@@ -39,7 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
-        useFavoritesStore.getState().syncFromBackend();
+        await Promise.all([
+          useFavoritesStore.getState().syncFromBackend(),
+          useSettingsStore.getState().syncFromBackend(),
+        ]);
       }
     } catch {
       // no-op: stay logged out
@@ -54,6 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.ok) {
       const data = await res.json();
       setUser(data.user);
+      await Promise.all([
+        useFavoritesStore.getState().syncFromBackend(),
+        useSettingsStore.getState().syncFromBackend(),
+      ]);
     }
     router.replace('/(tabs)/home');
   }
