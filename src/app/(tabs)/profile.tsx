@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import PlacePhoto from '@/components/ui/place-photo';
+import IconButton from '@/components/ui/icon-button';
 import { Radius, Shadow, Spacing, Typography } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/use-theme';
@@ -103,15 +104,6 @@ export default function ProfileScreen() {
           color: theme.text,
           fontWeight: '700',
         },
-        settingsBtn: {
-          width: 40,
-          height: 40,
-          borderRadius: Radius.pill,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderWidth: 1,
-          borderColor: theme.border,
-        },
         userCard: {
           backgroundColor: theme.surface,
           borderRadius: Radius.lg,
@@ -199,8 +191,10 @@ export default function ProfileScreen() {
           gap: Spacing.sm,
           paddingVertical: Spacing.md,
           borderRadius: Radius.pill,
-          borderWidth: 1.5,
+          backgroundColor: theme.surface,
+          borderWidth: 1,
           borderColor: theme.border,
+          ...Shadow.pill,
         },
         logoutText: {
           ...Typography.body2,
@@ -230,13 +224,11 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <View style={styles.headerRow}>
             <Text style={styles.headerTitle}>Profile</Text>
-            <Pressable
-              style={styles.settingsBtn}
+            <IconButton
+              icon={Settings}
               onPress={() => router.push('/settings')}
               accessibilityLabel="Settings"
-            >
-              <Settings size={20} color={theme.text} />
-            </Pressable>
+            />
           </View>
 
           <View style={styles.userCard}>
