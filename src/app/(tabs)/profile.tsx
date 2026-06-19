@@ -58,13 +58,13 @@ const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
       onPress={() => router.push(`/place/${place.placeId}`)}
     >
       <PlacePhoto
-        photoName={place.photoName}
+        photo={place.photoName ? { ref: place.photoName } : undefined}
         style={styles.photo}
         maxWidthPx={120}
       />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
-          {place.name ?? 'Unnamed place'}
+          {place.name || 'Unnamed place'}
         </Text>
         {place.address ? (
           <Text style={styles.address} numberOfLines={1}>
