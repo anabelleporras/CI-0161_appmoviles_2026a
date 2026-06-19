@@ -2,14 +2,14 @@ import { Image } from "expo-image";
 import { Leaf, type LucideIcon } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { View, type StyleProp, type ViewStyle } from "react-native";
-
 import { useTheme } from "@/hooks/use-theme";
-import { photoUrl } from "@/services/google-places";
-
+//import { photoUrl } from "@/services/google-places";
+import { places } from "@/services/providers";
+import type { PhotoRef } from "@/services/places/types";
 import { createPlacePhotoStyles } from "./place-photo.styles";
 
 export type PlacePhotoProps = {
-  photoName?: string;
+  photo?: PhotoRef;
   maxWidthPx?: number;
   style?: StyleProp<ViewStyle>;
   fallbackIcon?: LucideIcon;
@@ -18,7 +18,7 @@ export type PlacePhotoProps = {
 };
 
 const PlacePhoto = ({
-  photoName,
+  photo,
   maxWidthPx = 800,
   style,
   fallbackIcon,
@@ -30,8 +30,8 @@ const PlacePhoto = ({
   const [errored, setErrored] = useState(false);
 
   const uri = useMemo(
-    () => photoUrl(photoName, { maxWidthPx }),
-    [photoName, maxWidthPx],
+    () => (photo ? places.photoUrl(photo, maxWidthPx) : null),
+    [photo, maxWidthPx],
   );
 
   const showFallback = !uri || errored;
