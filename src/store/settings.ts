@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
+import { apiFetch } from '@/services/api-client';
 
 const secureStorage: StateStorage = {
   getItem: async (name) => await SecureStore.getItemAsync(name) ?? null,
@@ -17,23 +18,88 @@ interface SettingsState {
   searchRadius: number;
   themePreference: ThemePreference;
   notifications: boolean;
-  setUnits: (units: Units) => void;
-  setSearchRadius: (radius: number) => void;
-  setThemePreference: (theme: ThemePreference) => void;
-  setNotifications: (enabled: boolean) => void;
+  updatedAt: string;
+  setUnits: (units: Units) => Promise<void>;
+  setSearchRadius: (radius: number) => Promise<void>;
+  setThemePreference: (theme: ThemePreference) => Promise<void>;
+  setNotifications: (enabled: boolean) => Promise<void>;
+  syncFromBackend: () => Promise<void>;
 }
+
+const nextUpdatedAt = (previous: string): string => {
+  const now = Date.now();
+  const previousMs = Number.isNaN(Date.parse(previous)) ? 0 : Date.parse(previous);
+  return new Date(Math.max(now, previousMs + 1)).toISOString();
+};
 
 export const useSettingsStore = create<SettingsState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       units: 'km',
       searchRadius: 15000,
       themePreference: 'auto',
       notifications: true,
-      setUnits: (units) => set({ units }),
-      setSearchRadius: (radius) => set({ searchRadius: radius }),
-      setThemePreference: (themePreference) => set({ themePreference }),
-      setNotifications: (notifications) => set({ notifications }),
+      updatedAt: '1970-01-01T00:00:00.000Z',
+      setUnits: async (units) => {
+        const previous = get().updatedAt;
+        const updatedAt = nextUpdatedAt(previous);
+        set({ units, updatedAt });
+        await get().syncFromBackend();
+      },
+      setSearchRadius: async (radius) => {
+        const previous = get().updatedAt;
+        const updatedAt = nextUpdatedAt(previous);
+        set({ searchRadius: radius, updatedAt });
+        await get().syncFromBackend();
+      },
+      setThemePreference: async (themePreference) => {
+        const previous = get().updatedAt;
+        const updatedAt = nextUpdatedAt(previous);
+        set({ themePreference, updatedAt });
+        await get().syncFromBackend();
+      },
+      setNotifications: async (notifications) => {
+        const previous = get().updatedAt;
+        const updatedAt = nextUpdatedAt(previous);
+        set({ notifications, updatedAt });
+        await get().syncFromBackend();
+      },
+      syncFromBackend: async () => {
+        try {
+          const state = get();
+          const requestUpdatedAt = state.updatedAt;
+          const res = await apiFetch('/settings', {
+            method: 'PUT',
+            body: JSON.stringify({
+              units: state.units,
+              searchRadius: state.searchRadius,
+              themePreference: state.themePreference,
+              notifications: state.notifications,
+              updatedAt: state.updatedAt,
+            }),
+          });
+          if (!res.ok) return;
+          const data = await res.json();
+          const settings = data.settings;
+          if (!settings) return;
+
+          const currentUpdatedAtMs = Date.parse(get().updatedAt);
+          const requestUpdatedAtMs = Date.parse(requestUpdatedAt);
+          if (!Number.isNaN(currentUpdatedAtMs) && !Number.isNaN(requestUpdatedAtMs) && currentUpdatedAtMs > requestUpdatedAtMs) {
+            return;
+          }
+
+          set({
+            units: settings.units,
+            searchRadius: settings.searchRadius,
+            themePreference: settings.themePreference,
+            notifications: settings.notifications,
+            updatedAt: settings.updatedAt,
+          });
+        } catch {
+          // offline — keep local settings
+        }
+      },
     }),
     {
       name: 'settings-storage',
