@@ -4,21 +4,23 @@ import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
-import type { GooglePlace } from "@/services/google-places";
+//import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
+
 import { formatDistance } from '@/lib/distance';
 import { useSettingsStore } from '@/store/settings';
 
 import { createPlaceDetailSheetStyles } from "./place-detail-sheet.styles";
 
 export type PlaceDetailSheetProps = {
-  place: GooglePlace | null;
+  place: Place | null;
   distanceKm?: number;
   onViewDetails?: () => void;
   bookmarked?: boolean;
   onBookmark?: () => void;
 };
 
-const formatTag = (place: GooglePlace) => {
+const formatTag = (place: Place) => {
   const type = place.primaryType?.replace(/_/g, " ").toUpperCase() ?? "PLACE";
   const featured = (place.rating ?? 0) > 4.5 ? " · FEATURED" : "";
   return `${type}${featured}`;
@@ -55,11 +57,9 @@ const PlaceDetailSheet = ({
 
   if (!place) return null;
 
+  const photo = place.photos[0];
   const meta = [
     typeof place.rating === "number" ? `★ ${place.rating.toFixed(1)}` : null,
-    typeof place.userRatingCount === "number"
-      ? `${place.userRatingCount.toLocaleString()} reviews`
-      : null,
     typeof distanceKm === "number" ? formatDistance(distanceKm, units) : null,
   ]
     .filter(Boolean)
@@ -73,14 +73,14 @@ const PlaceDetailSheet = ({
       ]}
     >
       <PlacePhoto
-        photoName={place.photos?.[0]?.name}
+        photo={photo}
         style={styles.thumbnail}
         maxWidthPx={300}
       />
       <View style={styles.body}>
         <Text style={styles.tag}>{formatTag(place)}</Text>
         <Text style={styles.title} numberOfLines={1}>
-          {place.displayName?.text ?? "Place"}
+          {place.name || "Place"}
         </Text>
         {meta ? (
           <Text style={styles.meta} numberOfLines={1}>

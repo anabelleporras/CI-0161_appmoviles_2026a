@@ -24,7 +24,8 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+//import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 import { useSettingsStore } from '@/store/settings';
@@ -33,30 +34,30 @@ const FEATURED_TYPES = ["tourist_attraction"];
 const FEATURED_COUNT = 5;
 const COUNT_CAP = 20;
 
-const rankFeatured = (places: GooglePlace[]): GooglePlace[] =>
+const rankFeatured = (places: Place[]): Place[] =>
   [...places]
     .sort((a, b) => {
       const aScore =
-        (a.rating ?? 0) * Math.log10((a.userRatingCount ?? 0) + 1);
+        (a.rating ?? 0) * Math.log10((a.ratingCount ?? 0) + 1);
       const bScore =
-        (b.rating ?? 0) * Math.log10((b.userRatingCount ?? 0) + 1);
+        (b.rating ?? 0) * Math.log10((b.ratingCount ?? 0) + 1);
       return bScore - aScore;
     })
     .slice(0, FEATURED_COUNT);
 
-const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
+const toFavoritePlace = (place: Place): FavoritePlace => ({
   placeId: place.id!,
-  name: place.displayName?.text,
-  address: place.formattedAddress,
+  name: place.name,
+  address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
   types: place.types ?? [],
   rating: place.rating,
-  photoName: place.photos?.[0]?.name,
+  photoName: place.photos[0]?.ref,
 });
 
 type BookmarkablePlaceCardProps = {
-  place: GooglePlace;
+  place: Place;
   badge: string;
   distanceKm?: number;
 };
@@ -171,7 +172,7 @@ const HomeScreen = () => {
     [featuredQuery.places],
   );
 
-  const withDistance = (place: GooglePlace) => {
+  const withDistance = (place: Place) => {
     if (!coords || !place.location) return undefined;
     return distanceKm(
       coords.latitude,
@@ -181,7 +182,7 @@ const HomeScreen = () => {
     );
   };
 
-  const openPlace = (place: GooglePlace) =>
+  const openPlace = (place: Place) =>
     router.push(`/place/${place.id}`);
 
   const openActivityList = (activityId: string) =>
