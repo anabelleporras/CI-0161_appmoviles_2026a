@@ -9,6 +9,8 @@ import {
 
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
+import { formatDistance } from "@/lib/distance";
+import { useSettingsStore } from "@/store/settings";
 import type { GooglePlace } from "@/services/google-places";
 
 import { createFeaturedCardStyles } from "./featured-card.styles";
@@ -35,6 +37,7 @@ const FeaturedCard = ({
 }: FeaturedCardProps) => {
   const theme = useTheme();
   const styles = useMemo(() => createFeaturedCardStyles(theme), [theme]);
+  const units = useSettingsStore((state) => state.units);
 
   const photoName = place.photos?.[0]?.name;
   const title = place.displayName?.text ?? "Featured place";
@@ -43,7 +46,7 @@ const FeaturedCard = ({
     typeof place.userRatingCount === "number"
       ? `${place.userRatingCount.toLocaleString()} reviews`
       : null,
-    typeof distanceKm === "number" ? `${distanceKm.toFixed(1)} km` : null,
+    typeof distanceKm === "number" ? formatDistance(distanceKm, units) : null,
   ]
     .filter(Boolean)
     .join(" · ");
