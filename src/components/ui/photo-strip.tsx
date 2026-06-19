@@ -1,11 +1,11 @@
 import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
 
 import { Radius, Spacing } from "@/constants/theme";
-import { photoUrl } from "@/services/google-places";
+import { places } from "@/services/providers";
+import type { PhotoRef } from "@/services/places/types";
 
 type Props = {
-  photos: { name: string }[];
-  // Index of the photo currently shown in the hero above
+  photos: PhotoRef[];
   selectedIndex: number;
   onSelect: (index: number) => void;
 };
@@ -14,7 +14,6 @@ const THUMB_WIDTH = 120;
 const THUMB_HEIGHT = 88;
 
 export const PhotoStrip = ({ photos, selectedIndex, onSelect }: Props) => {
-  // We need at least 2 photos. The index 0 alone would just duplicate the hero
   if (photos.length < 2) return null;
 
   return (
@@ -24,11 +23,11 @@ export const PhotoStrip = ({ photos, selectedIndex, onSelect }: Props) => {
       contentContainerStyle={styles.container}
     >
       {photos.map((photo, index) => {
-        const uri = photoUrl(photo.name, { maxWidthPx: 400 });
+        const uri = places.photoUrl(photo, 400);
         if (!uri) return null;
         const isSelected = index === selectedIndex;
         return (
-          <Pressable key={photo.name} onPress={() => onSelect(index)}>
+          <Pressable key={photo.ref} onPress={() => onSelect(index)}>
             <View style={styles.thumb}>
               <Image
                 source={{ uri }}
@@ -62,7 +61,6 @@ const styles = StyleSheet.create({
   dimmed: {
     opacity: 0.5,
   },
-  // Overlaid on top of the image. It doesn't affect layout
   selectedRing: {
     position: "absolute",
     top: 0,
