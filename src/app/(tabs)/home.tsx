@@ -24,7 +24,6 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-//import type { GooglePlace } from "@/services/google-places";
 import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
@@ -46,12 +45,12 @@ const rankFeatured = (places: Place[]): Place[] =>
     .slice(0, FEATURED_COUNT);
 
 const toFavoritePlace = (place: Place): FavoritePlace => ({
-  placeId: place.id!,
-  name: place.name,
+  placeId: place.id,
+  name: place.name || undefined,
   address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
-  types: place.types ?? [],
+  types: place.types,
   rating: place.rating,
   photoName: place.photos[0]?.ref,
 });
@@ -69,7 +68,7 @@ const BookmarkablePlaceCard = ({
 }: BookmarkablePlaceCardProps) => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
-  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+  const bookmarked = favorites.some((f) => f.placeId === place.id);
 
   return (
     <PlaceCard
@@ -80,7 +79,7 @@ const BookmarkablePlaceCard = ({
       onPress={() => router.push(`/place/${place.id}`)}
       onBookmark={() => {
         if (bookmarked) {
-          removeFavorite(place.id!);
+          removeFavorite(place.id);
         } else {
           addFavorite(toFavoritePlace(place));
         }
