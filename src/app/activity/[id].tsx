@@ -35,7 +35,7 @@ type ViewMode = "list" | "map";
 
 const toFavoritePlace = (place: Place): FavoritePlace => ({
   placeId: place.id,
-  name: place.name,
+  name: place.name || undefined,
   address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
