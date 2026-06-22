@@ -4,7 +4,6 @@ import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
-//import type { GooglePlace } from "@/services/google-places";
 import type { Place } from "@/services/places/types";
 
 import { formatDistance } from '@/lib/distance';

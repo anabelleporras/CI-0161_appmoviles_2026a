@@ -3,7 +3,6 @@ import { Leaf, type LucideIcon } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { View, type StyleProp, type ViewStyle } from "react-native";
 import { useTheme } from "@/hooks/use-theme";
-//import { photoUrl } from "@/services/google-places";
 import { places } from "@/services/providers";
 import type { PhotoRef } from "@/services/places/types";
 import { createPlacePhotoStyles } from "./place-photo.styles";
