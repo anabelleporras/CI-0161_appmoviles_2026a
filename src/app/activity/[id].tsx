@@ -20,7 +20,7 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 
@@ -33,19 +33,19 @@ const COSTA_RICA_FALLBACK = {
 
 type ViewMode = "list" | "map";
 
-const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-  placeId: place.id!,
-  name: place.displayName?.text,
-  address: place.formattedAddress,
+const toFavoritePlace = (place: Place): FavoritePlace => ({
+  placeId: place.id,
+  name: place.name || undefined,
+  address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
-  types: place.types ?? [],
+  types: place.types,
   rating: place.rating,
-  photoName: place.photos?.[0]?.name,
+  photoName: place.photos[0]?.ref,
 });
 
 type BookmarkablePlaceCardProps = {
-  place: GooglePlace;
+  place: Place;
   badge: string;
   distanceKm?: number;
 };
@@ -57,7 +57,7 @@ const BookmarkablePlaceCard = ({
 }: BookmarkablePlaceCardProps) => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
-  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+  const bookmarked = favorites.some((f) => f.placeId === place.id);
 
   return (
     <PlaceCard
@@ -127,7 +127,7 @@ const ActivityListScreen = () => {
     [theme],
   );
 
-  const withDistance = (place: GooglePlace) => {
+  const withDistance = (place: Place) => {
     if (!coords || !place.location) return undefined;
     return distanceKm(
       coords.latitude,
@@ -224,7 +224,7 @@ const ActivityListScreen = () => {
               >
                 <MapMarkerPill
                   icon={ActivityIcon}
-                  label={place.displayName?.text ?? "Place"}
+                  label={place.name || "Place"}
                   selected={false}
                 />
               </Marker>

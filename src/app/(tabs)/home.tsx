@@ -24,7 +24,7 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 import { useSettingsStore } from '@/store/settings';
@@ -33,30 +33,30 @@ const FEATURED_TYPES = ["tourist_attraction"];
 const FEATURED_COUNT = 5;
 const COUNT_CAP = 20;
 
-const rankFeatured = (places: GooglePlace[]): GooglePlace[] =>
+const rankFeatured = (places: Place[]): Place[] =>
   [...places]
     .sort((a, b) => {
       const aScore =
-        (a.rating ?? 0) * Math.log10((a.userRatingCount ?? 0) + 1);
+        (a.rating ?? 0) * Math.log10((a.ratingCount ?? 0) + 1);
       const bScore =
-        (b.rating ?? 0) * Math.log10((b.userRatingCount ?? 0) + 1);
+        (b.rating ?? 0) * Math.log10((b.ratingCount ?? 0) + 1);
       return bScore - aScore;
     })
     .slice(0, FEATURED_COUNT);
 
-const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-  placeId: place.id!,
-  name: place.displayName?.text,
-  address: place.formattedAddress,
+const toFavoritePlace = (place: Place): FavoritePlace => ({
+  placeId: place.id,
+  name: place.name || undefined,
+  address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
-  types: place.types ?? [],
+  types: place.types,
   rating: place.rating,
-  photoName: place.photos?.[0]?.name,
+  photoName: place.photos[0]?.ref,
 });
 
 type BookmarkablePlaceCardProps = {
-  place: GooglePlace;
+  place: Place;
   badge: string;
   distanceKm?: number;
 };
@@ -68,7 +68,7 @@ const BookmarkablePlaceCard = ({
 }: BookmarkablePlaceCardProps) => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
-  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+  const bookmarked = favorites.some((f) => f.placeId === place.id);
 
   return (
     <PlaceCard
@@ -79,7 +79,7 @@ const BookmarkablePlaceCard = ({
       onPress={() => router.push(`/place/${place.id}`)}
       onBookmark={() => {
         if (bookmarked) {
-          removeFavorite(place.id!);
+          removeFavorite(place.id);
         } else {
           addFavorite(toFavoritePlace(place));
         }
@@ -171,7 +171,7 @@ const HomeScreen = () => {
     [featuredQuery.places],
   );
 
-  const withDistance = (place: GooglePlace) => {
+  const withDistance = (place: Place) => {
     if (!coords || !place.location) return undefined;
     return distanceKm(
       coords.latitude,
@@ -181,7 +181,7 @@ const HomeScreen = () => {
     );
   };
 
-  const openPlace = (place: GooglePlace) =>
+  const openPlace = (place: Place) =>
     router.push(`/place/${place.id}`);
 
   const openActivityList = (activityId: string) =>

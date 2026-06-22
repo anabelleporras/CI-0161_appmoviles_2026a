@@ -25,7 +25,7 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useSettingsStore } from '@/store/settings';
 import { useFavoritesStore } from '@/store/favorites';
 import type { FavoritePlace } from '@/store/favorites';
@@ -74,8 +74,8 @@ const DARK_MAP_STYLE = [
   },
 ];
 
-const iconForPlace = (place: GooglePlace): LucideIcon => {
-  const types = place.types ?? [];
+const iconForPlace = (place: Place): LucideIcon => {
+  const types = place.types;
   if (types.includes("beach")) return Waves;
   if (types.includes("hiking_area")) return Footprints;
   if (types.includes("dog_park")) return Dog;
@@ -135,21 +135,21 @@ const MapScreen = () => {
   const { coords } = useDeviceLocation();
   const [selectedFilterId, setSelectedFilterId] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState<GooglePlace | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [tracksMarkers, setTracksMarkers] = useState(true);
 
   const { addFavorite, removeFavorite } = useFavoritesStore();
   const favorites = useFavoritesStore((state) => state.favorites);
 
-  const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-    placeId: place.id!,
-    name: place.displayName?.text,
-    address: place.formattedAddress,
+  const toFavoritePlace = (place: Place): FavoritePlace => ({
+    placeId: place.id,
+    name: place.name || undefined,
+    address: place.address,
     lat: place.location?.latitude,
     lng: place.location?.longitude,
-    types: place.types ?? [],
+    types: place.types,
     rating: place.rating,
-    photoName: place.photos?.[0]?.name,
+    photoName: place.photos[0]?.ref,
   });
 
   const activeFilter =
@@ -165,9 +165,7 @@ const MapScreen = () => {
   const filteredPlaces = useMemo(() => {
     if (!searchTerm.trim()) return places;
     const needle = searchTerm.trim().toLowerCase();
-    return places.filter((p) =>
-      (p.displayName?.text ?? "").toLowerCase().includes(needle),
-    );
+    return places.filter((p) => p.name.toLowerCase().includes(needle));
   }, [places, searchTerm]);
 
   useEffect(() => {
@@ -227,7 +225,7 @@ const MapScreen = () => {
             >
               <MapMarkerPill
                 icon={iconForPlace(place)}
-                label={place.displayName?.text ?? "Place"}
+                label={place.name || "Place"}
                 selected={isSelected}
               />
             </Marker>
@@ -266,14 +264,14 @@ const MapScreen = () => {
         place={selectedPlace}
         distanceKm={selectedDistance}
         onViewDetails={() => selectedPlace && router.push(`/place/${selectedPlace.id}`)}
-        bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id!) : false}
+        bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id) : false}
         onBookmark={() => {
           if (!selectedPlace) return;
           const current = useFavoritesStore.getState().favorites.some(
-            (f) => f.placeId === selectedPlace.id!
+            (f) => f.placeId === selectedPlace.id
           );
           if (current) {
-            removeFavorite(selectedPlace.id!);
+            removeFavorite(selectedPlace.id);
           } else {
             addFavorite(toFavoritePlace(selectedPlace));
           }
