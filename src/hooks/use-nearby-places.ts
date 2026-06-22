@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 //import { searchNearby, type GooglePlace } from "@/services/google-places";
-import type { Coords } from "./use-device-location";
+import type { Coords } from "@/services/places/types";
 import { places } from "@/services/providers";
-import { Place } from "@/services/places/types";
+import type { Place } from "@/services/places/types";
 
 export type NearbyPlacesState = {
   places: Place[];

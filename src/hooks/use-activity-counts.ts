@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Activity } from "@/constants/activities";
 //import { countNearby } from "@/services/google-places";
 import { places } from "@/services/providers";
-import type { Coords } from "./use-device-location";
+import type { Coords } from "@/services/places/types";
 
 export type ActivityCounts = Record<string, number>;
 
