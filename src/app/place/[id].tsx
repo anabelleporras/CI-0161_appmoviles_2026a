@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Navigation, Star } from "lucide-react-native";
+import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Navigation, Star, Ticket } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,6 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Spacing, Typography } from "@/constants/theme";
+import { isPurchasable } from "@/constants/purchasable-types";
 import { PhotoStrip } from "@/components/ui/photo-strip";
 import { PopularityCard } from "@/components/ui/popularity-card";
 import { WeatherCard } from "@/components/ui/weather-card";
@@ -231,6 +232,27 @@ const PlaceDetailScreen = () => {
           )}
 
           <View style={styles.actions}>
+            {isPurchasable(place) && (
+              <Pressable
+                style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
+                onPress={() =>
+                  router.push({
+                    pathname: "/checkout",
+                    params: {
+                      placeId: place.id,
+                      placeName: place.displayName?.text ?? "",
+                      types: (place.types ?? []).join(","),
+                    },
+                  })
+                }
+                accessibilityLabel="Get pass for this place"
+              >
+                <Ticket size={18} color={theme.textOnAccent} />
+                <Text style={[styles.primaryText, { color: theme.textOnAccent }]}>
+                  Get pass
+                </Text>
+              </Pressable>
+            )}
             <Pressable
               style={styles.primaryBtn}
               onPress={() => openInExternalMap(place)}
