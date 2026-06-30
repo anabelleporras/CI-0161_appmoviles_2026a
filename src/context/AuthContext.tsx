@@ -5,6 +5,7 @@ import { SESSION_TOKEN_KEY } from '@/constants/auth';
 import { apiFetch } from '@/services/api-client';
 import { useFavoritesStore } from '@/store/favorites';
 import { useSettingsStore } from '@/store/settings';
+import { useTicketsStore } from '@/store/tickets';
 
 interface User {
   id: string;
@@ -43,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await Promise.all([
           useFavoritesStore.getState().syncFromBackend(),
           useSettingsStore.getState().syncFromBackend(),
+          useTicketsStore.getState().syncFromBackend(),
         ]);
       }
     } catch {
