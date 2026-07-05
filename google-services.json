@@ -12,7 +12,20 @@
           "package_name": "com.ci0161.appmoviles2026a"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1044912285554-d029n4svu8lvacs9tnfthhrnbpas36s7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ci0161.appmoviles2026a",
+            "certificate_hash": "e00022fe444009abca4ecf053eadea0ac054b783"
+          }
+        },
+        {
+          "client_id": "1044912285554-2jvlvq00ejiaigv7ge63sijj44mit38q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDUvk4H_wcWkOKGZ8D56xKseppvGUVCBuc"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1044912285554-2jvlvq00ejiaigv7ge63sijj44mit38q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1044912285554-i80rbveshsfoeg8aai6b7v0toe70ppms.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ci0161.appmoviles2026a"
+              }
+            }
+          ]
         }
       }
     }

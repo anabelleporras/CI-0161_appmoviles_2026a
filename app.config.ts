@@ -3,6 +3,9 @@ import type { ExpoConfig } from "expo/config";
 const googleMapsApiKey =
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_PLATFORM_API_KEY ?? "";
 
+const androidGoogleServicesFile =
+  process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json";
+
 const iosClientId =
   process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS ??
   "1047179573348-9jjq6un9eqvn3e153tueplbhr4lqmp2e.apps.googleusercontent.com";
@@ -41,7 +44,7 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
     package: "com.ci0161.appmoviles2026a",
-    googleServicesFile: "./google-services.json",
+    googleServicesFile: androidGoogleServicesFile,
     permissions: [
       "android.permission.ACCESS_COARSE_LOCATION",
       "android.permission.ACCESS_FINE_LOCATION",

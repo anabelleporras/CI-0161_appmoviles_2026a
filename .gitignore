@@ -22,6 +22,7 @@ expo-env.d.ts
 # Firebase service account keys (sensitive)
 credentials.json
 *service-account*.json
+google-services.json
 
 # Metro
 .metro-health-check*
