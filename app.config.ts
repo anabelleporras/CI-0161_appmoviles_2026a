@@ -6,6 +6,9 @@ const googleMapsApiKey =
 const androidGoogleServicesFile =
   process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json";
 
+const iosGoogleServicesFile =
+  process.env.GOOGLE_SERVICES_INFO_PLIST ?? "./GoogleService-Info.plist";
+
 const iosClientId =
   process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS ??
   "1047179573348-9jjq6un9eqvn3e153tueplbhr4lqmp2e.apps.googleusercontent.com";
@@ -26,6 +29,7 @@ const config: ExpoConfig = {
   ios: {
     icon: "./assets/expo.icon",
     bundleIdentifier: "com.ci0161.appmoviles2026a",
+    googleServicesFile: iosGoogleServicesFile,
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         "We use your location to show nearby beaches, parks, and places.",
