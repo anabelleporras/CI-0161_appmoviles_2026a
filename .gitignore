@@ -23,6 +23,7 @@ expo-env.d.ts
 credentials.json
 *service-account*.json
 google-services.json
+GoogleService-Info.plist
 
 # Metro
 .metro-health-check*
