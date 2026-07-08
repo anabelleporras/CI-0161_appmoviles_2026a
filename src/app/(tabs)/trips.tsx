@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/use-theme";
 
 export default function TripsScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const styles = useMemo (
       () =>
@@ -34,8 +36,8 @@ export default function TripsScreen() {
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
-      <Text style={styles.label}>Trips</Text>
-      <Text style={styles.sub}>Coming soon</Text>
+      <Text style={styles.label}>{t('trips.title')}</Text>
+      <Text style={styles.sub}>{t('common.comingSoon')}</Text>
     </View>
   );
 }

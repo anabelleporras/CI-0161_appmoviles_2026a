@@ -40,5 +40,53 @@
     "home": "Inicio",
     "map": "Mapa",
     "profile": "Perfil"
+  },
+  "common": {
+    "back": "Atrás",
+    "place": "Lugar",
+    "unnamedPlace": "Lugar sin nombre",
+    "comingSoon": "Próximamente"
+  },
+  "map": {
+    "filterAll": "Todos",
+    "searchPlaceholder": "Buscar lugares cercanos"
+  },
+  "profile": {
+    "title": "Perfil",
+    "settingsAccessibility": "Configuración",
+    "traveller": "Viajero",
+    "signedInWith": "Sesión iniciada con {{provider}}",
+    "savedPlaces": "Lugares guardados",
+    "noSavedPlaces": "Todavía no hay lugares guardados",
+    "noSavedPlacesHint": "Toca el ícono de marcador en cualquier lugar para guardarlo aquí",
+    "logOut": "Cerrar sesión"
+  },
+  "explore": {
+    "title": "Explorar"
+  },
+  "trips": {
+    "title": "Viajes"
+  },
+  "activityDetail": {
+    "unknownActivity": "Actividad desconocida.",
+    "showMap": "Ver mapa",
+    "showList": "Ver lista",
+    "noResultsNearby": "No hay {{activity}} cerca."
+  },
+  "placeDetail": {
+    "notFound": "Lugar no encontrado.",
+    "openingHours": "Horario",
+    "openInMaps": "Abrir en Maps",
+    "saveToFavorites": "Guardar en favoritos",
+    "distanceAway": "a {{distance}}"
+  },
+  "activities": {
+    "trails": { "label": "Senderos", "badge": "Sendero" },
+    "beaches": { "label": "Playas", "badge": "Playa" },
+    "parks": { "label": "Parques", "badge": "Parque" },
+    "dog_parks": { "label": "Parques para perros", "badge": "Parque canino" },
+    "camping": { "label": "Camping", "badge": "Camping" },
+    "picnic": { "label": "Picnic", "badge": "Picnic" },
+    "explore": { "label": "Explorar", "badge": "Sitio" }
   }
 }

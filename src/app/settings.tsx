@@ -160,7 +160,7 @@ export default function SettingsScreen() {
         <IconButton
           icon={ArrowLeft}
           onPress={() => router.back()}
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
         />
         <Text style={styles.headerTitle}>{t('settings.title')}</Text>
       </View>

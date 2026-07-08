@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Bookmark, ChevronRight, LogOut, Settings } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Image,
@@ -21,6 +22,7 @@ import { useFavoritesStore, type FavoritePlace } from '@/store/favorites';
 
 const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -64,7 +66,7 @@ const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
       />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
-          {place.name || 'Unnamed place'}
+          {place.name || t('common.unnamedPlace')}
         </Text>
         {place.address ? (
           <Text style={styles.address} numberOfLines={1}>
@@ -80,6 +82,7 @@ const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { user, isLoading, logout } = useAuth();
   const favorites = useFavoritesStore((state) => state.favorites);
 
@@ -150,7 +153,6 @@ export default function ProfileScreen() {
           ...Typography.body3,
           color: theme.textMuted,
           opacity: 0.6,
-          textTransform: 'capitalize',
         },
         section: {
           paddingHorizontal: Spacing.xl,
@@ -223,11 +225,11 @@ export default function ProfileScreen() {
       >
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerTitle}>{t('profile.title')}</Text>
             <IconButton
               icon={Settings}
               onPress={() => router.push('/settings')}
-              accessibilityLabel="Settings"
+              accessibilityLabel={t('profile.settingsAccessibility')}
             />
           </View>
 
@@ -244,13 +246,17 @@ export default function ProfileScreen() {
               )}
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
-                  {user?.name ?? 'Traveller'}
+                  {user?.name ?? t('profile.traveller')}
                 </Text>
                 {user?.email ? (
                   <Text style={styles.userEmail}>{user.email}</Text>
                 ) : null}
                 <Text style={styles.userProvider}>
-                  Signed in with {user?.provider ?? ''}
+                  {t('profile.signedInWith', {
+                    provider: user?.provider
+                      ? user.provider.charAt(0).toUpperCase() + user.provider.slice(1)
+                      : '',
+                  })}
                 </Text>
               </View>
             </View>
@@ -258,14 +264,14 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Saved places</Text>
+          <Text style={styles.sectionLabel}>{t('profile.savedPlaces')}</Text>
           <View style={styles.sectionCard}>
             {favorites.length === 0 ? (
               <View style={styles.emptyFavorites}>
                 <Bookmark size={28} color={theme.textMuted} strokeWidth={1.5} />
-                <Text style={styles.emptyText}>No saved places yet</Text>
+                <Text style={styles.emptyText}>{t('profile.noSavedPlaces')}</Text>
                 <Text style={styles.emptySubtext}>
-                  Tap the bookmark icon on any place to save it here
+                  {t('profile.noSavedPlacesHint')}
                 </Text>
               </View>
             ) : (
@@ -281,7 +287,7 @@ export default function ProfileScreen() {
           onPress={logout}
         >
           <LogOut size={18} color={theme.text} />
-          <Text style={styles.logoutText}>Log out</Text>
+          <Text style={styles.logoutText}>{t('profile.logOut')}</Text>
         </Pressable>
       </ScrollView>
     </View>

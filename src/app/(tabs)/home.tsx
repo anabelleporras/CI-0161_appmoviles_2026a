@@ -254,7 +254,7 @@ const HomeScreen = () => {
             <ActivityCard
               key={activity.id}
               icon={activity.icon}
-              label={activity.label}
+              label={t(`activities.${activity.id}.label`)}
               count={counts[activity.id]}
               loading={countsLoading}
               maxCount={COUNT_CAP}
@@ -265,7 +265,7 @@ const HomeScreen = () => {
         </ScrollView>
 
         <SectionHeader
-          title={t('home.nearby', { activity: selectedActivity.label.toLowerCase() })}
+          title={t('home.nearby', { activity: t(`activities.${selectedActivity.id}.label`).toLowerCase() })}
           action={{
             label: t('home.seeAll'),
             onPress: () => openActivityList(selectedActivity.id),
@@ -290,7 +290,7 @@ const HomeScreen = () => {
               <BookmarkablePlaceCard
                 key={place.id}
                 place={place}
-                badge={selectedActivity.badge}
+                badge={t(`activities.${selectedActivity.id}.badge`)}
                 distanceKm={withDistance(place)}
               />
             ))}

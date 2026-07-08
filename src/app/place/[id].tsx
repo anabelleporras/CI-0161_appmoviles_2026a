@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Navigation, Star } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Image,
@@ -49,6 +50,7 @@ const toFavoritePlace = (place: Place): FavoritePlace => ({
 const PlaceDetailScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { coords } = useDeviceLocation();
 
@@ -136,7 +138,7 @@ const PlaceDetailScreen = () => {
   if (error || !place) {
     return (
       <View style={[styles.root, styles.center, { paddingTop: insets.top }]}>
-        <Text style={styles.muted}>{error ?? "Place not found."}</Text>
+        <Text style={styles.muted}>{error ?? t('placeDetail.notFound')}</Text>
       </View>
     );
   }
@@ -169,7 +171,7 @@ const PlaceDetailScreen = () => {
           <Pressable
             style={[styles.backBtn, { top: insets.top + Spacing.sm }]}
             onPress={() => router.back()}
-            accessibilityLabel="Back"
+            accessibilityLabel={t('common.back')}
           >
             <ArrowLeft size={20} color={theme.text} />
           </Pressable>
@@ -184,7 +186,7 @@ const PlaceDetailScreen = () => {
         )}
 
         <View style={styles.body}>
-          <Text style={styles.title}>{place.name || "Place"}</Text>
+          <Text style={styles.title}>{place.name || t('common.place')}</Text>
           <View style={styles.metaRow}>
             {place.rating !== undefined && (
               <View style={styles.metaItem}>
@@ -198,7 +200,9 @@ const PlaceDetailScreen = () => {
             {distance !== undefined && (
               <View style={styles.metaItem}>
                 <MapPin size={14} color={theme.textMuted} />
-                <Text style={styles.metaText}>{formatDistance(distance, units)} away</Text>
+                <Text style={styles.metaText}>
+                  {t('placeDetail.distanceAway', { distance: formatDistance(distance, units) })}
+                </Text>
               </View>
             )}
           </View>
@@ -224,7 +228,7 @@ const PlaceDetailScreen = () => {
           />
           {hours.length > 0 && (
             <>
-              <Text style={styles.hoursTitle}>Opening hours</Text>
+              <Text style={styles.hoursTitle}>{t('placeDetail.openingHours')}</Text>
               {hours.map((line) => (
                 <Text key={line} style={styles.hourLine}>
                   {line}
@@ -239,7 +243,7 @@ const PlaceDetailScreen = () => {
               onPress={() => openInExternalMap(place)}
             >
               <Navigation size={18} color={theme.background} />
-              <Text style={styles.primaryText}>Open in Maps</Text>
+              <Text style={styles.primaryText}>{t('placeDetail.openInMaps')}</Text>
             </Pressable>
             <Pressable
               style={styles.favBtn}
@@ -253,7 +257,7 @@ const PlaceDetailScreen = () => {
                   addFavorite(toFavoritePlace(place));
                 }
               }}
-              accessibilityLabel="Save to favourites"
+              accessibilityLabel={t('placeDetail.saveToFavorites')}
             >
               {bookmarked ? (
                 <BookmarkCheck size={20} color={theme.accent} strokeWidth={2} />

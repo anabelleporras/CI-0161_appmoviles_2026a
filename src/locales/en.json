@@ -40,5 +40,53 @@
     "home": "Home",
     "map": "Map",
     "profile": "Profile"
+  },
+  "common": {
+    "back": "Back",
+    "place": "Place",
+    "unnamedPlace": "Unnamed place",
+    "comingSoon": "Coming soon"
+  },
+  "map": {
+    "filterAll": "All",
+    "searchPlaceholder": "Search places nearby"
+  },
+  "profile": {
+    "title": "Profile",
+    "settingsAccessibility": "Settings",
+    "traveller": "Traveller",
+    "signedInWith": "Signed in with {{provider}}",
+    "savedPlaces": "Saved places",
+    "noSavedPlaces": "No saved places yet",
+    "noSavedPlacesHint": "Tap the bookmark icon on any place to save it here",
+    "logOut": "Log out"
+  },
+  "explore": {
+    "title": "Explore"
+  },
+  "trips": {
+    "title": "Trips"
+  },
+  "activityDetail": {
+    "unknownActivity": "Unknown activity.",
+    "showMap": "Show map",
+    "showList": "Show list",
+    "noResultsNearby": "No {{activity}} nearby."
+  },
+  "placeDetail": {
+    "notFound": "Place not found.",
+    "openingHours": "Opening hours",
+    "openInMaps": "Open in Maps",
+    "saveToFavorites": "Save to favourites",
+    "distanceAway": "{{distance}} away"
+  },
+  "activities": {
+    "trails": { "label": "Trails", "badge": "Trail" },
+    "beaches": { "label": "Beaches", "badge": "Beach" },
+    "parks": { "label": "Parks", "badge": "Park" },
+    "dog_parks": { "label": "Dog parks", "badge": "Dog park" },
+    "camping": { "label": "Camping", "badge": "Camp" },
+    "picnic": { "label": "Picnic", "badge": "Picnic" },
+    "explore": { "label": "Explore", "badge": "Spot" }
   }
 }
