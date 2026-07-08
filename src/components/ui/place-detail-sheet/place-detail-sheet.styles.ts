@@ -21,7 +21,8 @@ export const createPlaceDetailSheetStyles = (theme: Theme) =>
     },
     thumbnail: {
       width: 76,
-      height: 76,
+      alignSelf: "stretch",
+      minHeight: 76,
       borderRadius: Radius.md,
     },
     body: {
@@ -68,6 +69,20 @@ export const createPlaceDetailSheetStyles = (theme: Theme) =>
       ...Typography.caption,
       fontWeight: "600",
       color: theme.textOnAccent,
+      textAlign: "center",
+    },
+    outlineButton: {
+      flex: 1,
+      paddingVertical: Spacing.sm + 2,
+      borderRadius: Radius.pill,
+      borderWidth: 1,
+      borderColor: theme.border,
+      alignItems: "center",
+    },
+    outlineButtonText: {
+      ...Typography.caption,
+      fontWeight: "600",
+      color: theme.text,
       textAlign: "center",
     },
   });

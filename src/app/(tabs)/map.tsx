@@ -264,6 +264,17 @@ const MapScreen = () => {
         place={selectedPlace}
         distanceKm={selectedDistance}
         onViewDetails={() => selectedPlace && router.push(`/place/${selectedPlace.id}`)}
+        onBuyPass={() =>
+          selectedPlace &&
+          router.push({
+            pathname: "/checkout",
+            params: {
+              placeId: selectedPlace.id,
+              placeName: selectedPlace.name,
+              types: (selectedPlace.types ?? []).join(","),
+            },
+          })
+        }
         bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id) : false}
         onBookmark={() => {
           if (!selectedPlace) return;
