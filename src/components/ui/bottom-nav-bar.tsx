@@ -1,6 +1,7 @@
 import {
   House,
   Map,
+  Ticket,
   UserRound,
   type LucideIcon,
 } from "lucide-react-native";
@@ -11,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Radius, Shadow, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
-export type TabKey = "home" | "map" | "profile";
+export type TabKey = "home" | "map" | "trips" | "profile";
 
 type Tab = {
   key: TabKey;
@@ -22,6 +23,7 @@ type Tab = {
 const TABS: Tab[] = [
   { key: "home", label: "Home", Icon: House },
   { key: "map", label: "Map", Icon: Map },
+  { key: "trips", label: "Trips", Icon: Ticket },
   { key: "profile", label: "Profile", Icon: UserRound },
 ];
 

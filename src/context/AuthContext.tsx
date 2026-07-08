@@ -6,6 +6,7 @@ import { apiFetch } from '@/services/api-client';
 import { useFavoritesStore } from '@/store/favorites';
 import { useSettingsStore } from '@/store/settings';
 import { registerDeviceForPushNotifications } from '@/services/push-notifications';
+import { useTicketsStore } from '@/store/tickets';
 
 interface User {
   id: string;
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           useFavoritesStore.getState().syncFromBackend(),
           useSettingsStore.getState().syncFromBackend(),
           registerDeviceForPushNotifications(),
+          useTicketsStore.getState().syncFromBackend(),
         ]);
         await useSettingsStore.getState().setNotificationTimezone(getDeviceTimezone());
       }

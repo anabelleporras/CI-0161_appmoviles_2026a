@@ -110,6 +110,12 @@ const config: ExpoConfig = {
         androidGoogleMapsApiKey: googleMapsApiKey,
       },
     ],
+    [
+      // Payment Sheet with test cards only — no Apple Pay (merchantIdentifier) or
+      // Google Pay needed. The plugin requires a props object even when empty.
+      "@stripe/stripe-react-native",
+      { enableGooglePay: false },
+    ],
     "@react-native-firebase/app",
     "@react-native-community/datetimepicker",
     [
