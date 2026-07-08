@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Spacing, Typography } from "@/constants/theme";
 import { isPurchasable } from "@/constants/purchasable-types";
+import IconButton from "@/components/ui/icon-button";
 import { PhotoStrip } from "@/components/ui/photo-strip";
 import { PopularityCard } from "@/components/ui/popularity-card";
 import { WeatherCard } from "@/components/ui/weather-card";
@@ -87,12 +88,6 @@ const PlaceDetailScreen = () => {
         backBtn: {
           position: "absolute",
           left: Spacing.xl,
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: theme.background,
         },
         body: { padding: Spacing.xl, gap: Spacing.md },
         title: { fontSize: 24, fontWeight: "700", color: theme.text },
@@ -167,13 +162,13 @@ const PlaceDetailScreen = () => {
           ) : (
             <View style={styles.hero} />
           )}
-          <Pressable
-            style={[styles.backBtn, { top: insets.top + Spacing.sm }]}
-            onPress={() => router.back()}
-            accessibilityLabel="Back"
-          >
-            <ArrowLeft size={20} color={theme.text} />
-          </Pressable>
+          <View style={[styles.backBtn, { top: insets.top + Spacing.sm }]}>
+            <IconButton
+              icon={ArrowLeft}
+              onPress={() => router.back()}
+              accessibilityLabel="Back"
+            />
+          </View>
         </View>
 
         {place.photos.length > 1 && (
