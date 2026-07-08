@@ -238,7 +238,7 @@ export default function CheckoutScreen() {
 
         {!loading && products.length > 0 ? (
           <Text style={styles.hint}>
-            Test mode · pay with card 4242 4242 4242 4242, any future date and CVC.
+            Test mode, pay with card 4242 4242 4242 4242, any future date and CVC.
           </Text>
         ) : null}
       </ScrollView>
