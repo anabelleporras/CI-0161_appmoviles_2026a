@@ -5,6 +5,7 @@ import {
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
@@ -34,6 +35,7 @@ GoogleSignin.configure({
 
 export default function LoginScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
   const { login } = useAuth();
 
@@ -65,13 +67,13 @@ export default function LoginScreen() {
 
       if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         Alert.alert(
-          "Google Play Services missing",
-          "Google Play Services are required on this device.",
+          t('login.playServicesMissingTitle'),
+          t('login.playServicesMissingMessage'),
         );
         return;
       }
 
-      Alert.alert("Login failed", "Could not complete Google sign-in.");
+      Alert.alert(t('login.loginFailedTitle'), t('login.googleSignInFailedMessage'));
     } finally {
       setLoading(null);
     }
@@ -92,7 +94,7 @@ export default function LoginScreen() {
     } catch (error: any) {
       if (error.code !== "ERR_REQUEST_CANCELED") {
         console.error("Apple login error:", error);
-        Alert.alert("Login failed", "Could not complete Apple sign-in.");
+        Alert.alert(t('login.loginFailedTitle'), t('login.appleSignInFailedMessage'));
       }
     } finally {
       setLoading(null);
@@ -112,7 +114,7 @@ export default function LoginScreen() {
       await login(data.sessionToken);
     } catch (error) {
       console.error("Backend error:", error);
-      Alert.alert("Login failed", "Could not reach the server.");
+      Alert.alert(t('login.loginFailedTitle'), t('login.serverUnreachableMessage'));
     }
   }
 
@@ -120,10 +122,10 @@ export default function LoginScreen() {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.headerBlock}>
         <Text style={[styles.welcomeLabel, { color: theme.text }]}>
-          WELCOME BACK
+          {t('login.welcomeBack')}
         </Text>
         <Text style={[styles.headline, { color: theme.text }]}>
-          Let&apos;s get you{"\n"}signed in.
+          {t('login.headline')}
         </Text>
       </View>
 
@@ -131,7 +133,7 @@ export default function LoginScreen() {
         <View style={styles.dividerRow}>
           <View style={[styles.dividerLine, { backgroundColor: theme.text }]} />
           <Text style={[styles.dividerText, { color: theme.text }]}>
-            LOG IN WITH
+            {t('login.logInWith')}
           </Text>
           <View style={[styles.dividerLine, { backgroundColor: theme.text }]} />
         </View>
@@ -152,7 +154,7 @@ export default function LoginScreen() {
                 <Text
                   style={[styles.buttonLabel, { color: theme.textInverse }]}
                 >
-                  Continue with Apple
+                  {t('login.continueWithApple')}
                 </Text>
               </>
             )}
@@ -176,7 +178,7 @@ export default function LoginScreen() {
             <>
               <GoogleLogo size={20} />
               <Text style={[styles.buttonLabel, { color: theme.text }]}>
-                Continue with Google
+                {t('login.continueWithGoogle')}
               </Text>
             </>
           )}

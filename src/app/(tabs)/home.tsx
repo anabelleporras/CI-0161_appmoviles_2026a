@@ -1,6 +1,7 @@
 import { Bell, Search } from "lucide-react-native";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   ScrollView,
@@ -91,6 +92,7 @@ const BookmarkablePlaceCard = ({
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { width: windowWidth } = useWindowDimensions();
   const featuredCardWidth = windowWidth - Spacing.xl * 2 - Spacing["2xl"];
   const searchRadius = useSettingsStore((state) => state.searchRadius);
@@ -197,14 +199,14 @@ const HomeScreen = () => {
         <View style={styles.headerRow}>
           <LocationChip label={label} />
           <View style={styles.headerActions}>
-            <IconButton icon={Search} accessibilityLabel="Search" />
-            <IconButton icon={Bell} badge accessibilityLabel="Notifications" />
+            <IconButton icon={Search} accessibilityLabel={t('home.searchAccessibility')} />
+            <IconButton icon={Bell} badge accessibilityLabel={t('home.notificationsAccessibility')} />
           </View>
         </View>
 
         <SectionHeader
-          title="Top attractions"
-          action={{ label: "See all", onPress: () => openActivityList("explore") }}
+          title={t('home.topAttractions')}
+          action={{ label: t('home.seeAll'), onPress: () => openActivityList("explore") }}
         />
 
         {featuredQuery.loading && featured.length === 0 ? (
@@ -214,7 +216,7 @@ const HomeScreen = () => {
         ) : featured.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>
-              No featured attractions nearby.
+              {t('home.noFeaturedAttractions')}
             </Text>
           </View>
         ) : (
@@ -241,7 +243,7 @@ const HomeScreen = () => {
 
         <View style={styles.sectionSpacer} />
 
-        <SectionHeader title="Find your pace" />
+        <SectionHeader title={t('home.findYourPace')} />
 
         <ScrollView
           horizontal
@@ -263,9 +265,9 @@ const HomeScreen = () => {
         </ScrollView>
 
         <SectionHeader
-          title={`Nearby ${selectedActivity.label.toLowerCase()}`}
+          title={t('home.nearby', { activity: selectedActivity.label.toLowerCase() })}
           action={{
-            label: "See all",
+            label: t('home.seeAll'),
             onPress: () => openActivityList(selectedActivity.id),
           }}
         />
@@ -276,7 +278,7 @@ const HomeScreen = () => {
           </View>
         ) : places.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No places found nearby.</Text>
+            <Text style={styles.emptyText}>{t('home.noPlacesNearby')}</Text>
           </View>
         ) : (
           <ScrollView

@@ -12,5 +12,33 @@
     "themeDark": "Dark",
     "notifications": "Notifications",
     "pushNotifications": "Push notifications"
+  },
+  "login": {
+    "welcomeBack": "WELCOME BACK",
+    "headline": "Let's get you\nsigned in.",
+    "logInWith": "LOG IN WITH",
+    "continueWithApple": "Continue with Apple",
+    "continueWithGoogle": "Continue with Google",
+    "playServicesMissingTitle": "Google Play Services missing",
+    "playServicesMissingMessage": "Google Play Services are required on this device.",
+    "loginFailedTitle": "Login failed",
+    "googleSignInFailedMessage": "Could not complete Google sign-in.",
+    "appleSignInFailedMessage": "Could not complete Apple sign-in.",
+    "serverUnreachableMessage": "Could not reach the server."
+  },
+  "home": {
+    "searchAccessibility": "Search",
+    "notificationsAccessibility": "Notifications",
+    "topAttractions": "Top attractions",
+    "seeAll": "See all",
+    "noFeaturedAttractions": "No featured attractions nearby.",
+    "findYourPace": "Find your pace",
+    "nearby": "Nearby {{activity}}",
+    "noPlacesNearby": "No places found nearby."
+  },
+  "nav": {
+    "home": "Home",
+    "map": "Map",
+    "profile": "Profile"
   }
 }

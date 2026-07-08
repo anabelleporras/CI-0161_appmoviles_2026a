@@ -12,5 +12,33 @@
     "themeDark": "Oscuro",
     "notifications": "Notificaciones",
     "pushNotifications": "Notificaciones push"
+  },
+  "login": {
+    "welcomeBack": "BIENVENIDO DE NUEVO",
+    "headline": "Vamos a iniciar\ntu sesión.",
+    "logInWith": "INICIAR SESIÓN CON",
+    "continueWithApple": "Continuar con Apple",
+    "continueWithGoogle": "Continuar con Google",
+    "playServicesMissingTitle": "Faltan los servicios de Google Play",
+    "playServicesMissingMessage": "Este dispositivo necesita Google Play Services.",
+    "loginFailedTitle": "Error al iniciar sesión",
+    "googleSignInFailedMessage": "No se pudo completar el inicio de sesión con Google.",
+    "appleSignInFailedMessage": "No se pudo completar el inicio de sesión con Apple.",
+    "serverUnreachableMessage": "No se pudo conectar con el servidor."
+  },
+  "home": {
+    "searchAccessibility": "Buscar",
+    "notificationsAccessibility": "Notificaciones",
+    "topAttractions": "Atracciones destacadas",
+    "seeAll": "Ver todo",
+    "noFeaturedAttractions": "No hay atracciones destacadas cerca.",
+    "findYourPace": "Encuentra tu ritmo",
+    "nearby": "Cerca de ti: {{activity}}",
+    "noPlacesNearby": "No se encontraron lugares cercanos."
+  },
+  "nav": {
+    "home": "Inicio",
+    "map": "Mapa",
+    "profile": "Perfil"
   }
 }
