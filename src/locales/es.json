@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "title": "Configuración",
+    "units": "Unidades",
+    "distance": "Distancia",
+    "searchRadius": "Radio de búsqueda",
+    "nearbyPlaces": "Lugares cercanos",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "themeAuto": "Automático",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "notifications": "Notificaciones",
+    "pushNotifications": "Notificaciones push"
+  }
+}

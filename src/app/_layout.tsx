@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import "@/lib/i18n";
 
 function RootNavigator() {
   const { isLoading } = useAuth();

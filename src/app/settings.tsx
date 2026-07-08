@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Pressable,
   ScrollView,
@@ -21,15 +22,10 @@ const UNIT_OPTIONS: { label: string; value: Units }[] = [
   { label: 'mi', value: 'mi' },
 ];
 
-const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
-  { label: 'Auto', value: 'auto' },
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-];
-
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const {
     units,
     searchRadius,
@@ -65,6 +61,15 @@ export default function SettingsScreen() {
       },
     ],
     [units],
+  );
+
+  const themeOptions = useMemo<{ label: string; value: ThemePreference }[]>(
+    () => [
+      { label: t('settings.themeAuto'), value: 'auto' },
+      { label: t('settings.themeLight'), value: 'light' },
+      { label: t('settings.themeDark'), value: 'dark' },
+    ],
+    [t],
   );
 
   const styles = useMemo(
@@ -157,7 +162,7 @@ export default function SettingsScreen() {
           onPress={() => router.back()}
           accessibilityLabel="Back"
         />
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
       </View>
 
       <ScrollView
@@ -166,10 +171,10 @@ export default function SettingsScreen() {
       >
         {/* Units */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Units</Text>
+          <Text style={styles.sectionLabel}>{t('settings.units')}</Text>
           <View style={styles.card}>
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Distance</Text>
+              <Text style={styles.rowLabel}>{t('settings.distance')}</Text>
               <View style={styles.pillGroup}>
                 {UNIT_OPTIONS.map((opt) => (
                   <Pressable
@@ -194,10 +199,10 @@ export default function SettingsScreen() {
 
         {/* Search radius */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Search radius</Text>
+          <Text style={styles.sectionLabel}>{t('settings.searchRadius')}</Text>
           <View style={styles.card}>
               <View style={[styles.row, styles.rowLast]}>
-                <Text style={styles.rowLabel}>Nearby places</Text>
+                <Text style={styles.rowLabel}>{t('settings.nearbyPlaces')}</Text>
                 <View style={{ flex: 1, marginLeft: Spacing.xs }}>
                   <ScrollView
                     horizontal
@@ -231,12 +236,12 @@ export default function SettingsScreen() {
 
         {/* Theme */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Appearance</Text>
+          <Text style={styles.sectionLabel}>{t('settings.appearance')}</Text>
           <View style={styles.card}>
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Theme</Text>
+              <Text style={styles.rowLabel}>{t('settings.theme')}</Text>
               <View style={styles.pillGroup}>
-                {THEME_OPTIONS.map((opt) => (
+                {themeOptions.map((opt) => (
                   <Pressable
                     key={opt.value}
                     style={[
@@ -262,10 +267,10 @@ export default function SettingsScreen() {
 
         {/* Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Notifications</Text>
+          <Text style={styles.sectionLabel}>{t('settings.notifications')}</Text>
           <View style={styles.card}>
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Push notifications</Text>
+              <Text style={styles.rowLabel}>{t('settings.pushNotifications')}</Text>
               <Switch
                 value={notifications}
                 onValueChange={setNotifications}

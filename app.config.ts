@@ -76,6 +76,7 @@ const config: ExpoConfig = {
       },
     ],
     "expo-secure-store",
+    "expo-localization",
     [
       "@react-native-google-signin/google-signin",
       { iosUrlScheme },

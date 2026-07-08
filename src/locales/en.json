@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "title": "Settings",
+    "units": "Units",
+    "distance": "Distance",
+    "searchRadius": "Search radius",
+    "nearbyPlaces": "Nearby places",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeAuto": "Auto",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "notifications": "Notifications",
+    "pushNotifications": "Push notifications"
+  }
+}
