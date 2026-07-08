@@ -243,7 +243,7 @@ const PlaceDetailScreen = () => {
                     pathname: "/checkout",
                     params: {
                       placeId: place.id,
-                      placeName: place.displayName?.text ?? "",
+                      placeName: place.name,
                       types: (place.types ?? []).join(","),
                     },
                   })
