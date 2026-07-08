@@ -104,8 +104,15 @@ export default function TicketDetailScreen() {
           borderBottomColor: theme.border,
         },
         rowLast: { borderBottomWidth: 0 },
-        rowLabel: { ...Typography.body2, color: theme.textMuted },
-        rowValue: { ...Typography.body2, color: theme.text, fontWeight: "600" },
+        rowLabel: { ...Typography.body2, color: theme.textMuted, flexShrink: 0 },
+        rowValue: {
+          ...Typography.body2,
+          color: theme.text,
+          fontWeight: "600",
+          flex: 1,
+          textAlign: "right",
+          marginLeft: Spacing.md,
+        },
       }),
     [theme],
   );
@@ -114,7 +121,8 @@ export default function TicketDetailScreen() {
     ? [
         { label: "Price", value: formatMoney(ticket.amountMinor, ticket.currency) },
         { label: "Purchased", value: formatPurchaseDate(ticket.purchasedAt) },
-        { label: "Pass ID", value: ticket.id },
+        // A full UUID overflows the row; a short prefix is enough to reference a pass.
+        { label: "Pass ID", value: ticket.id.slice(0, 8).toUpperCase() },
       ]
     : [];
 
