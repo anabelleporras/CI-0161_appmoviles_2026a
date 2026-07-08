@@ -38,7 +38,9 @@ export async function getCatalog(types: string[]): Promise<TicketProduct[]> {
   const res = await apiFetch(`/catalog?types=${types.join(",")}`);
   if (!res.ok) throw new Error(`Could not load passes (${res.status}).`);
   const data = await res.json();
-  return data.products ?? [];
+  const products: TicketProduct[] = data.products ?? [];
+  // Collapse products by id so e.g. "Day Pass" doesn't show twice if a place has multiple types.
+  return [...new Map(products.map((p) => [p.id, p])).values()];
 }
 
 /** Asks the server to create a Stripe PaymentIntent for the chosen product. */
