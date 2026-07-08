@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-
-import { searchNearby, type GooglePlace } from "@/services/google-places";
-
-import type { Coords } from "./use-device-location";
+//import { searchNearby, type GooglePlace } from "@/services/google-places";
+import type { Coords } from "@/services/places/types";
+import { places } from "@/services/providers";
+import type { Place } from "@/services/places/types";
 
 export type NearbyPlacesState = {
-  places: GooglePlace[];
+  places: Place[];
   loading: boolean;
   error: string | null;
 };
@@ -43,24 +43,16 @@ export const useNearbyPlaces = ({
     const requestId = ++requestIdRef.current;
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
-    searchNearby({
-      lat: coords.latitude,
-      lon: coords.longitude,
-      includedTypes,
-      radius,
-      maxResults,
+    places
+    .nearby({ coords, includedTypes, radius, maxResults })
+    .then((result) => {
+      if (requestId !== requestIdRef.current) return;
+      setState({ places: result, loading: false, error: null });
     })
-      .then((places) => {
-        if (requestId !== requestIdRef.current) return;
-        setState({ places, loading: false, error: null });
-      })
-      .catch((err: Error) => {
-        if (requestId !== requestIdRef.current) return;
-        setState({ places: [], loading: false, error: err.message });
-      });
-    // typesKey is the stable join of includedTypes; the array reference itself
-    // changes on every render but the contents don't, so we key on the string.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    .catch((err: Error) => {
+      if (requestId !== requestIdRef.current) return;
+      setState({ places: [], loading: false, error: err.message });
+    });
   }, [coords?.latitude, coords?.longitude, typesKey, radius, maxResults, enabled]);
 
   return state;

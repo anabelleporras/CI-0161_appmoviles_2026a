@@ -1,7 +1,6 @@
 import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
-
-export type Coords = { latitude: number; longitude: number };
+import type { Coords } from "@/services/places/types";
 
 export type LocationAddress = {
   city?: string | null;
