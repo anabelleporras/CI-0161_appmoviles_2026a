@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Ticket as TicketIcon } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -12,6 +13,7 @@ import { useTicketsStore } from "@/store/tickets";
 export default function TripsScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const tickets = useTicketsStore((state) => state.tickets);
 
   const styles = useMemo(
@@ -56,8 +58,8 @@ export default function TripsScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + Spacing.sm }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Trips</Text>
-        <Text style={styles.subtitle}>Your passes and tickets</Text>
+        <Text style={styles.title}>{t('trips.title')}</Text>
+        <Text style={styles.subtitle}>{t('trips.subtitle')}</Text>
       </View>
 
       <FlatList
@@ -75,10 +77,8 @@ export default function TripsScreen() {
         ListEmptyComponent={
           <View style={styles.empty}>
             <TicketIcon size={48} color={theme.iconMuted} strokeWidth={1.5} />
-            <Text style={styles.emptyTitle}>No passes yet</Text>
-            <Text style={styles.emptyText}>
-              Find a park or attraction and tap “Get pass” to buy your first ticket.
-            </Text>
+            <Text style={styles.emptyTitle}>{t('trips.emptyTitle')}</Text>
+            <Text style={styles.emptyText}>{t('trips.emptyText')}</Text>
           </View>
         }
       />

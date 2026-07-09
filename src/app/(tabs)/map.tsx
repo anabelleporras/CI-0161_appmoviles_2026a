@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { router } from "expo-router";
@@ -32,16 +33,14 @@ import type { FavoritePlace } from '@/store/favorites';
 
 type MapFilter = {
   id: string;
-  label: string;
   icon: LucideIcon;
   includedTypes: string[];
 };
 
 const FILTERS: MapFilter[] = [
-  { id: "all", label: "All", icon: LayoutGrid, includedTypes: ALL_ACTIVITY_TYPES },
+  { id: "all", icon: LayoutGrid, includedTypes: ALL_ACTIVITY_TYPES },
   ...ACTIVITIES.map((a) => ({
     id: a.id,
-    label: a.label,
     icon: a.icon,
     includedTypes: a.includedTypes,
   })),
@@ -108,8 +107,11 @@ const COSTA_RICA_FALLBACK = {
 const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const isDark = theme === Colors.dark;
   const searchRadius = useSettingsStore((state) => state.searchRadius);
+  const filterLabel = (id: string) =>
+    id === "all" ? t('map.filterAll') : t(`activities.${id}.label`);
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -225,7 +227,7 @@ const MapScreen = () => {
             >
               <MapMarkerPill
                 icon={iconForPlace(place)}
-                label={place.name || "Place"}
+                label={place.name || t('common.place')}
                 selected={isSelected}
               />
             </Marker>
@@ -237,7 +239,7 @@ const MapScreen = () => {
         <SearchBar
           value={searchTerm}
           onChangeText={setSearchTerm}
-          placeholder="Search places nearby"
+          placeholder={t('map.searchPlaceholder')}
         />
         <ScrollView
           horizontal
@@ -248,7 +250,7 @@ const MapScreen = () => {
             <CategoryPill
               key={filter.id}
               icon={filter.icon}
-              label={filter.label}
+              label={filterLabel(filter.id)}
               variant="compact"
               selected={activeFilter.id === filter.id}
               onPress={() => {

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, View } from "react-native";
 
 import { Palette, Radius, Spacing, Typography } from "@/constants/theme";
@@ -20,20 +21,22 @@ const computeScore = (rating = 0, count = 0): number => {
   return Math.min(Math.round((raw / MAX_SCORE) * 100), 100);
 };
 
-type Tier = { label: string; color: string };
+type Tier = { key: "veryPopular" | "moderatelyPopular" | "notRecommended"; color: string };
 
 // Splits the 0–100 score into three visual buckets:
 const getTier = (score: number): Tier => {
-  if (score >= 67) return { label: "Very popular", color: Palette.guanacasteAmber.normal };
-  if (score >= 34) return { label: "Moderately popular", color: Palette.guanacasteAmber.normalHover };
-  return { label: "Not recommended", color: Palette.ceibaGreen.normal };
+  if (score >= 67) return { key: "veryPopular", color: Palette.guanacasteAmber.normal };
+  if (score >= 34) return { key: "moderatelyPopular", color: Palette.guanacasteAmber.normalHover };
+  return { key: "notRecommended", color: Palette.ceibaGreen.normal };
 };
 
 export const PopularityCard = ({ rating, userRatingCount }: Props) => {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   const score = computeScore(rating, userRatingCount);
   const tier = getTier(score);
+  const tierLabel = t(`popularityCard.${tier.key}`);
 
   const styles = useMemo(
     () =>
@@ -100,13 +103,13 @@ export const PopularityCard = ({ rating, userRatingCount }: Props) => {
 
   return (
     <View>
-      <Text style={styles.sectionLabel}>Estimated popularity</Text>
+      <Text style={styles.sectionLabel}>{t('popularityCard.estimatedPopularity')}</Text>
       <View style={styles.card}>
         {/* Tier label on the left, numeric score on the right */}
         <View style={styles.header}>
           <View style={styles.tierRow}>
             <View style={styles.dot} />
-            <Text style={styles.tierLabel}>{tier.label}</Text>
+            <Text style={styles.tierLabel}>{tierLabel}</Text>
           </View>
           <Text style={styles.scoreText}>{score}/100</Text>
         </View>
@@ -117,7 +120,10 @@ export const PopularityCard = ({ rating, userRatingCount }: Props) => {
         </View>
 
         <Text style={styles.footnote}>
-          Based on {userRatingCount?.toLocaleString() ?? "0"} reviews · {rating?.toFixed(1) ?? "—"} stars
+          {t('popularityCard.basedOnReviews', {
+            count: userRatingCount?.toLocaleString() ?? "0",
+            rating: rating?.toFixed(1) ?? "—",
+          })}
         </Text>
       </View>
     </View>

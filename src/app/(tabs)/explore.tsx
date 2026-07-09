@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/use-theme";
 
 
 export default function ExploreScreen() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const styles = useMemo (
@@ -35,8 +37,8 @@ export default function ExploreScreen() {
 
   return (
   <View style={[styles.root, { paddingTop: insets.top }]}>
-    <Text style={styles.label}>Explore</Text>
-    <Text style={styles.sub}>Coming soon</Text>
+    <Text style={styles.label}>{t('explore.title')}</Text>
+    <Text style={styles.sub}>{t('common.comingSoon')}</Text>
   </View>
   );
 }

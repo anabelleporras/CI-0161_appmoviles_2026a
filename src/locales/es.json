@@ -1,0 +1,173 @@
+{
+  "settings": {
+    "title": "Configuración",
+    "units": "Unidades",
+    "distance": "Distancia",
+    "searchRadius": "Radio de búsqueda",
+    "nearbyPlaces": "Lugares cercanos",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "themeAuto": "Automático",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "language": "Idioma",
+    "appLanguage": "Idioma de la app",
+    "languageAuto": "Automático",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
+    "notifications": "Notificaciones",
+    "pushNotifications": "Notificaciones push",
+    "startQuietHours": "Inicio de horas silenciosas",
+    "endQuietHours": "Fin de horas silenciosas",
+    "clearQuietHours": "Borrar horas silenciosas",
+    "timezone": "Zona horaria",
+    "notSet": "Sin configurar"
+  },
+  "login": {
+    "welcomeBack": "BIENVENIDO DE NUEVO",
+    "headline": "Vamos a iniciar\ntu sesión.",
+    "logInWith": "INICIAR SESIÓN CON",
+    "continueWithApple": "Continuar con Apple",
+    "continueWithGoogle": "Continuar con Google",
+    "playServicesMissingTitle": "Faltan los servicios de Google Play",
+    "playServicesMissingMessage": "Este dispositivo necesita Google Play Services.",
+    "loginFailedTitle": "Error al iniciar sesión",
+    "googleSignInFailedMessage": "No se pudo completar el inicio de sesión con Google.",
+    "appleSignInFailedMessage": "No se pudo completar el inicio de sesión con Apple.",
+    "serverUnreachableMessage": "No se pudo conectar con el servidor."
+  },
+  "home": {
+    "searchAccessibility": "Buscar",
+    "notificationsAccessibility": "Notificaciones",
+    "topAttractions": "Atracciones destacadas",
+    "seeAll": "Ver todo",
+    "noFeaturedAttractions": "No hay atracciones destacadas cerca.",
+    "findYourPace": "Encuentra tu ritmo",
+    "nearby": "Cerca de ti: {{activity}}",
+    "noPlacesNearby": "No se encontraron lugares cercanos."
+  },
+  "nav": {
+    "home": "Inicio",
+    "map": "Mapa",
+    "trips": "Viajes",
+    "profile": "Perfil"
+  },
+  "common": {
+    "back": "Atrás",
+    "done": "Listo",
+    "details": "Detalles",
+    "close": "Cerrar",
+    "place": "Lugar",
+    "unnamedPlace": "Lugar sin nombre",
+    "comingSoon": "Próximamente",
+    "search": "Buscar",
+    "featured": "DESTACADO",
+    "viewDetails": "Ver detalles"
+  },
+  "map": {
+    "filterAll": "Todos",
+    "searchPlaceholder": "Buscar lugares cercanos"
+  },
+  "profile": {
+    "title": "Perfil",
+    "settingsAccessibility": "Configuración",
+    "traveller": "Viajero",
+    "signedInWith": "Sesión iniciada con {{provider}}",
+    "savedPlaces": "Lugares guardados",
+    "noSavedPlaces": "Todavía no hay lugares guardados",
+    "noSavedPlacesHint": "Toca el ícono de marcador en cualquier lugar para guardarlo aquí",
+    "logOut": "Cerrar sesión"
+  },
+  "explore": {
+    "title": "Explorar"
+  },
+  "trips": {
+    "title": "Viajes",
+    "subtitle": "Tus pases y entradas",
+    "emptyTitle": "Todavía no tienes pases",
+    "emptyText": "Busca un parque o atracción y toca \"Obtener pase\" para comprar tu primer boleto.",
+    "ticketAccessibility": "{{product}} para {{place}}"
+  },
+  "checkout": {
+    "title": "Obtener pase",
+    "noPasses": "No hay pases disponibles para este lugar.",
+    "buy": "Comprar",
+    "buyAccessibility": "Comprar {{product}} por {{price}}",
+    "testModeHint": "Modo de prueba: paga con la tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC.",
+    "genericError": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "activityDetail": {
+    "unknownActivity": "Actividad desconocida.",
+    "showMap": "Ver mapa",
+    "showList": "Ver lista",
+    "noResultsNearby": "No hay {{activity}} cerca."
+  },
+  "placeDetail": {
+    "notFound": "Lugar no encontrado.",
+    "openingHours": "Horario",
+    "openInMaps": "Abrir en Maps",
+    "saveToFavorites": "Guardar en favoritos",
+    "distanceAway": "a {{distance}}",
+    "getPass": "Obtener pase",
+    "getPassAccessibility": "Obtener pase para este lugar"
+  },
+  "ticketDetail": {
+    "title": "Tu pase",
+    "notAvailable": "Este pase no está disponible en este dispositivo. Intenta abrirlo desde la pestaña Viajes.",
+    "qrCaption": "Muestra este código en la entrada",
+    "valid": "VÁLIDO",
+    "price": "Precio",
+    "purchased": "Comprado",
+    "passId": "ID del pase",
+    "nightsLabel": "{{name}} - {{count}} noche",
+    "nightsLabel_other": "{{name}} - {{count}} noches",
+    "dayPassLabel": "{{name}} - {{count}} pase de {{count}} día",
+    "dayPassLabel_other": "{{name}} - {{count}} pases de {{count}} días"
+  },
+  "activities": {
+    "trails": { "label": "Senderos", "badge": "Sendero" },
+    "beaches": { "label": "Playas", "badge": "Playa" },
+    "parks": { "label": "Parques", "badge": "Parque" },
+    "dog_parks": { "label": "Parques para perros", "badge": "Parque canino" },
+    "camping": { "label": "Camping", "badge": "Camping" },
+    "picnic": { "label": "Picnic", "badge": "Picnic" },
+    "explore": { "label": "Explorar", "badge": "Sitio" }
+  },
+  "activityCard": {
+    "nearbyCount_one": "1 cerca",
+    "nearbyCount_other": "{{count}} cerca",
+    "nearbyCountMax": "{{count}}+ cerca"
+  },
+  "featuredCard": {
+    "featuredPlaceFallback": "Lugar destacado",
+    "openInMap": "Abrir en mapa"
+  },
+  "placeCard": {
+    "bookmarkAccessibility": "Guardar lugar"
+  },
+  "popularityCard": {
+    "veryPopular": "Muy popular",
+    "moderatelyPopular": "Moderadamente popular",
+    "notRecommended": "No recomendado",
+    "estimatedPopularity": "Popularidad estimada",
+    "basedOnReviews": "Basado en {{count}} reseñas · {{rating}} estrellas"
+  },
+  "weatherCard": {
+    "currentWeather": "Clima actual",
+    "conditionClear": "Despejado",
+    "conditionPartlyCloudy": "Parcialmente nublado",
+    "conditionOvercast": "Nublado",
+    "conditionFog": "Neblina",
+    "conditionDrizzle": "Llovizna",
+    "conditionRain": "Lluvia",
+    "conditionSnow": "Nieve",
+    "conditionThunderstorm": "Tormenta eléctrica",
+    "conditionUnknown": "Desconocido"
+  },
+  "deviceLocation": {
+    "unknownLocation": "Ubicación desconocida",
+    "unknown": "Desconocido",
+    "loading": "Cargando…",
+    "locationOff": "Ubicación desactivada"
+  }
+}

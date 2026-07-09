@@ -1,9 +1,11 @@
 import { ChevronRight, Ticket as TicketIcon } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
 import { formatMoney } from "@/lib/currency";
+import { localizeProductLabel } from "@/lib/i18n";
 import type { Ticket } from "@/services/payments";
 
 import { createTicketCardStyles } from "./ticket-card.styles";
@@ -13,8 +15,8 @@ export type TicketCardProps = {
   onPress?: () => void;
 };
 
-const formatPurchaseDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString(undefined, {
+const formatPurchaseDate = (iso: string, locale?: string): string =>
+  new Date(iso).toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -22,7 +24,9 @@ const formatPurchaseDate = (iso: string): string =>
 
 const TicketCard = ({ ticket, onPress }: TicketCardProps) => {
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
   const styles = useMemo(() => createTicketCardStyles(theme), [theme]);
+  const productLabel = localizeProductLabel(ticket.productLabel, t);
 
   return (
     <TouchableOpacity
@@ -30,7 +34,7 @@ const TicketCard = ({ ticket, onPress }: TicketCardProps) => {
       onPress={onPress}
       style={styles.card}
       accessibilityRole="button"
-      accessibilityLabel={`${ticket.productLabel} for ${ticket.placeName}`}
+      accessibilityLabel={`${productLabel} for ${ticket.placeName}`}
     >
       <View style={styles.iconWrap}>
         <TicketIcon size={22} color={theme.textOnAccent} strokeWidth={2} />
@@ -40,9 +44,11 @@ const TicketCard = ({ ticket, onPress }: TicketCardProps) => {
           {ticket.placeName}
         </Text>
         <Text style={styles.meta} numberOfLines={1}>
-          {ticket.productLabel} · {formatMoney(ticket.amountMinor, ticket.currency)}
+          {productLabel} · {formatMoney(ticket.amountMinor, ticket.currency)}
         </Text>
-        <Text style={styles.date}>{formatPurchaseDate(ticket.purchasedAt)}</Text>
+        <Text style={styles.date}>
+          {formatPurchaseDate(ticket.purchasedAt, i18n.language)}
+        </Text>
       </View>
       <ChevronRight size={20} color={theme.iconMuted} />
     </TouchableOpacity>

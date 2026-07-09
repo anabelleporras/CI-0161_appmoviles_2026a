@@ -1,5 +1,6 @@
 import { Bookmark, BookmarkCheck } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Text, TouchableOpacity, View } from "react-native";
 import PlacePhoto from "@/components/ui/place-photo";
 import { useTheme } from "@/hooks/use-theme";
@@ -26,11 +27,12 @@ const PlaceCard = ({
   onBookmark,
 }: PlaceCardProps) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createPlaceCardStyles(theme), [theme]);
   const units = useSettingsStore((state) => state.units);
 
   const photo = place.photos[0];
-  const name = place.name || "Unnamed place";
+  const name = place.name || t('common.unnamedPlace');
   const meta = [
     typeof place.rating === "number" ? `★ ${place.rating.toFixed(1)}` : null,
     typeof distanceKm === "number" ? formatDistance(distanceKm, units) : null,
@@ -54,7 +56,7 @@ const PlaceCard = ({
             onPress={onBookmark}
             activeOpacity={0.8}
             style={styles.bookmark}
-            accessibilityLabel="Bookmark place"
+            accessibilityLabel={t('placeCard.bookmarkAccessibility')}
           >
             {bookmarked ? (
               <BookmarkCheck size={18} color={theme.accent} strokeWidth={2} />

@@ -1,5 +1,6 @@
 import { type LucideIcon } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Text, TouchableOpacity } from "react-native";
 
 import { useTheme } from "@/hooks/use-theme";
@@ -26,6 +27,7 @@ const ActivityCard = ({
   onPress,
 }: ActivityCardProps) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(
     () => createActivityCardStyles(theme, selected),
     [theme, selected],
@@ -37,10 +39,8 @@ const ActivityCard = ({
     count === undefined
       ? "—"
       : count >= maxCount
-        ? `${maxCount}+ nearby`
-        : count === 1
-          ? "1 nearby"
-          : `${count} nearby`;
+        ? t('activityCard.nearbyCountMax', { count: maxCount })
+        : t('activityCard.nearbyCount', { count });
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>

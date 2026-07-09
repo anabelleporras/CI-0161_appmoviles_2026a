@@ -5,7 +5,8 @@ import {
   UserRound,
   type LucideIcon,
 } from "lucide-react-native";
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Animated, Pressable, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -19,13 +20,6 @@ type Tab = {
   label: string;
   Icon: LucideIcon;
 };
-
-const TABS: Tab[] = [
-  { key: "home", label: "Home", Icon: House },
-  { key: "map", label: "Map", Icon: Map },
-  { key: "trips", label: "Trips", Icon: Ticket },
-  { key: "profile", label: "Profile", Icon: UserRound },
-];
 
 type NavItemProps = {
   tab: Tab;
@@ -91,6 +85,17 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const TABS: Tab[] = useMemo(
+    () => [
+      { key: "home", label: t("nav.home"), Icon: House },
+      { key: "map", label: t("nav.map"), Icon: Map },
+      { key: "trips", label: t("nav.trips"), Icon: Ticket },
+      { key: "profile", label: t("nav.profile"), Icon: UserRound },
+    ],
+    [t],
+  );
 
   return (
     <View

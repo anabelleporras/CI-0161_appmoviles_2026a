@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import QRCode from "react-native-qrcode-svg";
@@ -10,11 +11,12 @@ import { Palette, Radius, Shadow, Spacing, Typography } from "@/constants/theme"
 import { useTheme } from "@/hooks/use-theme";
 import { formatMoney } from "@/lib/currency";
 import { useTicketsStore } from "@/store/tickets";
+import { localizeProductLabel } from "@/lib/i18n";
 
 const QR_SIZE = 200;
 
-const formatPurchaseDate = (iso: string): string =>
-  new Date(iso).toLocaleDateString(undefined, {
+const formatPurchaseDate = (iso: string, locale?: string): string =>
+  new Date(iso).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -23,6 +25,7 @@ const formatPurchaseDate = (iso: string): string =>
 export default function TicketDetailScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t, i18n } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const ticket = useTicketsStore((state) =>
     state.tickets.find((t) => t.id === id),
@@ -119,10 +122,10 @@ export default function TicketDetailScreen() {
 
   const rows = ticket
     ? [
-        { label: "Price", value: formatMoney(ticket.amountMinor, ticket.currency) },
-        { label: "Purchased", value: formatPurchaseDate(ticket.purchasedAt) },
+        { label: t("ticketDetail.price"), value: formatMoney(ticket.amountMinor, ticket.currency) },
+        { label: t("ticketDetail.purchased"), value: formatPurchaseDate(ticket.purchasedAt, i18n.language) },
         // A full UUID overflows the row; a short prefix is enough to reference a pass.
-        { label: "Pass ID", value: ticket.id.slice(0, 8).toUpperCase() },
+        { label: t("ticketDetail.passId"), value: ticket.id.slice(0, 8).toUpperCase() },
       ]
     : [];
 
@@ -132,16 +135,14 @@ export default function TicketDetailScreen() {
         <IconButton
           icon={ArrowLeft}
           onPress={() => router.back()}
-          accessibilityLabel="Back"
+          accessibilityLabel={t("common.back")}
         />
-        <Text style={styles.headerTitle}>Your pass</Text>
+        <Text style={styles.headerTitle}>{t("ticketDetail.title")}</Text>
       </View>
 
       {!ticket ? (
         <View style={styles.centered}>
-          <Text style={styles.muted}>
-            This pass isn’t available on this device. Try opening it from the Trips tab.
-          </Text>
+          <Text style={styles.muted}>{t("ticketDetail.notAvailable")}</Text>
         </View>
       ) : (
         <ScrollView
@@ -156,14 +157,16 @@ export default function TicketDetailScreen() {
               color={Palette.black}
               backgroundColor={Palette.white}
             />
-            <Text style={styles.qrCaption}>Show this code at the entrance</Text>
+            <Text style={styles.qrCaption}>{t("ticketDetail.qrCaption")}</Text>
           </View>
 
           <View style={styles.details}>
             <Text style={styles.place}>{ticket.placeName}</Text>
-            <Text style={styles.product}>{ticket.productLabel}</Text>
+            <Text style={styles.product}>
+              {localizeProductLabel(ticket.productLabel, t)}
+            </Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>VALID</Text>
+              <Text style={styles.badgeText}>{t("ticketDetail.valid")}</Text>
             </View>
           </View>
 

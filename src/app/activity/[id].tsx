@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, List, Map as MapIcon } from "lucide-react-native";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   ScrollView,
@@ -80,6 +81,7 @@ const BookmarkablePlaceCard = ({
 const ActivityListScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const activity = getActivity(id);
 
@@ -140,10 +142,13 @@ const ActivityListScreen = () => {
   if (!activity) {
     return (
       <View style={[styles.root, styles.center, { paddingTop: insets.top }]}>
-        <Text style={styles.muted}>Unknown activity.</Text>
+        <Text style={styles.muted}>{t('activityDetail.unknownActivity')}</Text>
       </View>
     );
   }
+
+  const activityLabel = t(`activities.${activity.id}.label`);
+  const activityBadge = t(`activities.${activity.id}.badge`);
 
   const ActivityIcon = activity.icon;
 
@@ -153,13 +158,13 @@ const ActivityListScreen = () => {
         <IconButton
           icon={ArrowLeft}
           onPress={() => router.back()}
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.back')}
         />
-        <Text style={styles.title}>{activity.label}</Text>
+        <Text style={styles.title}>{activityLabel}</Text>
         <IconButton
           icon={mode === "list" ? MapIcon : List}
           onPress={() => setMode((m) => (m === "list" ? "map" : "list"))}
-          accessibilityLabel={mode === "list" ? "Show map" : "Show list"}
+          accessibilityLabel={mode === "list" ? t('activityDetail.showMap') : t('activityDetail.showList')}
         />
       </View>
 
@@ -169,7 +174,9 @@ const ActivityListScreen = () => {
         </View>
       ) : places.length === 0 ? (
         <View style={styles.center}>
-          <Text style={styles.muted}>No {activity.label.toLowerCase()} nearby.</Text>
+          <Text style={styles.muted}>
+            {t('activityDetail.noResultsNearby', { activity: activityLabel.toLowerCase() })}
+          </Text>
         </View>
       ) : mode === "list" ? (
         <ScrollView
@@ -180,7 +187,7 @@ const ActivityListScreen = () => {
             <BookmarkablePlaceCard
               key={place.id}
               place={place}
-              badge={activity.badge}
+              badge={activityBadge}
               distanceKm={withDistance(place)}
             />
           ))}
@@ -207,7 +214,7 @@ const ActivityListScreen = () => {
               >
                 <MapMarkerPill
                   icon={ActivityIcon}
-                  label={place.name || "Place"}
+                  label={place.name || t('common.place')}
                   selected={false}
                 />
               </Marker>

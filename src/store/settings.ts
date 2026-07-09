@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import { apiFetch } from '@/services/api-client';
+import i18n, { detectDeviceLanguage, type SupportedLanguage } from '@/lib/i18n';
 
 const secureStorage: StateStorage = {
   getItem: async (name) => await SecureStore.getItemAsync(name) ?? null,
@@ -35,6 +36,23 @@ async function getExpoPushToken(): Promise<string | null> {
 
 export type Units = 'km' | 'mi';
 export type ThemePreference = 'auto' | 'light' | 'dark';
+export type Language = 'auto' | SupportedLanguage;
+
+const normalizeLanguage = (value: unknown): Language => {
+  if (typeof value !== 'string') return 'auto';
+  const lower = value.toLowerCase();
+  if (lower === 'auto') return 'auto';
+  if (lower.startsWith('en')) return 'en';
+  if (lower.startsWith('es')) return 'es';
+  return 'auto';
+};
+
+const applyLanguage = (language: Language | null | undefined) => {
+  const normalized = normalizeLanguage(language);
+  i18n.changeLanguage(normalized === 'auto' ? detectDeviceLanguage() : normalized);
+};
+
+
 export type NotificationCategory = 'infrastructure' | 'location' | 'weather';
 
 type NotificationPreferencesResponse = {
@@ -53,6 +71,7 @@ interface SettingsState {
   searchRadius: number;
   themePreference: ThemePreference;
   notifications: boolean;
+  language: Language;
   infrastructureNotifications: boolean;
   locationNotifications: boolean;
   weatherNotifications: boolean;
@@ -64,6 +83,7 @@ interface SettingsState {
   setSearchRadius: (radius: number) => Promise<void>;
   setThemePreference: (theme: ThemePreference) => Promise<void>;
   setNotifications: (enabled: boolean) => Promise<void>;
+  setLanguage: (language: Language) => Promise<void>;
   setCategoryNotification: (category: NotificationCategory, enabled: boolean) => Promise<void>;
   setQuietHours: (start?: string, end?: string) => Promise<void>;
   setNotificationTimezone: (timezone: string) => Promise<void>;
@@ -84,6 +104,7 @@ export const useSettingsStore = create<SettingsState>()(
       searchRadius: 15000,
       themePreference: 'auto',
       notifications: true,
+      language: 'auto',
       infrastructureNotifications: true,
       locationNotifications: true,
       weatherNotifications: true,
@@ -158,6 +179,14 @@ export const useSettingsStore = create<SettingsState>()(
         const previous = get().updatedAt;
         const updatedAt = nextUpdatedAt(previous);
         set({ notifications, updatedAt });
+        await get().syncFromBackend();
+      },
+      setLanguage: async (language) => {
+        const previous = get().updatedAt;
+        const updatedAt = nextUpdatedAt(previous);
+        const normalizedLanguage = normalizeLanguage(language);
+        set({ language: normalizedLanguage, updatedAt });
+        applyLanguage(normalizedLanguage);
         await get().syncFromBackend();
       },
       setCategoryNotification: async (category, enabled) => {
@@ -239,6 +268,7 @@ export const useSettingsStore = create<SettingsState>()(
               searchRadius: state.searchRadius,
               themePreference: state.themePreference,
               notifications: state.notifications,
+              language: state.language,
               updatedAt: state.updatedAt,
             }),
           });
@@ -246,6 +276,10 @@ export const useSettingsStore = create<SettingsState>()(
           const data = await res.json();
           const settings = data.settings;
           if (!settings) return;
+
+          const effectiveLanguage = normalizeLanguage(
+            (settings as { language?: unknown }).language ?? state.language,
+          );
 
           const currentUpdatedAtMs = Date.parse(get().updatedAt);
           const requestUpdatedAtMs = Date.parse(requestUpdatedAt);
@@ -258,8 +292,10 @@ export const useSettingsStore = create<SettingsState>()(
             searchRadius: settings.searchRadius,
             themePreference: settings.themePreference,
             notifications: settings.notifications,
+            language: effectiveLanguage,
             updatedAt: settings.updatedAt,
           });
+          applyLanguage(effectiveLanguage);
 
           await get().syncNotificationPreferences();
         } catch {
@@ -270,6 +306,9 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: 'settings-storage',
       storage: createJSONStorage(() => secureStorage),
+      onRehydrateStorage: () => (state) => {
+        if (state) applyLanguage(state.language);
+      },
     }
   )
 );

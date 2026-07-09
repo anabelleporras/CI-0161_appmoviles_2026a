@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import "@/lib/i18n";
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
 

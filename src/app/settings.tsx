@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Platform,
   Pressable,
@@ -11,31 +12,31 @@ import {
   View,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import IconButton from '@/components/ui/icon-button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import IconButton from '@/components/ui/icon-button';
 import { Radius, Spacing, Typography } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useSettingsStore, type Units, type ThemePreference } from '@/store/settings';
+import { useSettingsStore, type Units, type ThemePreference, type Language } from '@/store/settings';
 
 const UNIT_OPTIONS: { label: string; value: Units }[] = [
   { label: 'km', value: 'km' },
   { label: 'mi', value: 'mi' },
 ];
 
-const THEME_OPTIONS: { label: string; value: ThemePreference }[] = [
-  { label: 'Auto', value: 'auto' },
-  { label: 'Light', value: 'light' },
-  { label: 'Dark', value: 'dark' },
-];
+function normalizeLanguageSelection(value: string | null | undefined): Language {
+  const lower = (value ?? 'auto').toLowerCase();
+  if (lower === 'auto') return 'auto';
+  if (lower.startsWith('en')) return 'en';
+  if (lower.startsWith('es')) return 'es';
+  return 'auto';
+}
 
-// "HH:MM" <-> Date helpers. We only ever care about the time-of-day portion,
-// so the date component is arbitrary but fixed.
 function timeStringToDate(value: string | undefined): Date {
   const base = new Date();
   if (value && /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
-    const [h, m] = value.split(':').map(Number);
-    base.setHours(h, m, 0, 0);
+    const [hours, minutes] = value.split(':').map(Number);
+    base.setHours(hours, minutes, 0, 0);
   } else {
     base.setHours(9, 0, 0, 0);
   }
@@ -43,27 +44,28 @@ function timeStringToDate(value: string | undefined): Date {
 }
 
 function dateToTimeString(date: Date): string {
-  const h = String(date.getHours()).padStart(2, '0');
-  const m = String(date.getMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
 }
 
-function formatDisplay(value: string | undefined): string {
-  if (!value) return 'Not set';
-  const [h, m] = value.split(':').map(Number);
-  const period = h >= 12 ? 'PM' : 'AM';
-  const hour12 = h % 12 === 0 ? 12 : h % 12;
-  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+function formatDisplay(value: string): string {
+  const [hours, minutes] = value.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
+  return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`;
 }
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const {
     units,
     searchRadius,
     themePreference,
     notifications,
+    language,
     quietHoursStart,
     quietHoursEnd,
     notificationTimezone,
@@ -71,13 +73,14 @@ export default function SettingsScreen() {
     setSearchRadius,
     setThemePreference,
     setNotifications,
+    setLanguage,
     setQuietHours,
   } = useSettingsStore();
+  const [openPicker, setOpenPicker] = useState<'start' | 'end' | null>(null);
 
   // Which picker is open, if any. iOS renders the picker inline/as a modal
   // sheet; Android's default mode is already a dialog, so we just mount it
   // conditionally and let it dismiss itself.
-  const [openPicker, setOpenPicker] = useState<'start' | 'end' | null>(null);
 
   const radiusOptions = useMemo(
     () => [
@@ -89,6 +92,26 @@ export default function SettingsScreen() {
     ],
     [units],
   );
+
+  const themeOptions = useMemo<{ label: string; value: ThemePreference }[]>(
+    () => [
+      { label: t('settings.themeAuto'), value: 'auto' },
+      { label: t('settings.themeLight'), value: 'light' },
+      { label: t('settings.themeDark'), value: 'dark' },
+    ],
+    [t],
+  );
+
+  const languageOptions = useMemo<{ label: string; value: Language }[]>(
+    () => [
+      { label: t('settings.languageAuto'), value: 'auto' },
+      { label: t('settings.languageEnglish'), value: 'en' },
+      { label: t('settings.languageSpanish'), value: 'es' },
+    ],
+    [t],
+  );
+
+  const selectedLanguage = useMemo(() => normalizeLanguageSelection(language), [language]);
 
   const styles = useMemo(
     () =>
@@ -183,22 +206,6 @@ export default function SettingsScreen() {
     [theme],
   );
 
-  const handleValueChange = (field: 'start' | 'end') => (date: Date) => {
-    commit(field, date);
-    if (Platform.OS === 'android') {
-      // Android's dialog closes itself after a single confirm tap.
-      setOpenPicker(null);
-    }
-    // iOS spinner stays open and fires continuously while scrolling;
-    // commit happens live, dismissal happens when they tap Done.
-  };
-
-  const handleDismiss = () => {
-    // Fired when the user cancels without picking a value
-    // (Android: back button, tap outside, or Cancel button).
-    setOpenPicker(null);
-  };
-
   const commit = (field: 'start' | 'end', date: Date) => {
     const value = dateToTimeString(date);
     if (field === 'start') {
@@ -208,6 +215,17 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleValueChange = (field: 'start' | 'end') => (date: Date) => {
+    commit(field, date);
+    if (Platform.OS === 'android') {
+      setOpenPicker(null);
+    }
+  };
+
+  const handleDismiss = () => {
+    setOpenPicker(null);
+  };
+
   const clearQuietHours = () => {
     setOpenPicker(null);
     setQuietHours(undefined, undefined);
@@ -215,7 +233,9 @@ export default function SettingsScreen() {
 
   const renderTimeRow = (field: 'start' | 'end') => {
     const value = field === 'start' ? quietHoursStart : quietHoursEnd;
-    const label = field === 'start' ? 'Start quiet hours' : 'End quiet hours';
+    const label = field === 'start'
+      ? t('settings.startQuietHours')
+      : t('settings.endQuietHours');
 
     return (
       <>
@@ -227,7 +247,7 @@ export default function SettingsScreen() {
           <Text style={styles.rowLabel}>{label}</Text>
           <View style={styles.rowValue}>
             <Text style={[styles.timeValue, !value && styles.timePlaceholder]}>
-              {formatDisplay(value)}
+              {value ? formatDisplay(value) : t('settings.notSet')}
             </Text>
           </View>
         </Pressable>
@@ -243,7 +263,7 @@ export default function SettingsScreen() {
               themeVariant={theme.scheme === 'dark' ? 'dark' : 'light'}
             />
             <Pressable style={styles.iosPickerDone} onPress={() => setOpenPicker(null)}>
-              <Text style={styles.iosPickerDoneText}>Done</Text>
+              <Text style={styles.iosPickerDoneText}>{t('common.done')}</Text>
             </Pressable>
           </View>
         )}
@@ -264,8 +284,12 @@ export default function SettingsScreen() {
   return (
     <View style={[styles.root, { paddingTop: insets.top + Spacing.sm }]}>
       <View style={styles.header}>
-        <IconButton icon={ArrowLeft} onPress={() => router.back()} accessibilityLabel="Back" />
-        <Text style={styles.headerTitle}>Settings</Text>
+        <IconButton
+          icon={ArrowLeft}
+          onPress={() => router.back()}
+          accessibilityLabel={t('common.back')}
+        />
+        <Text style={styles.headerTitle}>{t('settings.title')}</Text>
       </View>
 
       <ScrollView
@@ -273,12 +297,11 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Units */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Units</Text>
+          <Text style={styles.sectionLabel}>{t('settings.units')}</Text>
           <View style={styles.card}>
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Distance</Text>
+              <Text style={styles.rowLabel}>{t('settings.distance')}</Text>
               <View style={styles.pillGroup}>
                 {UNIT_OPTIONS.map((opt) => (
                   <Pressable
@@ -296,12 +319,11 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Search radius */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Search radius</Text>
+          <Text style={styles.sectionLabel}>{t('settings.searchRadius')}</Text>
           <View style={styles.card}>
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Nearby places</Text>
+              <Text style={styles.rowLabel}>{t('settings.nearbyPlaces')}</Text>
               <View style={{ flex: 1, marginLeft: Spacing.xs }}>
                 <ScrollView
                   horizontal
@@ -330,14 +352,13 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Theme */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Appearance</Text>
+          <Text style={styles.sectionLabel}>{t('settings.appearance')}</Text>
           <View style={styles.card}>
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Theme</Text>
+              <Text style={styles.rowLabel}>{t('settings.theme')}</Text>
               <View style={styles.pillGroup}>
-                {THEME_OPTIONS.map((opt) => (
+                {themeOptions.map((opt) => (
                   <Pressable
                     key={opt.value}
                     style={[styles.pill, themePreference === opt.value && styles.pillActive]}
@@ -358,13 +379,49 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Notifications */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Notifications</Text>
+          <Text style={styles.sectionLabel}>{t('settings.language')}</Text>
+          <View style={styles.card}>
+            <View style={[styles.row, styles.rowLast]}>
+              <Text style={styles.rowLabel}>{t('settings.appLanguage')}</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.xs }}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.radiusList}
+                >
+                  {languageOptions.map((opt) => (
+                    <Pressable
+                      key={opt.value}
+                      style={[styles.pill, selectedLanguage === opt.value && styles.pillActive]}
+                      onPress={() => setLanguage(opt.value)}
+                    >
+                      <Text
+                        style={[
+                          styles.pillText,
+                          selectedLanguage === opt.value && styles.pillTextActive,
+                        ]}
+                      >
+                        {opt.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>{t('settings.notifications')}</Text>
           <View style={styles.card}>
             <View style={styles.row}>
-              <Text style={styles.rowLabel}>Push notifications</Text>
-              <Switch value={notifications} onValueChange={setNotifications} trackColor={{ true: theme.accent }} />
+              <Text style={styles.rowLabel}>{t('settings.pushNotifications')}</Text>
+              <Switch
+                value={notifications}
+                onValueChange={setNotifications}
+                trackColor={{ true: theme.accent }}
+              />
             </View>
 
             {renderTimeRow('start')}
@@ -373,13 +430,13 @@ export default function SettingsScreen() {
             {(quietHoursStart || quietHoursEnd) && (
               <View style={[styles.row, { justifyContent: 'flex-end' }]}>
                 <Pressable onPress={clearQuietHours}>
-                  <Text style={styles.clearLink}>Clear quiet hours</Text>
+                  <Text style={styles.clearLink}>{t('settings.clearQuietHours')}</Text>
                 </Pressable>
               </View>
             )}
 
             <View style={[styles.row, styles.rowLast]}>
-              <Text style={styles.rowLabel}>Timezone</Text>
+              <Text style={styles.rowLabel}>{t('settings.timezone')}</Text>
               <Text style={styles.pillText}>{notificationTimezone}</Text>
             </View>
           </View>

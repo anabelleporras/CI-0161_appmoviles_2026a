@@ -2,6 +2,7 @@ import { PaymentSheetError, useStripe } from "@stripe/stripe-react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { X } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Pressable,
@@ -36,6 +37,7 @@ const paymentIntentIdFromClientSecret = (clientSecret: string): string =>
 export default function CheckoutScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const addTicket = useTicketsStore((state) => state.addTicket);
 
@@ -98,7 +100,7 @@ export default function CheckoutScreen() {
       router.replace(`/ticket/${ticket.id}`);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Something went wrong. Please try again.",
+        e instanceof Error ? e.message : t("checkout.genericError"),
       );
     } finally {
       setPurchasingId(null);
@@ -176,14 +178,14 @@ export default function CheckoutScreen() {
     <View style={[styles.root, { paddingTop: insets.top + Spacing.sm }]}>
       <View style={styles.header}>
         <View style={styles.headerText}>
-          <Text style={styles.title}>Get a pass</Text>
+          <Text style={styles.title}>{t("checkout.title")}</Text>
           {placeName ? (
             <Text style={styles.subtitle} numberOfLines={1}>
               {placeName}
             </Text>
           ) : null}
         </View>
-        <IconButton icon={X} onPress={() => router.back()} accessibilityLabel="Close" />
+        <IconButton icon={X} onPress={() => router.back()} accessibilityLabel={t("common.close")} />
       </View>
 
       <ScrollView
@@ -196,7 +198,7 @@ export default function CheckoutScreen() {
           </View>
         ) : products.length === 0 ? (
           <View style={styles.centered}>
-            <Text style={styles.muted}>No passes are available for this place.</Text>
+            <Text style={styles.muted}>{t("checkout.noPasses")}</Text>
           </View>
         ) : (
           products.map((product) => {
@@ -211,10 +213,10 @@ export default function CheckoutScreen() {
                 onPress={() => handleSelect(product)}
                 disabled={!!purchasingId}
                 accessibilityRole="button"
-                accessibilityLabel={`Buy ${product.label} for ${formatMoney(
-                  product.amountMinor,
-                  product.currency,
-                )}`}
+                accessibilityLabel={t("checkout.buyAccessibility", {
+                  product: product.label,
+                  price: formatMoney(product.amountMinor, product.currency),
+                })}
               >
                 <View style={styles.productInfo}>
                   <Text style={styles.productLabel}>{product.label}</Text>
@@ -226,7 +228,7 @@ export default function CheckoutScreen() {
                   <ActivityIndicator color={theme.text} />
                 ) : (
                   <View style={styles.buyPill}>
-                    <Text style={styles.buyPillText}>Buy</Text>
+                    <Text style={styles.buyPillText}>{t("checkout.buy")}</Text>
                   </View>
                 )}
               </Pressable>
@@ -237,9 +239,7 @@ export default function CheckoutScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         {!loading && products.length > 0 ? (
-          <Text style={styles.hint}>
-            Test mode, pay with card 4242 4242 4242 4242, any future date and CVC.
-          </Text>
+          <Text style={styles.hint}>{t("checkout.testModeHint")}</Text>
         ) : null}
       </ScrollView>
     </View>

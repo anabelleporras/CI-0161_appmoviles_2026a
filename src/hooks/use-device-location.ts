@@ -1,5 +1,6 @@
 import * as Location from "expo-location";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Coords } from "@/services/places/types";
 
 export type LocationAddress = {
@@ -23,17 +24,18 @@ export type DeviceLocation = {
   refresh: () => Promise<void>;
 };
 
-const formatLabel = (address: LocationAddress | null): string => {
-  if (!address) return "Unknown location";
-  const primary = address.city ?? address.region ?? address.country ?? "Unknown";
-  const secondary = address.country && address.city ? address.country : null;
-  return secondary ? `${primary}, ${secondary}` : primary;
-};
-
 export const useDeviceLocation = (): DeviceLocation => {
+  const { t } = useTranslation();
   const [coords, setCoords] = useState<Coords | null>(null);
   const [address, setAddress] = useState<LocationAddress | null>(null);
   const [status, setStatus] = useState<LocationStatus>("idle");
+
+  const formatLabel = (loc: LocationAddress | null): string => {
+    if (!loc) return t('deviceLocation.unknownLocation');
+    const primary = loc.city ?? loc.region ?? loc.country ?? t('deviceLocation.unknown');
+    const secondary = loc.country && loc.city ? loc.country : null;
+    return secondary ? `${primary}, ${secondary}` : primary;
+  };
 
   const refresh = useCallback(async () => {
     setStatus("loading");
@@ -91,11 +93,11 @@ export const useDeviceLocation = (): DeviceLocation => {
     status,
     label:
       status === "loading"
-        ? "Loading…"
+        ? t('deviceLocation.loading')
         : status === "denied"
-          ? "Location off"
+          ? t('deviceLocation.locationOff')
           : status === "error"
-            ? "Unknown location"
+            ? t('deviceLocation.unknownLocation')
             : formatLabel(address),
     refresh,
   };

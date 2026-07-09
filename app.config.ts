@@ -89,6 +89,7 @@ const config: ExpoConfig = {
         },
       },
     ],
+    "expo-localization",
     "expo-status-bar",
     "expo-web-browser",
     [
@@ -119,23 +120,23 @@ const config: ExpoConfig = {
     "@react-native-firebase/app",
     "@react-native-community/datetimepicker",
     [
-    "expo-build-properties",
-        {
-          ios: {
-            useFrameworks: "static",
-            forceStaticLinking: [
-              "RNFBAnalytics",
-              "RNFBApp",
-              "RNFBAppCheck",
-              "RNFBAuth",
-              "RNFBCrashlytics",
-              "RNFBFirestore",
-              "RNFBMessaging",
-              "RNFBRemoteConfig",
-              "RNFBStorage",
-            ]
-          }
-        }
+      "expo-build-properties",
+      {
+        ios: {
+          useFrameworks: "static",
+          forceStaticLinking: [
+            "RNFBAnalytics",
+            "RNFBApp",
+            "RNFBAppCheck",
+            "RNFBAuth",
+            "RNFBCrashlytics",
+            "RNFBFirestore",
+            "RNFBMessaging",
+            "RNFBRemoteConfig",
+            "RNFBStorage",
+          ],
+        },
+      },
     ]
   ],
 
