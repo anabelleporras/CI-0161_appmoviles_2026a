@@ -20,6 +20,15 @@ export type PlaceDetailSheetProps = {
   bookmarked?: boolean;
   onBookmark?: () => void;
   onBuyPass?: () => void;
+<<<<<<< HEAD
+=======
+};
+
+const formatTag = (place: Place) => {
+  const type = place.primaryType?.replace(/_/g, " ").toUpperCase() ?? "PLACE";
+  const featured = (place.rating ?? 0) > 4.5 ? " · FEATURED" : "";
+  return `${type}${featured}`;
+>>>>>>> origin/dev
 };
 
 const PlaceDetailSheet = ({
@@ -115,7 +124,11 @@ const PlaceDetailSheet = ({
               style={canBuy ? styles.outlineButtonText : styles.primaryButtonText}
               numberOfLines={1}
             >
+<<<<<<< HEAD
               {canBuy ? t('common.details') : t('common.viewDetails')}
+=======
+              {canBuy ? "Details" : "View details"}
+>>>>>>> origin/dev
             </Text>
           </TouchableOpacity>
           {canBuy ? (
@@ -125,7 +138,11 @@ const PlaceDetailSheet = ({
               activeOpacity={0.85}
             >
               <Text style={styles.primaryButtonText} numberOfLines={1}>
+<<<<<<< HEAD
                 {t('placeDetail.getPass')}
+=======
+                Get pass
+>>>>>>> origin/dev
               </Text>
             </TouchableOpacity>
           ) : null}

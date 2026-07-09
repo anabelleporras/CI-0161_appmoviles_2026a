@@ -8,6 +8,8 @@ import "@/lib/i18n";
 
 const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
 
+const STRIPE_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!;
+
 function RootNavigator() {
   const { isLoading } = useAuth();
 

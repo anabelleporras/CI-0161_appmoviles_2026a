@@ -52,6 +52,7 @@ const applyLanguage = (language: Language | null | undefined) => {
   i18n.changeLanguage(normalized === 'auto' ? detectDeviceLanguage() : normalized);
 };
 
+
 export type NotificationCategory = 'infrastructure' | 'location' | 'weather';
 
 type NotificationPreferencesResponse = {

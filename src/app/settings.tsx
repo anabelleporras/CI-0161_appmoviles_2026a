@@ -78,6 +78,10 @@ export default function SettingsScreen() {
   } = useSettingsStore();
   const [openPicker, setOpenPicker] = useState<'start' | 'end' | null>(null);
 
+  // Which picker is open, if any. iOS renders the picker inline/as a modal
+  // sheet; Android's default mode is already a dialog, so we just mount it
+  // conditionally and let it dismiss itself.
+
   const radiusOptions = useMemo(
     () => [
       { value: 5000, label: units === 'mi' ? '3 mi' : '5 km' },
