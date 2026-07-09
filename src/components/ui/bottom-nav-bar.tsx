@@ -21,13 +21,6 @@ type Tab = {
   Icon: LucideIcon;
 };
 
-const TABS: Tab[] = [
-  { key: "home", label: "Home", Icon: House },
-  { key: "map", label: "Map", Icon: Map },
-  { key: "trips", label: "Trips", Icon: Ticket },
-  { key: "profile", label: "Profile", Icon: UserRound },
-];
-
 type NavItemProps = {
   tab: Tab;
   active: boolean;
@@ -96,10 +89,10 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
 
   const TABS: Tab[] = useMemo(
     () => [
-      { key: "home", label: t('nav.home'), Icon: House },
-      { key: "map", label: t('nav.map'), Icon: Map },
-      { key: "trips", label: t('nav.trips'), Icon: Ticket },
-      { key: "profile", label: t('nav.profile'), Icon: UserRound },
+      { key: "home", label: t("nav.home"), Icon: House },
+      { key: "map", label: t("nav.map"), Icon: Map },
+      { key: "trips", label: t("nav.trips"), Icon: Ticket },
+      { key: "profile", label: t("nav.profile"), Icon: UserRound },
     ],
     [t],
   );

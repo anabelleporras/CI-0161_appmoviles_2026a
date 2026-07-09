@@ -11,6 +11,7 @@ import { Palette, Radius, Shadow, Spacing, Typography } from "@/constants/theme"
 import { useTheme } from "@/hooks/use-theme";
 import { formatMoney } from "@/lib/currency";
 import { useTicketsStore } from "@/store/tickets";
+import { localizeProductLabel } from "@/lib/i18n";
 
 const QR_SIZE = 200;
 
@@ -161,7 +162,9 @@ export default function TicketDetailScreen() {
 
           <View style={styles.details}>
             <Text style={styles.place}>{ticket.placeName}</Text>
-            <Text style={styles.product}>{ticket.productLabel}</Text>
+            <Text style={styles.product}>
+              {localizeProductLabel(ticket.productLabel, t)}
+            </Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{t("ticketDetail.valid")}</Text>
             </View>

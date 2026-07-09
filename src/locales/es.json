@@ -118,7 +118,11 @@
     "valid": "VÁLIDO",
     "price": "Precio",
     "purchased": "Comprado",
-    "passId": "ID del pase"
+    "passId": "ID del pase",
+    "nightsLabel": "{{name}} - {{count}} noche",
+    "nightsLabel_other": "{{name}} - {{count}} noches",
+    "dayPassLabel": "{{name}} - {{count}} pase de {{count}} día",
+    "dayPassLabel_other": "{{name}} - {{count}} pases de {{count}} días"
   },
   "activities": {
     "trails": { "label": "Senderos", "badge": "Sendero" },

@@ -118,7 +118,11 @@
     "valid": "VALID",
     "price": "Price",
     "purchased": "Purchased",
-    "passId": "Pass ID"
+    "passId": "Pass ID",
+    "nightsLabel": "{{name}} - {{count}} night",
+    "nightsLabel_other": "{{name}} - {{count}} nights",
+    "dayPassLabel": "{{name}} - {{count}} day pass",
+    "dayPassLabel_other": "{{name}} - {{count}} day passes"
   },
   "activities": {
     "trails": { "label": "Trails", "badge": "Trail" },
