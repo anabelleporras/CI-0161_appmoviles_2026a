@@ -48,6 +48,7 @@ app-example
 # generated native folders
 /ios
 /android
+/.expo-export-check
 .idea/CI-0161_appmoviles_2026a.iml
 .idea/modules.xml
 .idea/vcs.xml

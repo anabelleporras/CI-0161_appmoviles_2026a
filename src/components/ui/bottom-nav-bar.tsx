@@ -20,8 +20,6 @@ type Tab = {
   label: string;
   Icon: LucideIcon;
 };
-<<<<<<< HEAD
-=======
 
 const TABS: Tab[] = [
   { key: "home", label: "Home", Icon: House },
@@ -30,7 +28,6 @@ const TABS: Tab[] = [
   { key: "profile", label: "Profile", Icon: UserRound },
 ];
 
->>>>>>> origin/dev
 type NavItemProps = {
   tab: Tab;
   active: boolean;
