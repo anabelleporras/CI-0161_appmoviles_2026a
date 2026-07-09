@@ -45,7 +45,10 @@
     "back": "Atrás",
     "place": "Lugar",
     "unnamedPlace": "Lugar sin nombre",
-    "comingSoon": "Próximamente"
+    "comingSoon": "Próximamente",
+    "search": "Buscar",
+    "featured": "DESTACADO",
+    "viewDetails": "Ver detalles"
   },
   "map": {
     "filterAll": "Todos",
@@ -88,5 +91,42 @@
     "camping": { "label": "Camping", "badge": "Camping" },
     "picnic": { "label": "Picnic", "badge": "Picnic" },
     "explore": { "label": "Explorar", "badge": "Sitio" }
+  },
+  "activityCard": {
+    "nearbyCount_one": "1 cerca",
+    "nearbyCount_other": "{{count}} cerca",
+    "nearbyCountMax": "{{count}}+ cerca"
+  },
+  "featuredCard": {
+    "featuredPlaceFallback": "Lugar destacado",
+    "openInMap": "Abrir en mapa"
+  },
+  "placeCard": {
+    "bookmarkAccessibility": "Guardar lugar"
+  },
+  "popularityCard": {
+    "veryPopular": "Muy popular",
+    "moderatelyPopular": "Moderadamente popular",
+    "notRecommended": "No recomendado",
+    "estimatedPopularity": "Popularidad estimada",
+    "basedOnReviews": "Basado en {{count}} reseñas · {{rating}} estrellas"
+  },
+  "weatherCard": {
+    "currentWeather": "Clima actual",
+    "conditionClear": "Despejado",
+    "conditionPartlyCloudy": "Parcialmente nublado",
+    "conditionOvercast": "Nublado",
+    "conditionFog": "Neblina",
+    "conditionDrizzle": "Llovizna",
+    "conditionRain": "Lluvia",
+    "conditionSnow": "Nieve",
+    "conditionThunderstorm": "Tormenta eléctrica",
+    "conditionUnknown": "Desconocido"
+  },
+  "deviceLocation": {
+    "unknownLocation": "Ubicación desconocida",
+    "unknown": "Desconocido",
+    "loading": "Cargando…",
+    "locationOff": "Ubicación desactivada"
   }
 }

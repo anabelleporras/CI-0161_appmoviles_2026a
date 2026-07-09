@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
 import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 
@@ -19,12 +20,6 @@ export type PlaceDetailSheetProps = {
   onBookmark?: () => void;
 };
 
-const formatTag = (place: Place) => {
-  const type = place.primaryType?.replace(/_/g, " ").toUpperCase() ?? "PLACE";
-  const featured = (place.rating ?? 0) > 4.5 ? " · FEATURED" : "";
-  return `${type}${featured}`;
-};
-
 const PlaceDetailSheet = ({
   place,
   distanceKm,
@@ -33,7 +28,14 @@ const PlaceDetailSheet = ({
   onBookmark,
 }: PlaceDetailSheetProps) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createPlaceDetailSheetStyles(theme), [theme]);
+
+  const formatTag = (p: Place) => {
+    const type = p.primaryType?.replace(/_/g, " ").toUpperCase() ?? t('common.place').toUpperCase();
+    const featured = (p.rating ?? 0) > 4.5 ? ` · ${t('common.featured')}` : "";
+    return `${type}${featured}`;
+  };
 
   const translateY = useRef(new Animated.Value(200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -79,7 +81,7 @@ const PlaceDetailSheet = ({
       <View style={styles.body}>
         <Text style={styles.tag}>{formatTag(place)}</Text>
         <Text style={styles.title} numberOfLines={1}>
-          {place.name || "Place"}
+          {place.name || t('common.place')}
         </Text>
         {meta ? (
           <Text style={styles.meta} numberOfLines={1}>
@@ -106,7 +108,7 @@ const PlaceDetailSheet = ({
             activeOpacity={0.85}
           >
             <Text style={styles.primaryButtonText} numberOfLines={1}>
-              View details
+              {t('common.viewDetails')}
             </Text>
           </TouchableOpacity>
         </View>

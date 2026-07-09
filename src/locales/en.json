@@ -45,7 +45,10 @@
     "back": "Back",
     "place": "Place",
     "unnamedPlace": "Unnamed place",
-    "comingSoon": "Coming soon"
+    "comingSoon": "Coming soon",
+    "search": "Search",
+    "featured": "FEATURED",
+    "viewDetails": "View details"
   },
   "map": {
     "filterAll": "All",
@@ -88,5 +91,42 @@
     "camping": { "label": "Camping", "badge": "Camp" },
     "picnic": { "label": "Picnic", "badge": "Picnic" },
     "explore": { "label": "Explore", "badge": "Spot" }
+  },
+  "activityCard": {
+    "nearbyCount_one": "1 nearby",
+    "nearbyCount_other": "{{count}} nearby",
+    "nearbyCountMax": "{{count}}+ nearby"
+  },
+  "featuredCard": {
+    "featuredPlaceFallback": "Featured place",
+    "openInMap": "Open in map"
+  },
+  "placeCard": {
+    "bookmarkAccessibility": "Bookmark place"
+  },
+  "popularityCard": {
+    "veryPopular": "Very popular",
+    "moderatelyPopular": "Moderately popular",
+    "notRecommended": "Not recommended",
+    "estimatedPopularity": "Estimated popularity",
+    "basedOnReviews": "Based on {{count}} reviews · {{rating}} stars"
+  },
+  "weatherCard": {
+    "currentWeather": "Current weather",
+    "conditionClear": "Clear",
+    "conditionPartlyCloudy": "Partly cloudy",
+    "conditionOvercast": "Overcast",
+    "conditionFog": "Foggy",
+    "conditionDrizzle": "Drizzle",
+    "conditionRain": "Rain",
+    "conditionSnow": "Snow",
+    "conditionThunderstorm": "Thunderstorm",
+    "conditionUnknown": "Unknown"
+  },
+  "deviceLocation": {
+    "unknownLocation": "Unknown location",
+    "unknown": "Unknown",
+    "loading": "Loading…",
+    "locationOff": "Location off"
   }
 }

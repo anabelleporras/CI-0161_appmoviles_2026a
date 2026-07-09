@@ -11,6 +11,7 @@ import {
   Wind,
 } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import { Radius, Spacing, Typography } from "@/constants/theme";
@@ -19,17 +20,17 @@ import { useWeather, type WeatherCondition } from "@/hooks/use-weather";
 
 type Props = { lat: number; lon: number };
 
-// Readable label for each WMO condition
-const CONDITION_LABEL: Record<WeatherCondition, string> = {
-  clear: "Clear",
-  "partly-cloudy": "Partly cloudy",
-  overcast: "Overcast",
-  fog: "Foggy",
-  drizzle: "Drizzle",
-  rain: "Rain",
-  snow: "Snow",
-  thunderstorm: "Thunderstorm",
-  unknown: "Unknown",
+// Maps each WMO condition to its translation key
+const CONDITION_KEY: Record<WeatherCondition, string> = {
+  clear: "conditionClear",
+  "partly-cloudy": "conditionPartlyCloudy",
+  overcast: "conditionOvercast",
+  fog: "conditionFog",
+  drizzle: "conditionDrizzle",
+  rain: "conditionRain",
+  snow: "conditionSnow",
+  thunderstorm: "conditionThunderstorm",
+  unknown: "conditionUnknown",
 };
 
 // Picks the right lucide icon for each condition
@@ -68,6 +69,7 @@ const ConditionIcon = ({
 // Calls useWeather with the place's coordinates and renders a card.
 export const WeatherCard = ({ lat, lon }: Props) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   // useWeather handles fetching + 15-min cache internally
   const weather = useWeather(lat, lon);
 
@@ -122,7 +124,7 @@ export const WeatherCard = ({ lat, lon }: Props) => {
 
   return (
     <View>
-      <Text style={styles.sectionLabel}>Current weather</Text>
+      <Text style={styles.sectionLabel}>{t('weatherCard.currentWeather')}</Text>
       {/* Icon | temp + condition label | wind speed */}
       <View style={styles.card}>
         <View style={styles.iconCol}>
@@ -130,7 +132,7 @@ export const WeatherCard = ({ lat, lon }: Props) => {
         </View>
         <View style={styles.mainCol}>
           <Text style={styles.temp}>{temperatureC}°C</Text>
-          <Text style={styles.condition}>{CONDITION_LABEL[condition]}</Text>
+          <Text style={styles.condition}>{t(`weatherCard.${CONDITION_KEY[condition]}`)}</Text>
         </View>
         <View style={styles.rightCol}>
           <Wind size={14} color={theme.textMuted} />
