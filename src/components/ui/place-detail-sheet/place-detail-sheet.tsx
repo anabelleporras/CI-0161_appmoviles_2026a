@@ -4,6 +4,7 @@ import { Animated, Text, TouchableOpacity, View } from "react-native";
 import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 
 import PlacePhoto from "@/components/ui/place-photo";
+import { isPurchasable } from "@/constants/purchasable-types";
 import { useTheme } from "@/hooks/use-theme";
 import type { Place } from "@/services/places/types";
 
@@ -18,6 +19,7 @@ export type PlaceDetailSheetProps = {
   onViewDetails?: () => void;
   bookmarked?: boolean;
   onBookmark?: () => void;
+  onBuyPass?: () => void;
 };
 
 const PlaceDetailSheet = ({
@@ -26,6 +28,7 @@ const PlaceDetailSheet = ({
   onViewDetails,
   bookmarked = false,
   onBookmark,
+  onBuyPass,
 }: PlaceDetailSheetProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -58,6 +61,7 @@ const PlaceDetailSheet = ({
 
   if (!place) return null;
 
+  const canBuy = !!onBuyPass && isPurchasable(place);
   const photo = place.photos[0];
   const meta = [
     typeof place.rating === "number" ? `★ ${place.rating.toFixed(1)}` : null,
@@ -103,14 +107,28 @@ const PlaceDetailSheet = ({
             </TouchableOpacity>
           )}
           <TouchableOpacity
-            style={styles.primaryButton}
+            style={canBuy ? styles.outlineButton : styles.primaryButton}
             onPress={onViewDetails}
             activeOpacity={0.85}
           >
-            <Text style={styles.primaryButtonText} numberOfLines={1}>
-              {t('common.viewDetails')}
+            <Text
+              style={canBuy ? styles.outlineButtonText : styles.primaryButtonText}
+              numberOfLines={1}
+            >
+              {canBuy ? t('common.details') : t('common.viewDetails')}
             </Text>
           </TouchableOpacity>
+          {canBuy ? (
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={onBuyPass}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.primaryButtonText} numberOfLines={1}>
+                {t('placeDetail.getPass')}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     </Animated.View>

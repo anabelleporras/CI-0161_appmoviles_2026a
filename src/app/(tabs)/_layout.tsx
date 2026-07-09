@@ -30,6 +30,11 @@ export default function TabsLayout() {
             sf={{ default: "map", selected: "map.fill" }}
           />
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="trips">
+          <NativeTabs.Trigger.Icon
+            sf={{ default: "ticket", selected: "ticket.fill" }}
+          />
+        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
           <NativeTabs.Trigger.Icon
             sf={{ default: "person", selected: "person.fill" }}
@@ -46,9 +51,9 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="home" />
       <Tabs.Screen name="map" />
+      <Tabs.Screen name="trips" />
       <Tabs.Screen name="profile" />
       <Tabs.Screen name="explore" options={{ href: null }} />
-      <Tabs.Screen name="trips" options={{ href: null }} />
     </Tabs>
   );
 }

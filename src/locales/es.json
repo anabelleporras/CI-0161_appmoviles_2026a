@@ -16,7 +16,12 @@
     "languageEnglish": "English",
     "languageSpanish": "Español",
     "notifications": "Notificaciones",
-    "pushNotifications": "Notificaciones push"
+    "pushNotifications": "Notificaciones push",
+    "startQuietHours": "Inicio de horas silenciosas",
+    "endQuietHours": "Fin de horas silenciosas",
+    "clearQuietHours": "Borrar horas silenciosas",
+    "timezone": "Zona horaria",
+    "notSet": "Sin configurar"
   },
   "login": {
     "welcomeBack": "BIENVENIDO DE NUEVO",
@@ -44,10 +49,14 @@
   "nav": {
     "home": "Inicio",
     "map": "Mapa",
+    "trips": "Viajes",
     "profile": "Perfil"
   },
   "common": {
     "back": "Atrás",
+    "done": "Listo",
+    "details": "Detalles",
+    "close": "Cerrar",
     "place": "Lugar",
     "unnamedPlace": "Lugar sin nombre",
     "comingSoon": "Próximamente",
@@ -73,7 +82,19 @@
     "title": "Explorar"
   },
   "trips": {
-    "title": "Viajes"
+    "title": "Viajes",
+    "subtitle": "Tus pases y entradas",
+    "emptyTitle": "Todavía no tienes pases",
+    "emptyText": "Busca un parque o atracción y toca \"Obtener pase\" para comprar tu primer boleto.",
+    "ticketAccessibility": "{{product}} para {{place}}"
+  },
+  "checkout": {
+    "title": "Obtener pase",
+    "noPasses": "No hay pases disponibles para este lugar.",
+    "buy": "Comprar",
+    "buyAccessibility": "Comprar {{product}} por {{price}}",
+    "testModeHint": "Modo de prueba: paga con la tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC.",
+    "genericError": "Algo salió mal. Inténtalo de nuevo."
   },
   "activityDetail": {
     "unknownActivity": "Actividad desconocida.",
@@ -86,7 +107,18 @@
     "openingHours": "Horario",
     "openInMaps": "Abrir en Maps",
     "saveToFavorites": "Guardar en favoritos",
-    "distanceAway": "a {{distance}}"
+    "distanceAway": "a {{distance}}",
+    "getPass": "Obtener pase",
+    "getPassAccessibility": "Obtener pase para este lugar"
+  },
+  "ticketDetail": {
+    "title": "Tu pase",
+    "notAvailable": "Este pase no está disponible en este dispositivo. Intenta abrirlo desde la pestaña Viajes.",
+    "qrCaption": "Muestra este código en la entrada",
+    "valid": "VÁLIDO",
+    "price": "Precio",
+    "purchased": "Comprado",
+    "passId": "ID del pase"
   },
   "activities": {
     "trails": { "label": "Senderos", "badge": "Sendero" },

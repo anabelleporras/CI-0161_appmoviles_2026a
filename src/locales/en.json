@@ -16,7 +16,12 @@
     "languageEnglish": "English",
     "languageSpanish": "Español",
     "notifications": "Notifications",
-    "pushNotifications": "Push notifications"
+    "pushNotifications": "Push notifications",
+    "startQuietHours": "Start quiet hours",
+    "endQuietHours": "End quiet hours",
+    "clearQuietHours": "Clear quiet hours",
+    "timezone": "Timezone",
+    "notSet": "Not set"
   },
   "login": {
     "welcomeBack": "WELCOME BACK",
@@ -44,10 +49,14 @@
   "nav": {
     "home": "Home",
     "map": "Map",
+    "trips": "Trips",
     "profile": "Profile"
   },
   "common": {
     "back": "Back",
+    "done": "Done",
+    "details": "Details",
+    "close": "Close",
     "place": "Place",
     "unnamedPlace": "Unnamed place",
     "comingSoon": "Coming soon",
@@ -73,7 +82,19 @@
     "title": "Explore"
   },
   "trips": {
-    "title": "Trips"
+    "title": "Trips",
+    "subtitle": "Your passes and tickets",
+    "emptyTitle": "No passes yet",
+    "emptyText": "Find a park or attraction and tap \"Get pass\" to buy your first ticket.",
+    "ticketAccessibility": "{{product}} for {{place}}"
+  },
+  "checkout": {
+    "title": "Get a pass",
+    "noPasses": "No passes are available for this place.",
+    "buy": "Buy",
+    "buyAccessibility": "Buy {{product}} for {{price}}",
+    "testModeHint": "Test mode, pay with card 4242 4242 4242 4242, any future date and CVC.",
+    "genericError": "Something went wrong. Please try again."
   },
   "activityDetail": {
     "unknownActivity": "Unknown activity.",
@@ -86,7 +107,18 @@
     "openingHours": "Opening hours",
     "openInMaps": "Open in Maps",
     "saveToFavorites": "Save to favourites",
-    "distanceAway": "{{distance}} away"
+    "distanceAway": "{{distance}} away",
+    "getPass": "Get pass",
+    "getPassAccessibility": "Get pass for this place"
+  },
+  "ticketDetail": {
+    "title": "Your pass",
+    "notAvailable": "This pass isn’t available on this device. Try opening it from the Trips tab.",
+    "qrCaption": "Show this code at the entrance",
+    "valid": "VALID",
+    "price": "Price",
+    "purchased": "Purchased",
+    "passId": "Pass ID"
   },
   "activities": {
     "trails": { "label": "Trails", "badge": "Trail" },

@@ -3,13 +3,19 @@ import type { ExpoConfig } from "expo/config";
 const googleMapsApiKey =
   process.env.EXPO_PUBLIC_GOOGLE_MAPS_PLATFORM_API_KEY ?? "";
 
-const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS ?? "";
-const iosUrlScheme = iosClientId
-  ? `com.googleusercontent.apps.${iosClientId.replace(
-      ".apps.googleusercontent.com",
-      "",
-    )}`
-  : "";
+const androidGoogleServicesFile =
+  process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json";
+
+const iosGoogleServicesFile =
+  process.env.GOOGLE_SERVICES_INFO_PLIST ?? "./GoogleService-Info.plist";
+
+const iosClientId =
+  process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID_IOS ??
+  "1047179573348-9jjq6un9eqvn3e153tueplbhr4lqmp2e.apps.googleusercontent.com";
+const iosUrlScheme = `com.googleusercontent.apps.${iosClientId.replace(
+  ".apps.googleusercontent.com",
+  "",
+)}`;
 
 const config: ExpoConfig = {
   name: "CI-0161_appmoviles_2026a",
@@ -23,9 +29,12 @@ const config: ExpoConfig = {
   ios: {
     icon: "./assets/expo.icon",
     bundleIdentifier: "com.ci0161.appmoviles2026a",
+    googleServicesFile: iosGoogleServicesFile,
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         "We use your location to show nearby beaches, parks, and places.",
+      NSUserNotificationUsageDescription:
+        "We use notifications to send optional activity and weather updates.",
       LSApplicationQueriesSchemes: ["comgooglemaps", "googlechromes"],
     },
   },
@@ -39,9 +48,11 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
     package: "com.ci0161.appmoviles2026a",
+    googleServicesFile: androidGoogleServicesFile,
     permissions: [
       "android.permission.ACCESS_COARSE_LOCATION",
       "android.permission.ACCESS_FINE_LOCATION",
+      "android.permission.POST_NOTIFICATIONS",
     ],
     intentFilters: [
       {
@@ -65,6 +76,9 @@ const config: ExpoConfig = {
 
   plugins: [
     "expo-router",
+    "expo-font",
+    "expo-image",
+    "expo-secure-store",
     [
       "expo-splash-screen",
       {
@@ -75,13 +89,21 @@ const config: ExpoConfig = {
         },
       },
     ],
-    "expo-secure-store",
     "expo-localization",
+    "expo-status-bar",
+    "expo-web-browser",
     [
       "@react-native-google-signin/google-signin",
       { iosUrlScheme },
     ],
-    "expo-web-browser",
+    [
+      "expo-notifications",
+      {
+        icon: "./assets/images/android-icon-monochrome.png",
+        color: "#208AEF",
+        sounds: [],
+      },
+    ],
     [
       "react-native-maps",
       {
@@ -89,7 +111,40 @@ const config: ExpoConfig = {
         androidGoogleMapsApiKey: googleMapsApiKey,
       },
     ],
+    [
+      // Payment Sheet with test cards only — no Apple Pay (merchantIdentifier) or
+      // Google Pay needed. The plugin requires a props object even when empty.
+      "@stripe/stripe-react-native",
+      { enableGooglePay: false },
+    ],
+    "@react-native-firebase/app",
+    "@react-native-community/datetimepicker",
+    [
+      "expo-build-properties",
+      {
+        ios: {
+          useFrameworks: "static",
+          forceStaticLinking: [
+            "RNFBAnalytics",
+            "RNFBApp",
+            "RNFBAppCheck",
+            "RNFBAuth",
+            "RNFBCrashlytics",
+            "RNFBFirestore",
+            "RNFBMessaging",
+            "RNFBRemoteConfig",
+            "RNFBStorage",
+          ],
+        },
+      },
+    ]
   ],
+
+  extra: {
+    eas: {
+      projectId: "c34bfe3b-986c-406d-bd12-3942e75bcec7",
+    },
+  },
 
   experiments: {
     typedRoutes: true,

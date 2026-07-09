@@ -19,6 +19,11 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+# Firebase service account keys (sensitive)
+credentials.json
+*service-account*.json
+google-services.json
+GoogleService-Info.plist
 
 # Metro
 .metro-health-check*
@@ -49,3 +54,4 @@ app-example
 .idea/workspace.xml
 .vscode/
 .idea/
+codename-mae-f0a37-firebase-adminsdk-fbsvc-3b9043c90a.json

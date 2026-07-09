@@ -1,6 +1,7 @@
 import {
   House,
   Map,
+  Ticket,
   UserRound,
   type LucideIcon,
 } from "lucide-react-native";
@@ -12,14 +13,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Radius, Shadow, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
-export type TabKey = "home" | "map" | "profile";
+export type TabKey = "home" | "map" | "trips" | "profile";
 
 type Tab = {
   key: TabKey;
   label: string;
   Icon: LucideIcon;
 };
-
 type NavItemProps = {
   tab: Tab;
   active: boolean;
@@ -90,6 +90,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
     () => [
       { key: "home", label: t('nav.home'), Icon: House },
       { key: "map", label: t('nav.map'), Icon: Map },
+      { key: "trips", label: t('nav.trips'), Icon: Ticket },
       { key: "profile", label: t('nav.profile'), Icon: UserRound },
     ],
     [t],

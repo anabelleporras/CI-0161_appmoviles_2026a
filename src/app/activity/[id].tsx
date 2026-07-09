@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import IconButton from "@/components/ui/icon-button";
 import MapMarkerPill from "@/components/ui/map-marker-pill";
 import PlaceCard from "@/components/ui/place-card";
 import { getActivity } from "@/constants/activities";
@@ -108,15 +108,6 @@ const ActivityListScreen = () => {
           paddingBottom: Spacing.md,
         },
         title: { fontSize: 20, fontWeight: "700", color: theme.text, flex: 1 },
-        iconBtn: {
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: "center",
-          justifyContent: "center",
-          borderWidth: 1,
-          borderColor: theme.textMuted,
-        },
         listContent: {
           paddingHorizontal: Spacing.xl,
           gap: Spacing.md,
@@ -164,25 +155,17 @@ const ActivityListScreen = () => {
   return (
     <View style={[styles.root, { paddingTop: insets.top + Spacing.sm }]}>
       <View style={styles.header}>
-        <Pressable
-          style={styles.iconBtn}
+        <IconButton
+          icon={ArrowLeft}
           onPress={() => router.back()}
           accessibilityLabel={t('common.back')}
-        >
-          <ArrowLeft size={20} color={theme.text} />
-        </Pressable>
+        />
         <Text style={styles.title}>{activityLabel}</Text>
-        <Pressable
-          style={styles.iconBtn}
+        <IconButton
+          icon={mode === "list" ? MapIcon : List}
           onPress={() => setMode((m) => (m === "list" ? "map" : "list"))}
           accessibilityLabel={mode === "list" ? t('activityDetail.showMap') : t('activityDetail.showList')}
-        >
-          {mode === "list" ? (
-            <MapIcon size={20} color={theme.text} />
-          ) : (
-            <List size={20} color={theme.text} />
-          )}
-        </Pressable>
+        />
       </View>
 
       {loading ? (
