@@ -3,6 +3,7 @@ import { Tabs } from "expo-router";
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 import { Platform } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/hooks/use-theme";
 
 import BottomNavBar, { type TabKey } from "@/components/ui/bottom-nav-bar";
 
@@ -19,10 +20,11 @@ function MyTabBar({ state, navigation }: BottomTabBarProps) {
 
 export default function TabsLayout() {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   if (Platform.OS === "ios") {
     return (
-      <NativeTabs labelVisibilityMode="unlabeled">
+      <NativeTabs labelVisibilityMode="unlabeled" tintColor={theme.accent}>
         <NativeTabs.Trigger name="home">
           <NativeTabs.Trigger.Label>{t("nav.home")}</NativeTabs.Trigger.Label>
           <NativeTabs.Trigger.Icon
