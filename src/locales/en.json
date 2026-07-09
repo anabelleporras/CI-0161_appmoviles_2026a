@@ -10,6 +10,11 @@
     "themeAuto": "Auto",
     "themeLight": "Light",
     "themeDark": "Dark",
+    "language": "Language",
+    "appLanguage": "App language",
+    "languageAuto": "Auto",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
     "notifications": "Notifications",
     "pushNotifications": "Push notifications"
   },

@@ -10,6 +10,11 @@
     "themeAuto": "Automático",
     "themeLight": "Claro",
     "themeDark": "Oscuro",
+    "language": "Idioma",
+    "appLanguage": "Idioma de la app",
+    "languageAuto": "Automático",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
     "notifications": "Notificaciones",
     "pushNotifications": "Notificaciones push"
   },

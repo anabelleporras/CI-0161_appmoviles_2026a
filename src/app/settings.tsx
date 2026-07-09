@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Radius, Spacing, Typography } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { useSettingsStore, type Units, type ThemePreference } from '@/store/settings';
+import { useSettingsStore, type Units, type ThemePreference, type Language } from '@/store/settings';
 
 const UNIT_OPTIONS: { label: string; value: Units }[] = [
   { label: 'km', value: 'km' },
@@ -31,10 +31,12 @@ export default function SettingsScreen() {
     searchRadius,
     themePreference,
     notifications,
+    language,
     setUnits,
     setSearchRadius,
     setThemePreference,
     setNotifications,
+    setLanguage,
   } = useSettingsStore();
 
   const radiusOptions = useMemo(
@@ -68,6 +70,15 @@ export default function SettingsScreen() {
       { label: t('settings.themeAuto'), value: 'auto' },
       { label: t('settings.themeLight'), value: 'light' },
       { label: t('settings.themeDark'), value: 'dark' },
+    ],
+    [t],
+  );
+
+  const languageOptions = useMemo<{ label: string; value: Language }[]>(
+    () => [
+      { label: t('settings.languageAuto'), value: 'auto' },
+      { label: t('settings.languageEnglish'), value: 'en' },
+      { label: t('settings.languageSpanish'), value: 'es' },
     ],
     [t],
   );
@@ -254,6 +265,37 @@ export default function SettingsScreen() {
                       style={[
                         styles.pillText,
                         themePreference === opt.value && styles.pillTextActive,
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Language */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>{t('settings.language')}</Text>
+          <View style={styles.card}>
+            <View style={[styles.row, styles.rowLast]}>
+              <Text style={styles.rowLabel}>{t('settings.appLanguage')}</Text>
+              <View style={styles.pillGroup}>
+                {languageOptions.map((opt) => (
+                  <Pressable
+                    key={opt.value}
+                    style={[
+                      styles.pill,
+                      language === opt.value && styles.pillActive,
+                    ]}
+                    onPress={() => setLanguage(opt.value)}
+                  >
+                    <Text
+                      style={[
+                        styles.pillText,
+                        language === opt.value && styles.pillTextActive,
                       ]}
                     >
                       {opt.label}
