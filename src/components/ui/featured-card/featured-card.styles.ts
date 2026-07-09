@@ -10,7 +10,7 @@ export const createFeaturedCardStyles = (theme: Theme) =>
     card: {
       height: 330,
       borderRadius: Radius["2xl"],
-      backgroundColor: theme.surfaceInverse,
+      backgroundColor: theme.surface,
       overflow: "hidden",
       ...Shadow.card,
     },
@@ -33,12 +33,12 @@ export const createFeaturedCardStyles = (theme: Theme) =>
     title: {
       ...Typography.subtitle,
       fontWeight: "700",
-      color: theme.textInverse,
+      color: theme.text,
       letterSpacing: -0.3,
     },
     meta: {
       ...Typography.caption,
-      color: theme.textInverse,
+      color: theme.text,
       opacity: 0.7,
     },
     actions: {
@@ -63,12 +63,12 @@ export const createFeaturedCardStyles = (theme: Theme) =>
       paddingVertical: Spacing.sm + 2,
       borderRadius: Radius.pill,
       borderWidth: 1,
-      borderColor: theme.textInverse,
+      borderColor: theme.text,
       alignItems: "center",
     },
     secondaryButtonText: {
       ...Typography.caption,
       fontWeight: "600",
-      color: theme.textInverse,
+      color: theme.text,
     },
   });

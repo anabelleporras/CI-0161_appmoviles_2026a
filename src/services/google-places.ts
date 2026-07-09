@@ -1,4 +1,5 @@
 import { fetchWithTimeout } from "@/lib/distance";
+import i18n from "@/lib/i18n";
 
 const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_PLATFORM_API_KEY ?? "";
 const BASE = "https://places.googleapis.com/v1";
@@ -61,7 +62,7 @@ const cacheKey = (
   radius: number,
   prefix = "",
 ) =>
-  `${prefix}${[...types].sort().join("|")}_${lat.toFixed(2)}_${lon.toFixed(2)}_${radius}`;
+  `${prefix}${i18n.language}_${[...types].sort().join("|")}_${lat.toFixed(2)}_${lon.toFixed(2)}_${radius}`;
 
 const readCache = (key: string): GooglePlace[] | null => {
   const entry = cache.get(key);
@@ -112,6 +113,7 @@ export const searchNearby = async ({
       body: JSON.stringify({
         includedTypes,
         maxResultCount: maxResults,
+        languageCode: i18n.language,
         locationRestriction: {
           circle: {
             center: { latitude: lat, longitude: lon },
@@ -168,6 +170,7 @@ export const countNearby = async ({
       body: JSON.stringify({
         includedTypes,
         maxResultCount: maxResults,
+        languageCode: i18n.language,
         locationRestriction: {
           circle: {
             center: { latitude: lat, longitude: lon },
@@ -194,7 +197,7 @@ export const placeDetails = async (placeId: string): Promise<GooglePlace> => {
   if (!API_KEY) throw new Error("Missing EXPO_PUBLIC_GOOGLE_MAPS_PLATFORM_API_KEY");
 
   const res = await fetchWithTimeout(
-    `${BASE}/places/${encodeURIComponent(placeId)}`,
+    `${BASE}/places/${encodeURIComponent(placeId)}?languageCode=${i18n.language}`,
     {
       method: "GET",
       headers: {

@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Bookmark, ChevronRight, LogOut, Settings } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Image,
@@ -13,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import PlacePhoto from '@/components/ui/place-photo';
+import IconButton from '@/components/ui/icon-button';
 import { Radius, Shadow, Spacing, Typography } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/hooks/use-theme';
@@ -20,6 +22,7 @@ import { useFavoritesStore, type FavoritePlace } from '@/store/favorites';
 
 const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -57,13 +60,13 @@ const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
       onPress={() => router.push(`/place/${place.placeId}`)}
     >
       <PlacePhoto
-        photoName={place.photoName}
+        photo={place.photoName ? { ref: place.photoName } : undefined}
         style={styles.photo}
         maxWidthPx={120}
       />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={1}>
-          {place.name ?? 'Unnamed place'}
+          {place.name || t('common.unnamedPlace')}
         </Text>
         {place.address ? (
           <Text style={styles.address} numberOfLines={1}>
@@ -79,6 +82,7 @@ const FavoriteRow = ({ place }: { place: FavoritePlace }) => {
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { user, isLoading, logout } = useAuth();
   const favorites = useFavoritesStore((state) => state.favorites);
 
@@ -102,15 +106,6 @@ export default function ProfileScreen() {
           ...Typography.subtitle,
           color: theme.text,
           fontWeight: '700',
-        },
-        settingsBtn: {
-          width: 40,
-          height: 40,
-          borderRadius: Radius.pill,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderWidth: 1,
-          borderColor: theme.border,
         },
         userCard: {
           backgroundColor: theme.surface,
@@ -158,7 +153,6 @@ export default function ProfileScreen() {
           ...Typography.body3,
           color: theme.textMuted,
           opacity: 0.6,
-          textTransform: 'capitalize',
         },
         section: {
           paddingHorizontal: Spacing.xl,
@@ -199,8 +193,10 @@ export default function ProfileScreen() {
           gap: Spacing.sm,
           paddingVertical: Spacing.md,
           borderRadius: Radius.pill,
-          borderWidth: 1.5,
+          backgroundColor: theme.surface,
+          borderWidth: 1,
           borderColor: theme.border,
+          ...Shadow.pill,
         },
         logoutText: {
           ...Typography.body2,
@@ -229,14 +225,12 @@ export default function ProfileScreen() {
       >
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <Text style={styles.headerTitle}>Profile</Text>
-            <Pressable
-              style={styles.settingsBtn}
+            <Text style={styles.headerTitle}>{t('profile.title')}</Text>
+            <IconButton
+              icon={Settings}
               onPress={() => router.push('/settings')}
-              accessibilityLabel="Settings"
-            >
-              <Settings size={20} color={theme.text} />
-            </Pressable>
+              accessibilityLabel={t('profile.settingsAccessibility')}
+            />
           </View>
 
           <View style={styles.userCard}>
@@ -252,13 +246,17 @@ export default function ProfileScreen() {
               )}
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
-                  {user?.name ?? 'Traveller'}
+                  {user?.name ?? t('profile.traveller')}
                 </Text>
                 {user?.email ? (
                   <Text style={styles.userEmail}>{user.email}</Text>
                 ) : null}
                 <Text style={styles.userProvider}>
-                  Signed in with {user?.provider ?? ''}
+                  {t('profile.signedInWith', {
+                    provider: user?.provider
+                      ? user.provider.charAt(0).toUpperCase() + user.provider.slice(1)
+                      : '',
+                  })}
                 </Text>
               </View>
             </View>
@@ -266,14 +264,14 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Saved places</Text>
+          <Text style={styles.sectionLabel}>{t('profile.savedPlaces')}</Text>
           <View style={styles.sectionCard}>
             {favorites.length === 0 ? (
               <View style={styles.emptyFavorites}>
                 <Bookmark size={28} color={theme.textMuted} strokeWidth={1.5} />
-                <Text style={styles.emptyText}>No saved places yet</Text>
+                <Text style={styles.emptyText}>{t('profile.noSavedPlaces')}</Text>
                 <Text style={styles.emptySubtext}>
-                  Tap the bookmark icon on any place to save it here
+                  {t('profile.noSavedPlacesHint')}
                 </Text>
               </View>
             ) : (
@@ -289,7 +287,7 @@ export default function ProfileScreen() {
           onPress={logout}
         >
           <LogOut size={18} color={theme.text} />
-          <Text style={styles.logoutText}>Log out</Text>
+          <Text style={styles.logoutText}>{t('profile.logOut')}</Text>
         </Pressable>
       </ScrollView>
     </View>

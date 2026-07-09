@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-
 import type { Activity } from "@/constants/activities";
-import { countNearby } from "@/services/google-places";
-
-import type { Coords } from "./use-device-location";
+//import { countNearby } from "@/services/google-places";
+import { places } from "@/services/providers";
+import type { Coords } from "@/services/places/types";
 
 export type ActivityCounts = Record<string, number>;
 
@@ -48,9 +47,8 @@ export const useActivityCounts = ({
 
     Promise.allSettled(
       activities.map((activity) =>
-        countNearby({
-          lat: coords.latitude,
-          lon: coords.longitude,
+        places.countNearby({
+          coords,
           includedTypes: activity.includedTypes,
           radius: radius ?? activity.radius,
           maxResults: maxPerActivity,

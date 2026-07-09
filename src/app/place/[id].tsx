@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Navigation, Star } from "lucide-react-native";
+import { ArrowLeft, Bookmark, BookmarkCheck, MapPin, Navigation, Star, Ticket } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Image,
@@ -14,19 +15,22 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Spacing, Typography } from "@/constants/theme";
+import { isPurchasable } from "@/constants/purchasable-types";
+import IconButton from "@/components/ui/icon-button";
 import { PhotoStrip } from "@/components/ui/photo-strip";
 import { PopularityCard } from "@/components/ui/popularity-card";
 import { WeatherCard } from "@/components/ui/weather-card";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import { placeDetails, photoUrl, type GooglePlace } from "@/services/google-places";
+import { places } from "@/services/providers";
+import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 import { formatDistance } from '@/lib/distance';
 import { useSettingsStore } from '@/store/settings';
 
-const openInExternalMap = (place: GooglePlace) => {
+const openInExternalMap = (place: Place) => {
   if (!place.location) return;
   const { latitude, longitude } = place.location;
   Linking.openURL(
@@ -34,24 +38,25 @@ const openInExternalMap = (place: GooglePlace) => {
   ).catch(() => {});
 };
 
-const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-  placeId: place.id!,
-  name: place.displayName?.text,
-  address: place.formattedAddress,
+const toFavoritePlace = (place: Place): FavoritePlace => ({
+  placeId: place.id,
+  name: place.name || undefined,
+  address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
-  types: place.types ?? [],
+  types: place.types,
   rating: place.rating,
-  photoName: place.photos?.[0]?.name,
+  photoName: place.photos[0]?.ref,
 });
 
 const PlaceDetailScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { coords } = useDeviceLocation();
 
-  const [place, setPlace] = useState<GooglePlace | null>(null);
+  const [place, setPlace] = useState<Place | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -65,7 +70,8 @@ const PlaceDetailScreen = () => {
     let active = true;
     if (!id) return;
     setLoading(true);
-    placeDetails(id)
+    places
+      .details(id)
       .then((data) => active && setPlace(data))
       .catch((err: Error) => active && setError(err.message))
       .finally(() => active && setLoading(false));
@@ -84,12 +90,6 @@ const PlaceDetailScreen = () => {
         backBtn: {
           position: "absolute",
           left: Spacing.xl,
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: theme.background,
         },
         body: { padding: Spacing.xl, gap: Spacing.md },
         title: { fontSize: 24, fontWeight: "700", color: theme.text },
@@ -134,12 +134,13 @@ const PlaceDetailScreen = () => {
   if (error || !place) {
     return (
       <View style={[styles.root, styles.center, { paddingTop: insets.top }]}>
-        <Text style={styles.muted}>{error ?? "Place not found."}</Text>
+        <Text style={styles.muted}>{error ?? t('placeDetail.notFound')}</Text>
       </View>
     );
   }
 
-  const heroUrl = photoUrl(place.photos?.[selectedPhotoIndex]?.name, { maxWidthPx: 1000 });
+  const heroPhoto = place.photos[selectedPhotoIndex];
+  const heroUrl = heroPhoto ? places.photoUrl(heroPhoto, 1000) : null;
   const distance =
     coords && place.location
       ? distanceKm(
@@ -149,7 +150,7 @@ const PlaceDetailScreen = () => {
           place.location.longitude,
         )
       : undefined;
-  const hours = place.regularOpeningHours?.weekdayDescriptions ?? [];
+  const hours = place.openingHours?.weekdayDescriptions ?? [];
 
   return (
     <View style={styles.root}>
@@ -163,16 +164,16 @@ const PlaceDetailScreen = () => {
           ) : (
             <View style={styles.hero} />
           )}
-          <Pressable
-            style={[styles.backBtn, { top: insets.top + Spacing.sm }]}
-            onPress={() => router.back()}
-            accessibilityLabel="Back"
-          >
-            <ArrowLeft size={20} color={theme.text} />
-          </Pressable>
+          <View style={[styles.backBtn, { top: insets.top + Spacing.sm }]}>
+            <IconButton
+              icon={ArrowLeft}
+              onPress={() => router.back()}
+              accessibilityLabel={t('common.back')}
+            />
+          </View>
         </View>
 
-        {place.photos && place.photos.length > 1 && (
+        {place.photos.length > 1 && (
           <PhotoStrip
             photos={place.photos}
             selectedIndex={selectedPhotoIndex}
@@ -181,31 +182,33 @@ const PlaceDetailScreen = () => {
         )}
 
         <View style={styles.body}>
-          <Text style={styles.title}>{place.displayName?.text ?? "Place"}</Text>
+          <Text style={styles.title}>{place.name || t('common.place')}</Text>
           <View style={styles.metaRow}>
             {place.rating !== undefined && (
               <View style={styles.metaItem}>
                 <Star size={14} color={theme.text} fill={theme.text} />
                 <Text style={styles.metaText}>
                   {place.rating.toFixed(1)}
-                  {place.userRatingCount ? ` (${place.userRatingCount})` : ""}
+                  {place.ratingCount ? ` (${place.ratingCount})` : ""}
                 </Text>
               </View>
             )}
             {distance !== undefined && (
               <View style={styles.metaItem}>
                 <MapPin size={14} color={theme.textMuted} />
-                <Text style={styles.metaText}>{formatDistance(distance, units)} away</Text>
+                <Text style={styles.metaText}>
+                  {t('placeDetail.distanceAway', { distance: formatDistance(distance, units) })}
+                </Text>
               </View>
             )}
           </View>
 
-          {place.formattedAddress && (
-            <Text style={styles.metaText}>{place.formattedAddress}</Text>
+          {place.address && (
+            <Text style={styles.metaText}>{place.address}</Text>
           )}
 
-          {place.editorialSummary?.text && (
-            <Text style={styles.summary}>{place.editorialSummary.text}</Text>
+          {place.summary && (
+            <Text style={styles.summary}>{place.summary}</Text>
           )}
 
           {place.location && (
@@ -217,11 +220,11 @@ const PlaceDetailScreen = () => {
 
           <PopularityCard
             rating={place.rating}
-            userRatingCount={place.userRatingCount}
+            userRatingCount={place.ratingCount}
           />
           {hours.length > 0 && (
             <>
-              <Text style={styles.hoursTitle}>Opening hours</Text>
+              <Text style={styles.hoursTitle}>{t('placeDetail.openingHours')}</Text>
               {hours.map((line) => (
                 <Text key={line} style={styles.hourLine}>
                   {line}
@@ -231,12 +234,33 @@ const PlaceDetailScreen = () => {
           )}
 
           <View style={styles.actions}>
+            {isPurchasable(place) && (
+              <Pressable
+                style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
+                onPress={() =>
+                  router.push({
+                    pathname: "/checkout",
+                    params: {
+                      placeId: place.id,
+                      placeName: place.name,
+                      types: (place.types ?? []).join(","),
+                    },
+                  })
+                }
+                accessibilityLabel={t('placeDetail.getPassAccessibility')}
+              >
+                <Ticket size={18} color={theme.textOnAccent} />
+                <Text style={[styles.primaryText, { color: theme.textOnAccent }]}>
+                  {t('placeDetail.getPass')}
+                </Text>
+              </Pressable>
+            )}
             <Pressable
               style={styles.primaryBtn}
               onPress={() => openInExternalMap(place)}
             >
               <Navigation size={18} color={theme.background} />
-              <Text style={styles.primaryText}>Open in Maps</Text>
+              <Text style={styles.primaryText}>{t('placeDetail.openInMaps')}</Text>
             </Pressable>
             <Pressable
               style={styles.favBtn}
@@ -250,7 +274,7 @@ const PlaceDetailScreen = () => {
                   addFavorite(toFavoritePlace(place));
                 }
               }}
-              accessibilityLabel="Save to favourites"
+              accessibilityLabel={t('placeDetail.saveToFavorites')}
             >
               {bookmarked ? (
                 <BookmarkCheck size={20} color={theme.accent} strokeWidth={2} />

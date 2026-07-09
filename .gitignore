@@ -19,6 +19,11 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+# Firebase service account keys (sensitive)
+credentials.json
+*service-account*.json
+google-services.json
+GoogleService-Info.plist
 
 # Metro
 .metro-health-check*
@@ -43,9 +48,11 @@ app-example
 # generated native folders
 /ios
 /android
+/.expo-export-check
 .idea/CI-0161_appmoviles_2026a.iml
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
 .vscode/
 .idea/
+codename-mae-f0a37-firebase-adminsdk-fbsvc-3b9043c90a.json

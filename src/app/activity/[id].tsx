@@ -1,9 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, List, Map as MapIcon } from "lucide-react-native";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import IconButton from "@/components/ui/icon-button";
 import MapMarkerPill from "@/components/ui/map-marker-pill";
 import PlaceCard from "@/components/ui/place-card";
 import { getActivity } from "@/constants/activities";
@@ -20,7 +21,7 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 
@@ -33,19 +34,19 @@ const COSTA_RICA_FALLBACK = {
 
 type ViewMode = "list" | "map";
 
-const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-  placeId: place.id!,
-  name: place.displayName?.text,
-  address: place.formattedAddress,
+const toFavoritePlace = (place: Place): FavoritePlace => ({
+  placeId: place.id,
+  name: place.name || undefined,
+  address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
-  types: place.types ?? [],
+  types: place.types,
   rating: place.rating,
-  photoName: place.photos?.[0]?.name,
+  photoName: place.photos[0]?.ref,
 });
 
 type BookmarkablePlaceCardProps = {
-  place: GooglePlace;
+  place: Place;
   badge: string;
   distanceKm?: number;
 };
@@ -57,7 +58,7 @@ const BookmarkablePlaceCard = ({
 }: BookmarkablePlaceCardProps) => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
-  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+  const bookmarked = favorites.some((f) => f.placeId === place.id);
 
   return (
     <PlaceCard
@@ -80,6 +81,7 @@ const BookmarkablePlaceCard = ({
 const ActivityListScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const activity = getActivity(id);
 
@@ -106,15 +108,6 @@ const ActivityListScreen = () => {
           paddingBottom: Spacing.md,
         },
         title: { fontSize: 20, fontWeight: "700", color: theme.text, flex: 1 },
-        iconBtn: {
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          alignItems: "center",
-          justifyContent: "center",
-          borderWidth: 1,
-          borderColor: theme.textMuted,
-        },
         listContent: {
           paddingHorizontal: Spacing.xl,
           gap: Spacing.md,
@@ -127,7 +120,7 @@ const ActivityListScreen = () => {
     [theme],
   );
 
-  const withDistance = (place: GooglePlace) => {
+  const withDistance = (place: Place) => {
     if (!coords || !place.location) return undefined;
     return distanceKm(
       coords.latitude,
@@ -149,35 +142,30 @@ const ActivityListScreen = () => {
   if (!activity) {
     return (
       <View style={[styles.root, styles.center, { paddingTop: insets.top }]}>
-        <Text style={styles.muted}>Unknown activity.</Text>
+        <Text style={styles.muted}>{t('activityDetail.unknownActivity')}</Text>
       </View>
     );
   }
+
+  const activityLabel = t(`activities.${activity.id}.label`);
+  const activityBadge = t(`activities.${activity.id}.badge`);
 
   const ActivityIcon = activity.icon;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + Spacing.sm }]}>
       <View style={styles.header}>
-        <Pressable
-          style={styles.iconBtn}
+        <IconButton
+          icon={ArrowLeft}
           onPress={() => router.back()}
-          accessibilityLabel="Back"
-        >
-          <ArrowLeft size={20} color={theme.text} />
-        </Pressable>
-        <Text style={styles.title}>{activity.label}</Text>
-        <Pressable
-          style={styles.iconBtn}
+          accessibilityLabel={t('common.back')}
+        />
+        <Text style={styles.title}>{activityLabel}</Text>
+        <IconButton
+          icon={mode === "list" ? MapIcon : List}
           onPress={() => setMode((m) => (m === "list" ? "map" : "list"))}
-          accessibilityLabel={mode === "list" ? "Show map" : "Show list"}
-        >
-          {mode === "list" ? (
-            <MapIcon size={20} color={theme.text} />
-          ) : (
-            <List size={20} color={theme.text} />
-          )}
-        </Pressable>
+          accessibilityLabel={mode === "list" ? t('activityDetail.showMap') : t('activityDetail.showList')}
+        />
       </View>
 
       {loading ? (
@@ -186,7 +174,9 @@ const ActivityListScreen = () => {
         </View>
       ) : places.length === 0 ? (
         <View style={styles.center}>
-          <Text style={styles.muted}>No {activity.label.toLowerCase()} nearby.</Text>
+          <Text style={styles.muted}>
+            {t('activityDetail.noResultsNearby', { activity: activityLabel.toLowerCase() })}
+          </Text>
         </View>
       ) : mode === "list" ? (
         <ScrollView
@@ -197,7 +187,7 @@ const ActivityListScreen = () => {
             <BookmarkablePlaceCard
               key={place.id}
               place={place}
-              badge={activity.badge}
+              badge={activityBadge}
               distanceKm={withDistance(place)}
             />
           ))}
@@ -224,7 +214,7 @@ const ActivityListScreen = () => {
               >
                 <MapMarkerPill
                   icon={ActivityIcon}
-                  label={place.displayName?.text ?? "Place"}
+                  label={place.name || t('common.place')}
                   selected={false}
                 />
               </Marker>

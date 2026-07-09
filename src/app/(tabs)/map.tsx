@@ -10,7 +10,8 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
-import { Linking, ScrollView, StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
+import { ScrollView, StyleSheet, View } from "react-native";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,38 +21,41 @@ import MapMarkerPill from "@/components/ui/map-marker-pill";
 import PlaceDetailSheet from "@/components/ui/place-detail-sheet";
 import SearchBar from "@/components/ui/search-bar";
 import { ACTIVITIES, ALL_ACTIVITY_TYPES } from "@/constants/activities";
-import { Spacing } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors, Palette, Spacing } from "@/constants/theme";
 import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useSettingsStore } from '@/store/settings';
 import { useFavoritesStore } from '@/store/favorites';
 import type { FavoritePlace } from '@/store/favorites';
 
 type MapFilter = {
   id: string;
-  label: string;
   icon: LucideIcon;
   includedTypes: string[];
 };
 
 const FILTERS: MapFilter[] = [
-  { id: "all", label: "All", icon: LayoutGrid, includedTypes: ALL_ACTIVITY_TYPES },
+  { id: "all", icon: LayoutGrid, includedTypes: ALL_ACTIVITY_TYPES },
   ...ACTIVITIES.map((a) => ({
     id: a.id,
-    label: a.label,
     icon: a.icon,
     includedTypes: a.includedTypes,
   })),
 ];
 
 const DARK_MAP_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#1A2B1E" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#C8EDD1" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#1A2B1E" }] },
+  { elementType: "geometry", stylers: [{ color: Palette.forestNight.normal }] },
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: Palette.ceibaGreen.text }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ color: Palette.forestNight.normal }],
+  },
   {
     featureType: "poi",
     elementType: "labels",
@@ -60,17 +64,17 @@ const DARK_MAP_STYLE = [
   {
     featureType: "road",
     elementType: "geometry",
-    stylers: [{ color: "#223726" }],
+    stylers: [{ color: Palette.forestNight.normalHover }],
   },
   {
     featureType: "water",
     elementType: "geometry",
-    stylers: [{ color: "#132017" }],
+    stylers: [{ color: Palette.forestNight.normalActive }],
   },
 ];
 
-const iconForPlace = (place: GooglePlace): LucideIcon => {
-  const types = place.types ?? [];
+const iconForPlace = (place: Place): LucideIcon => {
+  const types = place.types;
   if (types.includes("beach")) return Waves;
   if (types.includes("hiking_area")) return Footprints;
   if (types.includes("dog_park")) return Dog;
@@ -93,28 +97,6 @@ const iconForPlace = (place: GooglePlace): LucideIcon => {
   return Compass;
 };
 
-const openInExternalMap = async (place: GooglePlace) => {
-  if (!place.location) return;
-  const { latitude, longitude } = place.location;
-  const candidates = [
-    `comgooglemaps://?q=${latitude},${longitude}&zoom=14`,
-    `google.navigation:q=${latitude},${longitude}`,
-    `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
-  ];
-
-  for (const url of candidates) {
-    try {
-      const supported = await Linking.canOpenURL(url);
-      if (supported) {
-        await Linking.openURL(url);
-        return;
-      }
-    } catch {
-      // try next
-    }
-  }
-};
-
 const COSTA_RICA_FALLBACK = {
   latitude: 9.7489,
   longitude: -83.7534,
@@ -125,8 +107,11 @@ const COSTA_RICA_FALLBACK = {
 const MapScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
-  const scheme = useColorScheme();
+  const { t } = useTranslation();
+  const isDark = theme === Colors.dark;
   const searchRadius = useSettingsStore((state) => state.searchRadius);
+  const filterLabel = (id: string) =>
+    id === "all" ? t('map.filterAll') : t(`activities.${id}.label`);
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -152,21 +137,21 @@ const MapScreen = () => {
   const { coords } = useDeviceLocation();
   const [selectedFilterId, setSelectedFilterId] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState<GooglePlace | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [tracksMarkers, setTracksMarkers] = useState(true);
 
   const { addFavorite, removeFavorite } = useFavoritesStore();
   const favorites = useFavoritesStore((state) => state.favorites);
 
-  const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-    placeId: place.id!,
-    name: place.displayName?.text,
-    address: place.formattedAddress,
+  const toFavoritePlace = (place: Place): FavoritePlace => ({
+    placeId: place.id,
+    name: place.name || undefined,
+    address: place.address,
     lat: place.location?.latitude,
     lng: place.location?.longitude,
-    types: place.types ?? [],
+    types: place.types,
     rating: place.rating,
-    photoName: place.photos?.[0]?.name,
+    photoName: place.photos[0]?.ref,
   });
 
   const activeFilter =
@@ -182,9 +167,7 @@ const MapScreen = () => {
   const filteredPlaces = useMemo(() => {
     if (!searchTerm.trim()) return places;
     const needle = searchTerm.trim().toLowerCase();
-    return places.filter((p) =>
-      (p.displayName?.text ?? "").toLowerCase().includes(needle),
-    );
+    return places.filter((p) => p.name.toLowerCase().includes(needle));
   }, [places, searchTerm]);
 
   useEffect(() => {
@@ -222,7 +205,7 @@ const MapScreen = () => {
         showsUserLocation
         showsMyLocationButton={false}
         showsPointsOfInterests={false}
-        customMapStyle={scheme === "dark" ? DARK_MAP_STYLE : []}
+        customMapStyle={isDark ? DARK_MAP_STYLE : []}
         onPress={() => setSelectedPlace(null)}
       >
         {filteredPlaces.map((place) => {
@@ -244,7 +227,7 @@ const MapScreen = () => {
             >
               <MapMarkerPill
                 icon={iconForPlace(place)}
-                label={place.displayName?.text ?? "Place"}
+                label={place.name || t('common.place')}
                 selected={isSelected}
               />
             </Marker>
@@ -256,7 +239,7 @@ const MapScreen = () => {
         <SearchBar
           value={searchTerm}
           onChangeText={setSearchTerm}
-          placeholder="Search places nearby"
+          placeholder={t('map.searchPlaceholder')}
         />
         <ScrollView
           horizontal
@@ -267,7 +250,7 @@ const MapScreen = () => {
             <CategoryPill
               key={filter.id}
               icon={filter.icon}
-              label={filter.label}
+              label={filterLabel(filter.id)}
               variant="compact"
               selected={activeFilter.id === filter.id}
               onPress={() => {
@@ -283,15 +266,25 @@ const MapScreen = () => {
         place={selectedPlace}
         distanceKm={selectedDistance}
         onViewDetails={() => selectedPlace && router.push(`/place/${selectedPlace.id}`)}
-        onOpenInMap={() => selectedPlace && openInExternalMap(selectedPlace)}
-        bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id!) : false}
+        onBuyPass={() =>
+          selectedPlace &&
+          router.push({
+            pathname: "/checkout",
+            params: {
+              placeId: selectedPlace.id,
+              placeName: selectedPlace.name,
+              types: (selectedPlace.types ?? []).join(","),
+            },
+          })
+        }
+        bookmarked={selectedPlace ? favorites.some((f) => f.placeId === selectedPlace.id) : false}
         onBookmark={() => {
           if (!selectedPlace) return;
           const current = useFavoritesStore.getState().favorites.some(
-            (f) => f.placeId === selectedPlace.id!
+            (f) => f.placeId === selectedPlace.id
           );
           if (current) {
-            removeFavorite(selectedPlace.id!);
+            removeFavorite(selectedPlace.id);
           } else {
             addFavorite(toFavoritePlace(selectedPlace));
           }

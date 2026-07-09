@@ -1,6 +1,7 @@
 import { Bell, Search } from "lucide-react-native";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   ScrollView,
@@ -24,7 +25,7 @@ import { useDeviceLocation } from "@/hooks/use-device-location";
 import { useNearbyPlaces } from "@/hooks/use-nearby-places";
 import { useTheme } from "@/hooks/use-theme";
 import { distanceKm } from "@/lib/distance";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
 import { useFavoritesStore } from "@/store/favorites";
 import type { FavoritePlace } from "@/store/favorites";
 import { useSettingsStore } from '@/store/settings';
@@ -33,30 +34,30 @@ const FEATURED_TYPES = ["tourist_attraction"];
 const FEATURED_COUNT = 5;
 const COUNT_CAP = 20;
 
-const rankFeatured = (places: GooglePlace[]): GooglePlace[] =>
+const rankFeatured = (places: Place[]): Place[] =>
   [...places]
     .sort((a, b) => {
       const aScore =
-        (a.rating ?? 0) * Math.log10((a.userRatingCount ?? 0) + 1);
+        (a.rating ?? 0) * Math.log10((a.ratingCount ?? 0) + 1);
       const bScore =
-        (b.rating ?? 0) * Math.log10((b.userRatingCount ?? 0) + 1);
+        (b.rating ?? 0) * Math.log10((b.ratingCount ?? 0) + 1);
       return bScore - aScore;
     })
     .slice(0, FEATURED_COUNT);
 
-const toFavoritePlace = (place: GooglePlace): FavoritePlace => ({
-  placeId: place.id!,
-  name: place.displayName?.text,
-  address: place.formattedAddress,
+const toFavoritePlace = (place: Place): FavoritePlace => ({
+  placeId: place.id,
+  name: place.name || undefined,
+  address: place.address,
   lat: place.location?.latitude,
   lng: place.location?.longitude,
-  types: place.types ?? [],
+  types: place.types,
   rating: place.rating,
-  photoName: place.photos?.[0]?.name,
+  photoName: place.photos[0]?.ref,
 });
 
 type BookmarkablePlaceCardProps = {
-  place: GooglePlace;
+  place: Place;
   badge: string;
   distanceKm?: number;
 };
@@ -68,7 +69,7 @@ const BookmarkablePlaceCard = ({
 }: BookmarkablePlaceCardProps) => {
   const favorites = useFavoritesStore((state) => state.favorites);
   const { addFavorite, removeFavorite } = useFavoritesStore();
-  const bookmarked = favorites.some((f) => f.placeId === place.id!);
+  const bookmarked = favorites.some((f) => f.placeId === place.id);
 
   return (
     <PlaceCard
@@ -79,7 +80,7 @@ const BookmarkablePlaceCard = ({
       onPress={() => router.push(`/place/${place.id}`)}
       onBookmark={() => {
         if (bookmarked) {
-          removeFavorite(place.id!);
+          removeFavorite(place.id);
         } else {
           addFavorite(toFavoritePlace(place));
         }
@@ -91,6 +92,7 @@ const BookmarkablePlaceCard = ({
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { width: windowWidth } = useWindowDimensions();
   const featuredCardWidth = windowWidth - Spacing.xl * 2 - Spacing["2xl"];
   const searchRadius = useSettingsStore((state) => state.searchRadius);
@@ -171,7 +173,7 @@ const HomeScreen = () => {
     [featuredQuery.places],
   );
 
-  const withDistance = (place: GooglePlace) => {
+  const withDistance = (place: Place) => {
     if (!coords || !place.location) return undefined;
     return distanceKm(
       coords.latitude,
@@ -181,7 +183,7 @@ const HomeScreen = () => {
     );
   };
 
-  const openPlace = (place: GooglePlace) =>
+  const openPlace = (place: Place) =>
     router.push(`/place/${place.id}`);
 
   const openActivityList = (activityId: string) =>
@@ -197,14 +199,14 @@ const HomeScreen = () => {
         <View style={styles.headerRow}>
           <LocationChip label={label} />
           <View style={styles.headerActions}>
-            <IconButton icon={Search} accessibilityLabel="Search" />
-            <IconButton icon={Bell} badge accessibilityLabel="Notifications" />
+            <IconButton icon={Search} accessibilityLabel={t('home.searchAccessibility')} />
+            <IconButton icon={Bell} badge accessibilityLabel={t('home.notificationsAccessibility')} />
           </View>
         </View>
 
         <SectionHeader
-          title="Top attractions"
-          action={{ label: "See all", onPress: () => openActivityList("explore") }}
+          title={t('home.topAttractions')}
+          action={{ label: t('home.seeAll'), onPress: () => openActivityList("explore") }}
         />
 
         {featuredQuery.loading && featured.length === 0 ? (
@@ -214,7 +216,7 @@ const HomeScreen = () => {
         ) : featured.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>
-              No featured attractions nearby.
+              {t('home.noFeaturedAttractions')}
             </Text>
           </View>
         ) : (
@@ -241,7 +243,7 @@ const HomeScreen = () => {
 
         <View style={styles.sectionSpacer} />
 
-        <SectionHeader title="Find your pace" />
+        <SectionHeader title={t('home.findYourPace')} />
 
         <ScrollView
           horizontal
@@ -252,7 +254,7 @@ const HomeScreen = () => {
             <ActivityCard
               key={activity.id}
               icon={activity.icon}
-              label={activity.label}
+              label={t(`activities.${activity.id}.label`)}
               count={counts[activity.id]}
               loading={countsLoading}
               maxCount={COUNT_CAP}
@@ -263,9 +265,9 @@ const HomeScreen = () => {
         </ScrollView>
 
         <SectionHeader
-          title={`Nearby ${selectedActivity.label.toLowerCase()}`}
+          title={t('home.nearby', { activity: t(`activities.${selectedActivity.id}.label`).toLowerCase() })}
           action={{
-            label: "See all",
+            label: t('home.seeAll'),
             onPress: () => openActivityList(selectedActivity.id),
           }}
         />
@@ -276,7 +278,7 @@ const HomeScreen = () => {
           </View>
         ) : places.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No places found nearby.</Text>
+            <Text style={styles.emptyText}>{t('home.noPlacesNearby')}</Text>
           </View>
         ) : (
           <ScrollView
@@ -288,7 +290,7 @@ const HomeScreen = () => {
               <BookmarkablePlaceCard
                 key={place.id}
                 place={place}
-                badge={selectedActivity.badge}
+                badge={t(`activities.${selectedActivity.id}.badge`)}
                 distanceKm={withDistance(place)}
               />
             ))}

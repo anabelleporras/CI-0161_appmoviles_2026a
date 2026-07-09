@@ -4,6 +4,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { SESSION_TOKEN_KEY } from '@/constants/auth';
 import { apiFetch } from '@/services/api-client';
 import { useFavoritesStore } from '@/store/favorites';
+import { useSettingsStore } from '@/store/settings';
+import { registerDeviceForPushNotifications } from '@/services/push-notifications';
+import { useTicketsStore } from '@/store/tickets';
 
 interface User {
   id: string;
@@ -22,6 +25,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const getDeviceTimezone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -39,7 +43,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
-        useFavoritesStore.getState().syncFromBackend();
+        await Promise.all([
+          useFavoritesStore.getState().syncFromBackend(),
+          useSettingsStore.getState().syncFromBackend(),
+          registerDeviceForPushNotifications(),
+          useTicketsStore.getState().syncFromBackend(),
+        ]);
+        await useSettingsStore.getState().setNotificationTimezone(getDeviceTimezone());
       }
     } catch {
       // no-op: stay logged out
@@ -54,6 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (res.ok) {
       const data = await res.json();
       setUser(data.user);
+      await Promise.all([
+        useFavoritesStore.getState().syncFromBackend(),
+        useSettingsStore.getState().syncFromBackend(),
+        registerDeviceForPushNotifications(),
+      ]);
+      await useSettingsStore.getState().setNotificationTimezone(getDeviceTimezone());
     }
     router.replace('/(tabs)/home');
   }

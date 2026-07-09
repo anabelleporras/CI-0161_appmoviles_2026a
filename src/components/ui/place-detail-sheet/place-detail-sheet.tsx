@@ -1,25 +1,28 @@
 import { useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
 import { Bookmark, BookmarkCheck } from 'lucide-react-native';
 
 import PlacePhoto from "@/components/ui/place-photo";
+import { isPurchasable } from "@/constants/purchasable-types";
 import { useTheme } from "@/hooks/use-theme";
-import type { GooglePlace } from "@/services/google-places";
+import type { Place } from "@/services/places/types";
+
 import { formatDistance } from '@/lib/distance';
 import { useSettingsStore } from '@/store/settings';
 
 import { createPlaceDetailSheetStyles } from "./place-detail-sheet.styles";
 
 export type PlaceDetailSheetProps = {
-  place: GooglePlace | null;
+  place: Place | null;
   distanceKm?: number;
   onViewDetails?: () => void;
-  onOpenInMap?: () => void;
   bookmarked?: boolean;
   onBookmark?: () => void;
+  onBuyPass?: () => void;
 };
 
-const formatTag = (place: GooglePlace) => {
+const formatTag = (place: Place) => {
   const type = place.primaryType?.replace(/_/g, " ").toUpperCase() ?? "PLACE";
   const featured = (place.rating ?? 0) > 4.5 ? " · FEATURED" : "";
   return `${type}${featured}`;
@@ -29,12 +32,19 @@ const PlaceDetailSheet = ({
   place,
   distanceKm,
   onViewDetails,
-  onOpenInMap,
   bookmarked = false,
   onBookmark,
+  onBuyPass,
 }: PlaceDetailSheetProps) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const styles = useMemo(() => createPlaceDetailSheetStyles(theme), [theme]);
+
+  const formatTag = (p: Place) => {
+    const type = p.primaryType?.replace(/_/g, " ").toUpperCase() ?? t('common.place').toUpperCase();
+    const featured = (p.rating ?? 0) > 4.5 ? ` · ${t('common.featured')}` : "";
+    return `${type}${featured}`;
+  };
 
   const translateY = useRef(new Animated.Value(200)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -57,11 +67,10 @@ const PlaceDetailSheet = ({
 
   if (!place) return null;
 
+  const canBuy = !!onBuyPass && isPurchasable(place);
+  const photo = place.photos[0];
   const meta = [
     typeof place.rating === "number" ? `★ ${place.rating.toFixed(1)}` : null,
-    typeof place.userRatingCount === "number"
-      ? `${place.userRatingCount.toLocaleString()} reviews`
-      : null,
     typeof distanceKm === "number" ? formatDistance(distanceKm, units) : null,
   ]
     .filter(Boolean)
@@ -75,14 +84,14 @@ const PlaceDetailSheet = ({
       ]}
     >
       <PlacePhoto
-        photoName={place.photos?.[0]?.name}
+        photo={photo}
         style={styles.thumbnail}
         maxWidthPx={300}
       />
       <View style={styles.body}>
         <Text style={styles.tag}>{formatTag(place)}</Text>
         <Text style={styles.title} numberOfLines={1}>
-          {place.displayName?.text ?? "Place"}
+          {place.name || t('common.place')}
         </Text>
         {meta ? (
           <Text style={styles.meta} numberOfLines={1}>
@@ -104,19 +113,28 @@ const PlaceDetailSheet = ({
             </TouchableOpacity>
           )}
           <TouchableOpacity
-            style={styles.secondaryButton}
+            style={canBuy ? styles.outlineButton : styles.primaryButton}
             onPress={onViewDetails}
             activeOpacity={0.85}
           >
-            <Text style={styles.secondaryButtonText}>View details</Text>
+            <Text
+              style={canBuy ? styles.outlineButtonText : styles.primaryButtonText}
+              numberOfLines={1}
+            >
+              {canBuy ? "Details" : "View details"}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={onOpenInMap}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.primaryButtonText}>Open in map</Text>
-          </TouchableOpacity>
+          {canBuy ? (
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={onBuyPass}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.primaryButtonText} numberOfLines={1}>
+                Get pass
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     </Animated.View>

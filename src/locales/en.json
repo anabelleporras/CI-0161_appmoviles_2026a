@@ -1,0 +1,173 @@
+{
+  "settings": {
+    "title": "Settings",
+    "units": "Units",
+    "distance": "Distance",
+    "searchRadius": "Search radius",
+    "nearbyPlaces": "Nearby places",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeAuto": "Auto",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "appLanguage": "App language",
+    "languageAuto": "Auto",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
+    "notifications": "Notifications",
+    "pushNotifications": "Push notifications",
+    "startQuietHours": "Start quiet hours",
+    "endQuietHours": "End quiet hours",
+    "clearQuietHours": "Clear quiet hours",
+    "timezone": "Timezone",
+    "notSet": "Not set"
+  },
+  "login": {
+    "welcomeBack": "WELCOME BACK",
+    "headline": "Let's get you\nsigned in.",
+    "logInWith": "LOG IN WITH",
+    "continueWithApple": "Continue with Apple",
+    "continueWithGoogle": "Continue with Google",
+    "playServicesMissingTitle": "Google Play Services missing",
+    "playServicesMissingMessage": "Google Play Services are required on this device.",
+    "loginFailedTitle": "Login failed",
+    "googleSignInFailedMessage": "Could not complete Google sign-in.",
+    "appleSignInFailedMessage": "Could not complete Apple sign-in.",
+    "serverUnreachableMessage": "Could not reach the server."
+  },
+  "home": {
+    "searchAccessibility": "Search",
+    "notificationsAccessibility": "Notifications",
+    "topAttractions": "Top attractions",
+    "seeAll": "See all",
+    "noFeaturedAttractions": "No featured attractions nearby.",
+    "findYourPace": "Find your pace",
+    "nearby": "Nearby {{activity}}",
+    "noPlacesNearby": "No places found nearby."
+  },
+  "nav": {
+    "home": "Home",
+    "map": "Map",
+    "trips": "Trips",
+    "profile": "Profile"
+  },
+  "common": {
+    "back": "Back",
+    "done": "Done",
+    "details": "Details",
+    "close": "Close",
+    "place": "Place",
+    "unnamedPlace": "Unnamed place",
+    "comingSoon": "Coming soon",
+    "search": "Search",
+    "featured": "FEATURED",
+    "viewDetails": "View details"
+  },
+  "map": {
+    "filterAll": "All",
+    "searchPlaceholder": "Search places nearby"
+  },
+  "profile": {
+    "title": "Profile",
+    "settingsAccessibility": "Settings",
+    "traveller": "Traveller",
+    "signedInWith": "Signed in with {{provider}}",
+    "savedPlaces": "Saved places",
+    "noSavedPlaces": "No saved places yet",
+    "noSavedPlacesHint": "Tap the bookmark icon on any place to save it here",
+    "logOut": "Log out"
+  },
+  "explore": {
+    "title": "Explore"
+  },
+  "trips": {
+    "title": "Trips",
+    "subtitle": "Your passes and tickets",
+    "emptyTitle": "No passes yet",
+    "emptyText": "Find a park or attraction and tap \"Get pass\" to buy your first ticket.",
+    "ticketAccessibility": "{{product}} for {{place}}"
+  },
+  "checkout": {
+    "title": "Get a pass",
+    "noPasses": "No passes are available for this place.",
+    "buy": "Buy",
+    "buyAccessibility": "Buy {{product}} for {{price}}",
+    "testModeHint": "Test mode, pay with card 4242 4242 4242 4242, any future date and CVC.",
+    "genericError": "Something went wrong. Please try again."
+  },
+  "activityDetail": {
+    "unknownActivity": "Unknown activity.",
+    "showMap": "Show map",
+    "showList": "Show list",
+    "noResultsNearby": "No {{activity}} nearby."
+  },
+  "placeDetail": {
+    "notFound": "Place not found.",
+    "openingHours": "Opening hours",
+    "openInMaps": "Open in Maps",
+    "saveToFavorites": "Save to favourites",
+    "distanceAway": "{{distance}} away",
+    "getPass": "Get pass",
+    "getPassAccessibility": "Get pass for this place"
+  },
+  "ticketDetail": {
+    "title": "Your pass",
+    "notAvailable": "This pass isn’t available on this device. Try opening it from the Trips tab.",
+    "qrCaption": "Show this code at the entrance",
+    "valid": "VALID",
+    "price": "Price",
+    "purchased": "Purchased",
+    "passId": "Pass ID",
+    "nightsLabel": "{{name}} - {{count}} night",
+    "nightsLabel_other": "{{name}} - {{count}} nights",
+    "dayPassLabel": "{{name}} - {{count}} day pass",
+    "dayPassLabel_other": "{{name}} - {{count}} day passes"
+  },
+  "activities": {
+    "trails": { "label": "Trails", "badge": "Trail" },
+    "beaches": { "label": "Beaches", "badge": "Beach" },
+    "parks": { "label": "Parks", "badge": "Park" },
+    "dog_parks": { "label": "Dog parks", "badge": "Dog park" },
+    "camping": { "label": "Camping", "badge": "Camp" },
+    "picnic": { "label": "Picnic", "badge": "Picnic" },
+    "explore": { "label": "Explore", "badge": "Spot" }
+  },
+  "activityCard": {
+    "nearbyCount_one": "1 nearby",
+    "nearbyCount_other": "{{count}} nearby",
+    "nearbyCountMax": "{{count}}+ nearby"
+  },
+  "featuredCard": {
+    "featuredPlaceFallback": "Featured place",
+    "openInMap": "Open in map"
+  },
+  "placeCard": {
+    "bookmarkAccessibility": "Bookmark place"
+  },
+  "popularityCard": {
+    "veryPopular": "Very popular",
+    "moderatelyPopular": "Moderately popular",
+    "notRecommended": "Not recommended",
+    "estimatedPopularity": "Estimated popularity",
+    "basedOnReviews": "Based on {{count}} reviews · {{rating}} stars"
+  },
+  "weatherCard": {
+    "currentWeather": "Current weather",
+    "conditionClear": "Clear",
+    "conditionPartlyCloudy": "Partly cloudy",
+    "conditionOvercast": "Overcast",
+    "conditionFog": "Foggy",
+    "conditionDrizzle": "Drizzle",
+    "conditionRain": "Rain",
+    "conditionSnow": "Snow",
+    "conditionThunderstorm": "Thunderstorm",
+    "conditionUnknown": "Unknown"
+  },
+  "deviceLocation": {
+    "unknownLocation": "Unknown location",
+    "unknown": "Unknown",
+    "loading": "Loading…",
+    "locationOff": "Location off"
+  }
+}
